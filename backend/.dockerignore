@@ -1,0 +1,5 @@
+data
+service.env
+.env
+*.tar.gz
+*.tmp

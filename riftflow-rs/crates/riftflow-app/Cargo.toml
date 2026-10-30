@@ -1,0 +1,37 @@
+[package]
+name = "riftflow-app"
+version.workspace = true
+edition.workspace = true
+license-file.workspace = true
+description = "RiftFlow desktop companion for League of Legends"
+
+[build-dependencies]
+tauri-build = { version = "2", features = [] }
+
+[dependencies]
+riftflow-ipc = { workspace = true }
+riftflow-lcu = { workspace = true }
+riftflow-auto-select = { path = "../riftflow-auto-select" }
+riftflow-api = { path = "../riftflow-api" }
+riftflow-ongoing-game = { path = "../riftflow-ongoing-game" }
+riftflow-in-game-send = { path = "../riftflow-in-game-send" }
+riftflow-native = { path = "../riftflow-native" }
+riftflow-radix = { workspace = true }
+riftflow-shard = { workspace = true }
+riftflow-state = { workspace = true }
+riftflow-store = { workspace = true }
+rusqlite = { workspace = true }
+reqwest = { workspace = true, features = ["charset"] }
+riftflow-sgp = { path = "../riftflow-sgp" }
+anyhow = { workspace = true }
+async-trait = { workspace = true }
+base64 = { workspace = true }
+serde = { workspace = true }
+serde_json = { workspace = true }
+markup5ever = "0.39"
+tauri = { workspace = true }
+tokio = { workspace = true }
+
+[[bin]]
+name = "riftflow"
+path = "src/main.rs"

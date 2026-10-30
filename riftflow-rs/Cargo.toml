@@ -1,0 +1,46 @@
+[workspace]
+resolver = "2"
+members = [
+  "crates/riftflow-radix",
+  "crates/riftflow-shard",
+  "crates/riftflow-ipc",
+  "crates/riftflow-state",
+  "crates/riftflow-store",
+  "crates/riftflow-lcu",
+  "crates/riftflow-native",
+  "crates/riftflow-sgp",
+  "crates/riftflow-auto-select",
+  "crates/riftflow-api",
+  "crates/riftflow-ongoing-game",
+  "crates/riftflow-in-game-send",
+  "crates/riftflow-app",
+]
+
+[workspace.package]
+version = "1.0.0"
+edition = "2021"
+license-file = "../LICENSE"
+
+[workspace.dependencies]
+anyhow = "1"
+async-trait = "0.1"
+base64 = "0.22"
+futures-util = "0.3"
+indexmap = "2"
+regex = "1"
+reqwest = { version = "0.12", default-features = false, features = ["rustls-tls", "json", "stream", "gzip"] }
+rusqlite = { version = "0.32", features = ["bundled"] }
+rustls = "0.23"
+rustls-pki-types = "1"
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+tauri = { version = "2", features = ["tray-icon", "image-ico", "devtools"] }
+tokio = { version = "1", features = ["full"] }
+tokio-tungstenite = { version = "0.24", features = ["rustls-tls-webpki-roots", "handshake"] }
+
+riftflow-radix = { path = "crates/riftflow-radix" }
+riftflow-shard = { path = "crates/riftflow-shard" }
+riftflow-ipc = { path = "crates/riftflow-ipc" }
+riftflow-state = { path = "crates/riftflow-state" }
+riftflow-store = { path = "crates/riftflow-store" }
+riftflow-lcu = { path = "crates/riftflow-lcu" }

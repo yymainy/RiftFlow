@@ -1,0 +1,63 @@
+/* Compact desktop workspace: keep all feature controls and live data intact. */
+.workspace-page {
+  min-width: 0;
+  color: var(--la-color-text-primary);
+  background: var(--la-color-bg-primary);
+}
+.workspace-page :deep(.workspace-content) {
+  box-sizing: border-box;
+  width: 100%;
+  max-width: 1120px;
+  padding: 20px 24px 32px;
+  margin: 0 auto;
+  gap: 18px;
+}
+.workspace-page :deep(.settings-section-header) {
+  padding: 0 2px;
+  margin-bottom: 8px;
+}
+.workspace-page :deep(.settings-section-title) {
+  color: var(--la-color-text-primary);
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+}
+.workspace-page :deep(.settings-section-body) {
+  box-sizing: border-box;
+  border: 1px solid rgb(var(--la-card-border-rgb) / 0.09);
+  border-radius: 7px;
+  background: var(--la-card-surface-95);
+}
+.workspace-page :deep(.settings-row) {
+  min-height: 48px;
+  padding-top: 10px;
+  padding-bottom: 10px;
+  border-color: rgb(var(--la-card-border-rgb) / 0.07);
+}
+.workspace-page :deep(.settings-row-label-main) {
+  color: var(--la-color-text-primary);
+  font-size: 13px;
+}
+.workspace-page :deep(.settings-row-label-description),
+.workspace-page :deep(.settings-section-footer) {
+  color: color-mix(in srgb, var(--la-color-text-primary) 58%, transparent);
+  font-size: 12px;
+  line-height: 1.5;
+}
+.workspace-page :deep(.n-card) {
+  border-radius: 7px;
+  background: var(--la-card-surface-95);
+}
+@media (max-width: 900px) {
+  .workspace-page :deep(.workspace-content) {
+    padding: 16px;
+  }
+  .workspace-page :deep(.settings-row) {
+    column-gap: 20px;
+  }
+}
+
+.workspace-page :deep(.settings-row--disabled .settings-row-label-main),
+.workspace-page :deep(.settings-row--disabled .settings-row-label-description) {
+  color: color-mix(in srgb, var(--la-color-text-primary) 35%, transparent);
+}

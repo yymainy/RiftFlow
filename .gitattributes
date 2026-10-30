@@ -1,0 +1,8 @@
+* text=auto eol=lf
+*.bat text eol=crlf
+*.cmd text eol=crlf
+# Preserve upstream vendor bundles and intentional Markdown hard breaks.
+frontend/.yarn/releases/* -whitespace
+frontend/resources/regedit-vbs/* -whitespace
+frontend/src/renderer/src-main-window/views/test/example-markdown.ts -whitespace
+frontend/src/shared/utils/platform-names.ts -whitespace

@@ -1,0 +1,19 @@
+[package]
+name = "riftflow-api"
+version = "1.0.0"
+edition = "2021"
+license = "MIT"
+description = "Remote-configuration client and the riftflow://riftflow-api / riftflow://riftflow-static domains, ported from src/main/shards/riftflow-api"
+
+[dependencies]
+riftflow-state = { path = "../riftflow-state" }
+anyhow = "1"
+reqwest = { version = "0.12", default-features = false, features = [
+  "rustls-tls",
+  "json",
+  "stream",
+  "gzip",
+] }
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+tokio = { version = "1", features = ["full"] }

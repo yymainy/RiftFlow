@@ -1,0 +1,39 @@
+# Dependencies and generated builds
+**/node_modules/
+**/target/
+riftflow-rs/renderer-build/
+riftflow-rs/renderer-dist/
+riftflow-rs/*.exe
+**/*.pdb
+**/*.tsbuildinfo
+**/__pycache__/
+**/*.pyc
+**/*.node
+**/riftflow-updater.exe
+
+# Local profiles, game records, logs, screenshots and temporary transfers
+riftflow-rs/tmp/
+**/logs/
+**/*.log
+ui-preview/
+backend/data/
+backend/*.tar.gz
+**/*.db
+**/*.db-*
+**/*.sqlite
+**/*.sqlite-*
+
+# Machine-specific assistant/editor configuration and credentials
+**/.codex/
+**/.claude/
+**/.agents/
+**/.vscode/
+**/.mcp.json
+**/.env
+**/.env.*
+!**/.env.example
+**/service.env
+**/*.pem
+**/*.key
+.DS_Store
+Thumbs.db

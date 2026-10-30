@@ -1,0 +1,424 @@
+notices:
+  modal:
+    title: 公告
+    close: 关闭
+    read: 已读
+    updatedAt: 更新于 {{time}}
+    noNoticeMd: |
+      ***暂无公告***
+    contacts:
+      open: 前往
+      openChannel: 前往{{name}}
+      password: 加入密码：{{password}}
+      platforms:
+        qq: QQ
+        telegram: Telegram
+        discord: Discord
+        email: 邮箱
+        website: 网站
+        other: 其他
+legal:
+  declaration:
+    title: 声明
+    isFree: 为免费软件
+    ok: 我已知晓此软件{isFree}并已认同免责条款
+    quit: 退出
+    newContent: |
+      <div class="riftflow-disclaimer">
+
+      <style>
+      .riftflow-disclaimer{
+        background-color:#ffffff;
+        color:#333333;
+        line-height:1.65;
+        padding:1.75rem 2rem;
+        box-shadow:0 2px 6px rgba(0,0,0,.15);
+      }
+      .riftflow-disclaimer h1,
+      .riftflow-disclaimer h2{
+        color:#d97706;
+        margin-top:1.5rem;
+        margin-bottom:.75rem;
+        line-height:1.25;
+      }
+      .riftflow-disclaimer h1{font-size:1.6rem;}
+      .riftflow-disclaimer h2{font-size:1.25rem;}
+      .riftflow-disclaimer ul{margin-left:1.5rem;}
+      .riftflow-disclaimer li{margin-bottom:.65rem;}
+      .riftflow-disclaimer a{color:#2563eb;text-decoration:none;}
+      .riftflow-disclaimer a:hover{text-decoration:underline;}
+      [data-theme='dark'] .riftflow-disclaimer{
+        background-color:#1e1e1e;
+        color:#e6e6e6;
+        box-shadow:0 2px 6px rgba(0,0,0,.35);
+      }
+      [data-theme='dark'] .riftflow-disclaimer h1,
+      [data-theme='dark'] .riftflow-disclaimer h2{
+        color:#ffd866;
+      }
+      [data-theme='dark'] .riftflow-disclaimer a{
+        color:#8ab4f8;
+      }
+      </style>
+
+      # $t(common:appName) 用户须知与免责声明
+
+      > **请在下载、安装或使用本软件之前，务必仔细阅读并充分理解本须知与免责声明。**
+      > 一旦您开始使用，即视为已充分理解并同意下列全部条款。
+
+      ---
+
+      ## 一、软件性质与获取途径
+      - **$t(common:appName)** 可免费使用，包括在商业环境中免费使用；所有功能均以「按现状」方式提供。
+      - 未经书面授权，禁止倒卖、收费分发或捆绑销售本软件中适用自定义许可的内容；原有 MIT 代码及其他第三方内容仍按各自许可证授权。完整条款见随附 LICENSE。
+
+      ## 二、风险提示与责任限制
+      - 使用本软件**可能**导致（包括但不限于）：
+        1. 游戏账户被暂停或永久封禁；
+        2. 游戏数据丢失、损坏或与服务器数据不一致；
+        3. 客户端异常、性能下降或其他不良游戏体验。
+      - 对因使用或无法使用本软件所引发的任何直接、间接、偶然、特殊或后续损失，**$t(common:appName)** 开发团队及全部贡献者概不承担任何责任，相关风险由用户自行承担。
+
+      > 请参考 [Patch 25.17 更新说明](https://www.leagueoflegends.com/en-us/news/game-updates/patch-25-17-notes/) 中的 **Game Info Tracking Improvements** 一节。
+
+      ## 三、服务器兼容性声明
+      - **自本声明发布之日起，$t(common:appName) 不再对腾讯游戏服务器提供任何形式的支持。**
+      - 在腾讯服务器环境中使用本软件**极有可能**违反腾讯游戏相关用户协议、管理规范或技术保护措施；由此产生的封号、数据丢失或其他不利后果，概由用户自行负责。
+
+      ## 四、信息收集与隐私保护
+      - 为改进产品质量、分析错误及进行安全统计，软件运行时将收集**必要且有限**的系统信息与崩溃日志。
+      - 所收集信息**不含**可识别个人身份之数据，不会上传至任何第三方服务器，亦不会用于商业用途。
+
+      ## 五、其他事项
+      - 连续使用右键点击三次确认按钮，可快速关闭这个页面，同时视为您已经阅读并同意本须知与免责声明。
+
+      ---
+
+      > 第三方开源组件的许可与归属请参阅随附的 LICENSE。
+
+      </div>
+titlebar:
+  actions:
+    notice: 公告
+    noticeSummary: 公告摘要
+    noticeOk: 确认
+    noticeSeeMore: 查看详情
+    github: 项目主页
+    auxWindow: 小窗口
+    opggWindow: OP.GG
+    backgroundTasks: 后台任务
+    themeSelector:
+      title: 主题配色
+      groups:
+        system: 系统
+        brightBuiltin: 亮色
+        darkBuiltin: 暗色
+      tone:
+        light: 亮
+        dark: 暗
+      presets:
+        followSystem: 跟随系统
+        light: 亮色
+        dark: 暗色
+        graphite: 石墨青蓝
+        cyber: 赛博荧光
+        sakura: 樱花粉
+        mint: 薄荷绿
+        aurora: 极光紫
+        butter: 奶油黄
+    toggleTheme:
+      toLight: 切换至亮色
+      toDark: 切换至暗色
+  windowControls:
+    minimize: 最小化
+    maximize: 最大化
+    restore: 还原
+    close: 关闭
+window:
+  closeConfirm:
+    title: 退出 $t(common:appName)
+    options:
+      minimize-to-tray: 最小化到托盘区
+      quit: 退出应用
+    remember: 记住选择
+    ok: 确定
+    cancel: 取消
+navigation:
+  sidebar:
+    menu:
+      match-history: 战绩
+      ongoing-game: 对局
+      automation: 自动操作
+      toolkit: 工具集
+      test: 测试
+    status:
+      respawned: 已复活
+      respawnedContent: 你在游戏内已复活，祝你游戏愉快！
+      currentConnected: 当前已连接
+      launchedClients: 已启动的客户端
+      launchedClientPlaceholder: 已启动的客户端 {{index}}
+      noClientTitle: 无可用客户端
+      noClient: 当前无可用客户端，请启动游戏
+      settings: 设置
+      notConnected: 未连接
+      unknown: 未知
+      inConnectionLoop: 连接中...
+      connectedClient: 已连接的客户端
+      update:
+        available: 下载更新
+        downloading: 下载中 {{progress}}%
+        retry: 重试下载
+        ready: 重启更新
+      respawnTimer:
+        detail: 距离重生 {{seconds}} s（{{totalSeconds}} s）
+startup:
+  launcher:
+    tcls: TCLS 客户端
+    weGame: WeGame
+    riotClient: Riot 客户端
+    successMessage: 已启动进程：{{name}}
+    failedMessage: 无法启动进程 {{name}}：{{reason}}
+    newVersionAvailable: 新版本
+backgroundTasks:
+  taskTitle: 正在进行 ({{count}})
+  emptyPlaceholder: 无后台任务
+
+desktopWorkspace:
+  workspace: 工作空间
+  search: 搜索玩家、游戏名称…
+  searchRequiresClient: 请先启动并登录英雄联盟客户端，连接成功后即可搜索玩家。可以先输入游戏名称或“名称#编号”。
+  collapse: 收起侧栏
+  expand: 展开侧栏
+  startupDescription: 搜索召唤师，或从已连接客户端打开战绩。
+  clients: 客户端
+  clientsDescription: 连接已运行的游戏客户端以查看当前召唤师。
+  launchers: 启动入口
+  launchersDescription: 使用本机已发现的游戏入口启动客户端。
+  noClients: 未发现可连接的客户端
+  noLaunchers: 未发现游戏启动入口
+  connected: 已连接
+  connecting: 连接中
+  notConnected: 未连接
+
+workbenchTable:
+  match: 对局 / 时间
+  performance: 英雄 / 对局表现
+  loadout: 出装 / 标记
+  teams: 双方阵容
+  details: 对局详情
+
+settingsAccess:
+  windows: '辅助窗口'
+  shortcuts: '快捷入口'
+  allSettings: '全部设置'
+  searchPlaceholder: '搜索设置，例如：辅助窗口、自动接受、主题'
+  results: '找到 {{count}} 项设置'
+  noResults: '没有找到匹配项，请尝试其他关键词。'
+
+archiveWorkspace:
+  title: '本地战绩档案馆'
+  subtitle: '把已经取得的对局留在本机，离线也能查看。'
+  navigation: '档案与诊断'
+  archive: '我的档案'
+  diagnostics: '连接诊断'
+  online: '客户端已连接'
+  offline: '离线可浏览'
+  sync: '同步本人最近 20 场'
+  refresh: '刷新'
+  csv: '导出 CSV'
+  backup: '备份 JSON'
+  restore: '恢复备份'
+  autoHint: '连接并登录后自动归档本人近期对局；选人和游戏中暂停同步。不会上传档案，也不能找回从未取得的数据。'
+  paused: '选人或游戏进行中，已暂停同步。已有档案仍可离线浏览。'
+  search: '搜索英雄、玩家、服区或对局编号'
+  mode: '游戏模式'
+  start: '开始日期'
+  end: '结束日期'
+  count: '共 {{total}} 场档案，当前匹配 {{matched}} 场'
+  lastSync: '最近同步'
+  noMatches: '没有符合筛选条件的档案'
+  empty: '还没有本地档案。连接并登录客户端后同步本人战绩，或恢复已有备份。'
+  ready: '已就绪'
+  waiting: '待处理'
+  region: '服区'
+  account: '玩家'
+  phase: '客户端阶段'
+  permission: '运行权限'
+  admin: '管理员'
+  normal: '普通用户'
+  source: '数据来源'
+  sourceHint: '本地客户端 LCU。SGP 查询故障与本地连接故障并非同一问题，本页不会把令牌就绪当成数据源可用。'
+  syncFailed: '最近一次同步未完成。请检查客户端是否已登录、战绩是否可正常打开，然后重试；已保存的档案不受影响。'
+  diagnosticHint: '搜索新玩家和同步战绩需要登录客户端。检测到进程但仍连不上时，请检查客户端是否正在更新以及双方运行权限；已有档案无需客户端。诊断信息不包含登录令牌。'
+  openData: '打开数据目录'
+  copyDiagnostics: '复制诊断信息'
+  playedAt: '对局时间'
+  savedAt: '保存时间'
+  version: '游戏版本'
+  completeness: '资料状态'
+  full: '完整对局'
+  partial: '部分资料'
+  cs: '补刀'
+  damage: '英雄伤害'
+  detailHint: '以下数据来自本地保存的对局，不会实时刷新。档案不包含可跨版本播放的录像。'
+  raw: '查看已保存的原始对局数据'
+  champion: '英雄'
+  result: '对局结果'
+  win: '胜利'
+  loss: '战败'
+  unknown: '未结算'
+  team: '队伍'
+  synced: '已保存或更新 {{count}} 场对局'
+  exported: '导出完成'
+  restored: '已处理 {{count}} 场备份记录，相同对局自动合并'
+  copied: '诊断信息已复制'
+  processTitle: '1 · 发现客户端'
+  processHint: '先通过正常游戏入口启动英雄联盟客户端，等待更新完成。'
+  connectionTitle: '2 · 建立本地连接'
+  connectionHint: '客户端已启动但无法连接时，检查进程权限是否匹配。'
+  loginTitle: '3 · 登录账号'
+  loginHint: '连接不等于登录完成，需要客户端能够显示当前召唤师。'
+  localTitle: '4 · 本地档案'
+  localHint: '本机已保存 {{count}} 场对局，断开连接后仍可查看。'
+
+personalTools:
+  more: 显示更多记忆卡
+  toolbox: 个人工具
+  memory: '对线记忆卡'
+  memoryHint: '从已存档的对局记录一条事实和一条下次行动。位置与对手可手动选择；下次选人遇到相同英雄时，主窗口显示最多三条可用记忆。'
+  source: '来源对局'
+  opponent: '对手英雄'
+  role: '位置'
+  status: '验证状态'
+  fact: '观察到的事实'
+  action: '下次行动'
+  save: '保存记忆卡'
+  new: '新建'
+  filter: '搜索英雄、模式或笔记'
+  emptyNotes: '尚无记忆卡，先同步并选择一场对局'
+  openMatch: '查看原对局'
+  edit: '编辑'
+  delete: '删除'
+  confirmDelete: '确定删除或清除此项？'
+  unknown: '未指定'
+  top: '上路'
+  jungle: '打野'
+  middle: '中路'
+  bottom: '下路'
+  utility: '辅助'
+  unreviewed: '待验证'
+  effective: '有效'
+  ineffective: '无效'
+  outdated: '过时'
+  saved: '已保存到本机'
+  practice: '单目标练习'
+  practiceHint: '一次只练一个目标。选定来源对局后，记录开始时间；仅比较同账号、英雄、队列、游戏模式、版本和位置的前后各五场。更换目标会替换当前练习。'
+  metric: '练习指标'
+  target: '目标数值'
+  startGoal: '开始此目标'
+  clearGoal: '清除目标'
+  sampleHint: '不足五场时显示实际样本；版本变化后需新建目标。达标不等于水平提升。'
+  before: '开始前'
+  after: '开始后'
+  noSample: '暂无符合条件的样本'
+  met: '达标'
+  notMet: '未达标'
+  reviewHint: '人工复核：这局是否适合比较？还需要调整什么？'
+  saveReview: '保存复核'
+  csPerMinute: '每分钟补刀（至少 5 分钟的对局）'
+  csAt10: '10 分钟补刀（仅统计有时间线的对局）'
+  firstDeathMinute: '首次阵亡分钟数（零阵亡按对局结束）'
+  deaths: '每局阵亡次数（不超过目标）'
+  controlWards: '控制守卫购买数（接口缺失时不计入）'
+  batch: '大乱斗批量配置'
+  batchHint: '使用已保存的符文或召唤师技能模板批量配置大乱斗英雄。例外英雄保持原配置；仅保存本地方案，是否自动应用由原有自动配置开关决定。选人和对局中暂停修改。'
+  itemBatch: '批量装备方案'
+  itemBatchHint: '选择一份已保存的装备方案，为所选英雄各创建一份大乱斗推荐方案。先预览再保存，原方案不变；选人和对局中暂停修改。'
+  itemConnect: '尚未连接已登录的英雄联盟客户端。请启动游戏客户端并登录账号，然后点击“刷新”读取装备方案。'
+  itemPaused: '正在选人或对局，暂不读取和修改装备方案。请在返回大厅后点击“刷新”。'
+  itemNoTemplates: '还没有可用的装备方案模板。请先在 OP.GG 窗口保存一份推荐装备方案，再回到这里点击“刷新”。'
+  itemReadFailed: '暂时无法读取装备方案。请确认客户端已登录、游戏安装目录可访问，然后点击“刷新”重试。'
+  operationFailed: '操作未完成，请检查客户端连接或网络后重试。'
+  latestPublished: '最新已发布公告：{{version}} · {{source}}（上线时间以对应公告为准）'
+  patchRegion: '公告来源'
+  regionCn: '国服 · 腾讯中文公告'
+  regionInternational: '国际服 · Riot 英文公告'
+  recentRange: '查看范围'
+  endingVersion: '截止公告版本'
+  autoVersion: '自动读取最新公告版本'
+  coveredVersions: '本次覆盖：{{versions}}'
+  versionUnavailable: '正在读取已发布版本；若加载失败，请检查网络后点击“刷新版本和装备”。'
+  followItems: '关注装备'
+  searchChineseItems: '输入中文装备名搜索，例如：无尽之刃'
+  refreshCatalog: '刷新版本和装备'
+  catalogFailed: '版本或装备目录暂时无法读取，请检查网络后刷新。'
+  recentVersions: '最近 {{count}} 个已发布版本'
+  latestVersionOption: '最新公告 · {{version}}'
+  itemTemplate: '请先在客户端或 OP.GG 窗口保存一份装备方案'
+  itemBlocks: '装备分组'
+  confirmItemBatch: '将为 {{count}} 名英雄创建装备方案，继续？'
+  confirmItemUndo: '删除上次批量创建且未被修改的装备方案？'
+  configType: '配置类型'
+  runes: '符文'
+  spells: '召唤师技能'
+  template: '已有配置模板'
+  noTemplate: '请先在“自动操作 → 英雄配置”中保存模板；召唤师技能需保存大乱斗方案'
+  targets: '目标英雄'
+  exceptions: '排除这些英雄'
+  preview: '预览变更'
+  applyBatch: '确认批量保存'
+  confirmBatch: '将更新 {{count}} 名英雄的大乱斗配置，继续？'
+  undo: '撤销上次批量保存'
+  confirmUndo: '恢复上次批量修改前的配置；后续手动修改会阻止撤销'
+  champion: '英雄'
+  beforeConfig: '原配置'
+  afterConfig: '新配置'
+  batchDone: '已处理 {{count}} 名英雄'
+  vault: '游戏设置保险箱'
+  vaultHint: '连接或赛后自动保存变化后的快照。连接并登录原账号后，也可手动备份 game.cfg 与 PersistedSettings.json，预览差异并只恢复勾选字段。按账号和安装目录隔离；恢复前自动备份。文件锁定、游戏运行或结构变化时会中止。'
+  snapshotLabel: '快照名称'
+  snapshot: '创建配置快照'
+  chooseSnapshot: '选择历史快照'
+  diff: '对比当前配置'
+  restoreSelected: '恢复选中字段'
+  confirmRestore: '恢复勾选字段？将先保存当前配置备份'
+  noChanges: '当前配置与快照中的可恢复字段一致'
+  file: '配置文件'
+  field: '字段'
+  currentValue: '当前值'
+  snapshotValue: '快照值'
+  brief: '个人版本简报'
+  briefHint: '先选国服或国际服，再选关注的英雄和中文装备名。国服显示腾讯中文原文，国际服显示 Riot 英文原文；两个来源的版本和缓存独立，读取失败不会互相替代。未匹配到章节不代表没有改动。'
+  fromVersion: '起始公告版本（含）'
+  toVersion: '结束公告版本（含）'
+  followChampions: '关注英雄'
+  itemKeywords: '装备英文名（逗号分隔）'
+  fetchBrief: '生成个人简报'
+  fromArchive: '使用档案常用前五英雄'
+  officialSource: '打开官方原文'
+  noRelevant: '未匹配到关注对象的独立章节，请查阅官方原文'
+  checkPreset: '已保存此英雄方案，请人工检查'
+  reminder: '对线记忆'
+  oldVersion: '历史笔记，版本变化后请重新核对'
+  syncDetails: '同步详情'
+
+skinAssets:
+  connectHint: '请先启动英雄联盟客户端并登录账号，连接成功后即可同步皮肤资产。离线时仍可查看上次保存的快照。'
+  title: '皮肤资产'
+  hint: '连接并登录客户端后读取当前账号皮肤。已拥有只统计永久拥有，租用与限时体验不计入；皮肤目录来自当前客户端，断开后显示上次同步快照。'
+  refresh: '同步皮肤资产'
+  export: '导出 CSV'
+  ownedCount: '已拥有 {{count}} 款'
+  missingCount: '未拥有 {{count}} 款'
+  totalCount: '目录共 {{count}} 款'
+  search: '搜索英雄或皮肤'
+  championList: '英雄目录'
+  skinList: '英雄皮肤'
+  championProgress: '已拥有 {{owned}} / {{total}} 款'
+  noMatch: '没有符合筛选条件的英雄或皮肤'
+  skin: '皮肤'
+  status: '拥有状态'
+  all: '全部'
+  owned: '已拥有'
+  missing: '未拥有'
+  empty: '尚无皮肤资产快照。请登录英雄联盟客户端后点击同步。'

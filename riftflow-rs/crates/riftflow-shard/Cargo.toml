@@ -1,0 +1,15 @@
+[package]
+name = "riftflow-shard"
+version.workspace = true
+edition.workspace = true
+license-file.workspace = true
+description = "Shard runtime (registry, priority DI, lifecycle, init report), ported from src/shared/riftflow-shard/manager.ts"
+
+[dependencies]
+anyhow = { workspace = true }
+async-trait = { workspace = true }
+serde = { workspace = true }
+serde_json = { workspace = true }
+
+[dev-dependencies]
+tokio = { workspace = true }

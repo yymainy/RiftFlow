@@ -1,0 +1,14 @@
+[package]
+name = "riftflow-radix"
+version.workspace = true
+edition.workspace = true
+license-file.workspace = true
+description = "LCU event subscription radix trie, ported from src/shared/utils/radix-matcher.ts"
+
+[dependencies]
+anyhow = { workspace = true }
+indexmap = { workspace = true }
+serde_json = { workspace = true }
+
+[dev-dependencies]
+riftflow-radix = { path = "." }

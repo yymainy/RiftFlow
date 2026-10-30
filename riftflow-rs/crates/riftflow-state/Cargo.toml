@@ -1,0 +1,15 @@
+[package]
+name = "riftflow-state"
+version.workspace = true
+edition.workspace = true
+license-file.workspace = true
+description = "Main-to-renderer state sync, replacing MobxUtilsMain propSync"
+
+[dependencies]
+riftflow-ipc = { workspace = true }
+anyhow = { workspace = true }
+serde = { workspace = true }
+serde_json = { workspace = true }
+
+[dev-dependencies]
+tokio = { workspace = true }

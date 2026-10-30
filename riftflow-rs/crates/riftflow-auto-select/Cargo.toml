@@ -1,0 +1,10 @@
+[package]
+name = "riftflow-auto-select"
+version.workspace = true
+edition.workspace = true
+license-file.workspace = true
+description = "Pure decision core of auto-select-main: the computed-state functions ported from computed-state.ts"
+
+[dependencies]
+serde = { workspace = true }
+serde_json = { workspace = true }

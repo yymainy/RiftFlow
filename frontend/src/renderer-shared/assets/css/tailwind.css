@@ -1,0 +1,23 @@
+@layer theme, base, components, utilities;
+
+@source '../../../renderer-shared';
+@source '../../../renderer';
+
+@import 'tailwindcss/theme.css' layer(theme);
+@import 'tailwindcss/utilities.css' layer(utilities);
+
+@custom-variant dark (&:where([data-theme=dark], [data-theme=dark] *));
+
+@theme inline {
+  --color-riftflow-50: #f0f5f1;
+  --color-riftflow-100: #e2ebe5;
+  --color-riftflow-200: #cbdcd0;
+  --color-riftflow-300: #acc9b6;
+  --color-riftflow-400: #91b29e;
+  --color-riftflow-500: #789b85;
+  --color-riftflow-600: #5d7e69;
+  --color-riftflow-700: #486452;
+  --color-riftflow-800: #394f41;
+  --color-riftflow-900: #2c3e33;
+  --color-riftflow-950: #17231b;
+}

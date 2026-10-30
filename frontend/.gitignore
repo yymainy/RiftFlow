@@ -1,0 +1,47 @@
+node_modules
+dist
+out
+storybook-static
+bench-results/
+*.log*
+*.tsbuildinfo
+examples
+images
+addons/build
+.yarn/install-state*.gz
+native/*/build/
+native/*/*.tgz
+
+# Native binaries are generated locally; keep only package JS/type bootstrap files.
+native/*/addons/
+!native/*/dist/
+!native/*/dist/**/*.js
+!native/*/dist/**/*.d.ts
+native/*/dist/*.tsbuildinfo
+rabi-*
+todolist.md
+todolist.txt
+feedback-platform/
+.claude/settings.local.json
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+Icon
+._*
+.DocumentRevisions-V100
+.fseventsd
+.Spotlight-V100
+.TemporaryItems
+.Trashes
+.VolumeIcon.icns
+.com.apple.timemachine.donotpresent
+.AppleDB
+.AppleDesktop
+Network Trash Folder
+Temporary Items
+.apdisk
+
+# others
+.playwright-mcp

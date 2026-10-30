@@ -1,0 +1,490 @@
+{
+ "ts": {
+  "riftflow-protocol-main": [
+   "cancelProxyRequest"
+  ],
+  "app-common-main": [
+   "exit",
+   "getRuntimeInfo",
+   "getVersion",
+   "openUserDataDir",
+   "readClipboardText",
+   "relaunchAsAdministrator",
+   "setDisableHardwareAcceleration"
+  ],
+  "auto-champ-config-main": [
+   "updateRunes",
+   "updateSummonerSpells"
+  ],
+  "auto-gameflow-main": [
+   "cancelAutoAccept",
+   "cancelAutoMatchmaking",
+   "setFriendsToBeInvited"
+  ],
+  "auto-misc-main": [
+   "applyRankedStatus",
+   "applyStatusMessage"
+  ],
+  "auto-select-main": [
+   "setBanConfig",
+   "setPickConfig",
+   "setTemporarilyDisabled"
+  ],
+  "client-installation-main": [
+   "launchDefaultRiotClient",
+   "launchTencentTcls",
+   "launchWeGame",
+   "launchWeGameLeagueOfLegends"
+  ],
+  "game-client-main": [
+   "getSettingsFileReadonlyOrWritable",
+   "setSettingsFileReadonlyOrWritable",
+   "terminateGameClient"
+  ],
+  "in-game-send-main": [
+   "clearPresetSelections",
+   "createFixedTextPresetItem",
+   "deleteFixedTextPresetItem",
+   "generateJunglePresetLines",
+   "generatePremadePresetLines",
+   "generateRatingPresetLines",
+   "moveFixedTextPresetItem",
+   "sendFixedTextPreset",
+   "sendJunglePreset",
+   "sendLines",
+   "sendPremadePreset",
+   "sendRatingPreset",
+   "setJunglePresetOptions",
+   "setJunglePuuids",
+   "setPremadeIndices",
+   "setPremadePresetOptions",
+   "setRatingPresetOptions",
+   "setRatingPuuids",
+   "updateFixedTextPresetItem",
+   "updateJunglePresetOptions",
+   "updatePremadePresetOptions",
+   "updateRatingPresetOptions"
+  ],
+  "keyboard-shortcuts-main": [
+   "getDebugState",
+   "getRegistration",
+   "getRegistrationByTargetId",
+   "setDebugStatefulShortcut"
+  ],
+  "league-client-main": [
+   "connect",
+   "disconnect",
+   "fixWindowMethodA",
+   "peekClient",
+   "subscribeLcuEndpoint",
+   "unsubscribeLcuEndpoint",
+   "writeItemSetsToDisk"
+  ],
+  "league-client-ux-main": [
+   "rebuildWmi",
+   "update"
+  ],
+  "logger-factory-main": [
+   "log",
+   "openLogsDir",
+   "setLogLevel"
+  ],
+  "mobx-utils-main": [
+   "subscribeAndGetInitialState"
+  ],
+  "ongoing-game-main": [
+   "clearDraft",
+   "getAll",
+   "reload",
+   "reloadPlayer",
+   "setDraft",
+   "setMatchHistoryTagParams"
+  ],
+  "renderer-debug-main": [
+   "setLogAllLcuEvents",
+   "setSendAllNativeLcuEvents"
+  ],
+  "saved-player-main": [
+   "deleteEncounteredGame",
+   "deleteSavedPlayer",
+   "exportTaggedPlayersToJsonFile",
+   "getAllPlayerTags",
+   "getPlayerTags",
+   "importTaggedPlayersFromJsonFile",
+   "queryAllSavedPlayers",
+   "queryEncounteredGames",
+   "querySavedPlayer",
+   "querySavedPlayerWithGames",
+   "saveEncounteredGame",
+   "saveSavedPlayer",
+   "updatePlayerTag"
+  ],
+  "self-update-main": [
+   "cancelUpdate",
+   "checkUpdates",
+   "forceStartUpdate",
+   "openNewUpdatesDir",
+   "startUpdate",
+   "uninstallApp"
+  ],
+  "setting-factory-main": [
+   "exportSettingsToJsonFile",
+   "get",
+   "getByPrefix",
+   "importSettingsFromJsonFile",
+   "removeByPrefix",
+   "set"
+  ],
+  "window-manager-main/aux-window": [
+   "close",
+   "downloadUrl",
+   "getPosition",
+   "getSize",
+   "hide",
+   "maximize",
+   "minimize",
+   "repositionToAlignLeagueClientUx",
+   "repositionWindowIfInvisible",
+   "resetPosition",
+   "restore",
+   "setIgnoreMouseEvents",
+   "setPosition",
+   "setSize",
+   "setTitle",
+   "show",
+   "toggleDevtools",
+   "unmaximize"
+  ],
+  "window-manager-main/cd-timer-window": [
+   "close",
+   "downloadUrl",
+   "getPosition",
+   "getSize",
+   "hide",
+   "maximize",
+   "minimize",
+   "repositionWindowIfInvisible",
+   "resetPosition",
+   "restore",
+   "sendInGame",
+   "setIgnoreMouseEvents",
+   "setPosition",
+   "setSize",
+   "setTitle",
+   "show",
+   "toggleDevtools",
+   "unmaximize"
+  ],
+  "window-manager-main/main-window": [
+   "close",
+   "closeMainWindow",
+   "closeMainWindowForce",
+   "downloadUrl",
+   "getPosition",
+   "getSize",
+   "hide",
+   "maximize",
+   "minimize",
+   "repositionWindowIfInvisible",
+   "resetPosition",
+   "restore",
+   "setIgnoreMouseEvents",
+   "setPosition",
+   "setSize",
+   "setTitle",
+   "setTrafficLightPosition",
+   "show",
+   "toggleDevtools",
+   "unmaximize"
+  ],
+  "window-manager-main/ongoing-game-window": [
+   "close",
+   "downloadUrl",
+   "getPosition",
+   "getSize",
+   "hide",
+   "maximize",
+   "minimize",
+   "repositionWindowIfInvisible",
+   "resetPosition",
+   "restore",
+   "setIgnoreMouseEvents",
+   "setPosition",
+   "setSize",
+   "setTitle",
+   "show",
+   "toggleDevtools",
+   "unmaximize"
+  ],
+  "window-manager-main/opgg-window": [
+   "close",
+   "downloadUrl",
+   "getPosition",
+   "getSize",
+   "hide",
+   "maximize",
+   "minimize",
+   "repositionToAlignLeagueClientUx",
+   "repositionWindowIfInvisible",
+   "resetPosition",
+   "restore",
+   "setIgnoreMouseEvents",
+   "setPosition",
+   "setSize",
+   "setTitle",
+   "show",
+   "toggleDevtools",
+   "unmaximize"
+  ]
+ },
+ "rust": {
+  "riftflow-protocol-main": [
+   "cancelProxyRequest"
+  ],
+  "app-common-main": [
+   "exit",
+   "getRuntimeInfo",
+   "getVersion",
+   "openUserDataDir",
+   "readClipboardText",
+   "relaunchAsAdministrator",
+   "setDisableHardwareAcceleration"
+  ],
+  "auto-champ-config-main": [
+   "updateRunes",
+   "updateSummonerSpells"
+  ],
+  "auto-gameflow-main": [
+   "cancelAutoAccept",
+   "cancelAutoMatchmaking",
+   "setFriendsToBeInvited"
+  ],
+  "auto-misc-main": [
+   "applyRankedStatus",
+   "applyStatusMessage"
+  ],
+  "auto-select-main": [
+   "setBanConfig",
+   "setPickConfig",
+   "setTemporarilyDisabled"
+  ],
+  "client-installation-main": [
+   "launchDefaultRiotClient",
+   "launchTencentTcls",
+   "launchWeGame",
+   "launchWeGameLeagueOfLegends"
+  ],
+  "game-client-main": [
+   "getSettingsFileReadonlyOrWritable",
+   "setSettingsFileReadonlyOrWritable",
+   "terminateGameClient"
+  ],
+  "in-game-send-main": [
+   "clearPresetSelections",
+   "createFixedTextPresetItem",
+   "deleteFixedTextPresetItem",
+   "generateJunglePresetLines",
+   "generatePremadePresetLines",
+   "generateRatingPresetLines",
+   "moveFixedTextPresetItem",
+   "sendFixedTextPreset",
+   "sendJunglePreset",
+   "sendLines",
+   "sendPremadePreset",
+   "sendRatingPreset",
+   "setJunglePresetOptions",
+   "setJunglePuuids",
+   "setPremadeIndices",
+   "setPremadePresetOptions",
+   "setRatingPresetOptions",
+   "setRatingPuuids",
+   "updateFixedTextPresetItem",
+   "updateJunglePresetOptions",
+   "updatePremadePresetOptions",
+   "updateRatingPresetOptions"
+  ],
+  "keyboard-shortcuts-main": [
+   "_getInternalVars",
+   "getDebugState",
+   "getRegistration",
+   "getRegistrationByTargetId",
+   "setDebugStatefulShortcut"
+  ],
+  "league-client-main": [
+   "connect",
+   "disconnect",
+   "fixWindowMethodA",
+   "http-request",
+   "peekClient",
+   "subscribeLcuEndpoint",
+   "unsubscribeLcuEndpoint",
+   "writeItemSetsToDisk"
+  ],
+  "league-client-ux-main": [
+   "rebuildWmi",
+   "update"
+  ],
+  "logger-factory-main": [
+   "log",
+   "openLogsDir",
+   "setLogLevel"
+  ],
+  "mobx-utils-main": [
+   "subscribeAndGetInitialState"
+  ],
+  "ongoing-game-main": [
+   "clearDraft",
+   "getAll",
+   "reload",
+   "reloadPlayer",
+   "setDraft",
+   "setMatchHistoryTagParams"
+  ],
+  "renderer-debug-main": [
+   "setLogAllLcuEvents",
+   "setSendAllNativeLcuEvents"
+  ],
+  "riot-client-main": [
+   "http-request"
+  ],
+  "saved-player-main": [
+   "deleteEncounteredGame",
+   "deleteSavedPlayer",
+   "exportTaggedPlayersToJsonFile",
+   "getAllPlayerTags",
+   "getPlayerTags",
+   "importTaggedPlayersFromJsonFile",
+   "queryAllSavedPlayers",
+   "queryEncounteredGames",
+   "querySavedPlayer",
+   "querySavedPlayerWithGames",
+   "saveEncounteredGame",
+   "saveSavedPlayer",
+   "updatePlayerTag"
+  ],
+  "self-update-main": [
+   "cancelUpdate",
+   "checkUpdates",
+   "forceStartUpdate",
+   "openNewUpdatesDir",
+   "startUpdate",
+   "uninstallApp"
+  ],
+  "setting-factory-main": [
+   "exportSettingsToJsonFile",
+   "get",
+   "getByPrefix",
+   "importSettingsFromJsonFile",
+   "removeByPrefix",
+   "set"
+  ],
+  "window-manager-main/aux-window": [
+   "close",
+   "downloadUrl",
+   "getPosition",
+   "getSize",
+   "hide",
+   "maximize",
+   "minimize",
+   "repositionToAlignLeagueClientUx",
+   "repositionWindowIfInvisible",
+   "resetPosition",
+   "restore",
+   "setIgnoreMouseEvents",
+   "setPosition",
+   "setSize",
+   "setTitle",
+   "show",
+   "toggleDevtools",
+   "unmaximize"
+  ],
+  "window-manager-main/cd-timer-window": [
+   "close",
+   "downloadUrl",
+   "getPosition",
+   "getSize",
+   "hide",
+   "maximize",
+   "minimize",
+   "repositionWindowIfInvisible",
+   "resetPosition",
+   "restore",
+   "sendInGame",
+   "setIgnoreMouseEvents",
+   "setPosition",
+   "setSize",
+   "setTitle",
+   "show",
+   "toggleDevtools",
+   "unmaximize"
+  ],
+  "window-manager-main/main-window": [
+   "close",
+   "closeMainWindow",
+   "closeMainWindowForce",
+   "downloadUrl",
+   "getPosition",
+   "getSize",
+   "hide",
+   "maximize",
+   "minimize",
+   "repositionWindowIfInvisible",
+   "resetPosition",
+   "restore",
+   "setIgnoreMouseEvents",
+   "setPosition",
+   "setSize",
+   "setTitle",
+   "setTrafficLightPosition",
+   "show",
+   "toggleDevtools",
+   "unmaximize"
+  ],
+  "window-manager-main/ongoing-game-window": [
+   "close",
+   "downloadUrl",
+   "getPosition",
+   "getSize",
+   "hide",
+   "maximize",
+   "minimize",
+   "repositionWindowIfInvisible",
+   "resetPosition",
+   "restore",
+   "setIgnoreMouseEvents",
+   "setPosition",
+   "setSize",
+   "setTitle",
+   "show",
+   "toggleDevtools",
+   "unmaximize"
+  ],
+  "window-manager-main/opgg-window": [
+   "close",
+   "downloadUrl",
+   "getPosition",
+   "getSize",
+   "hide",
+   "maximize",
+   "minimize",
+   "repositionToAlignLeagueClientUx",
+   "repositionWindowIfInvisible",
+   "resetPosition",
+   "restore",
+   "setIgnoreMouseEvents",
+   "setPosition",
+   "setSize",
+   "setTitle",
+   "show",
+   "toggleDevtools",
+   "unmaximize"
+  ]
+ },
+ "missingFromRust": [],
+ "rustOnly": [
+  "keyboard-shortcuts-main:_getInternalVars",
+  "league-client-main:http-request",
+  "riot-client-main:http-request"
+ ],
+ "unresolvedRust": []
+}

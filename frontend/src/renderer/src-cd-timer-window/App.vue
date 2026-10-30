@@ -1,0 +1,45 @@
+<template>
+  <div
+    class="box-border flex w-fit flex-col overflow-hidden rounded-lg bg-[#252525f0] ring-1 ring-white/10 ring-inset"
+    ref="wrapper"
+  >
+    <SetupInAppScope />
+    <CdTimerWindowTitlebar />
+    <SummonerSpellsCdTimer class="opacity-90 transition-opacity hover:opacity-100" />
+  </div>
+</template>
+
+<script setup lang="ts">
+import { useInstance } from '@renderer-shared/shards'
+import { SetupInAppScope } from '@renderer-shared/shards/setup-in-app-scope/setup-in-app-scope-component'
+import { WindowManagerRenderer } from '@renderer-shared/shards/window-manager'
+import { useElementSize } from '@vueuse/core'
+import { useTemplateRef, watch } from 'vue'
+
+import CdTimerWindowTitlebar from './components/CdTimerWindowTitlebar.vue'
+import SummonerSpellsCdTimer from './components/SummonerSpellsCdTimer.vue'
+
+const wrapperEl = useTemplateRef('wrapper')
+
+const { height, width } = useElementSize(wrapperEl)
+const wm = useInstance(WindowManagerRenderer)
+
+watch(
+  [() => width.value, () => height.value],
+  async ([width, height]) => {
+    await wm.cdTimerWindow.setSize(Math.ceil(width), Math.ceil(height))
+  },
+  {
+    immediate: true
+  }
+)
+</script>
+
+<style>
+html,
+body,
+#app {
+  width: fit-content;
+  height: fit-content;
+}
+</style>

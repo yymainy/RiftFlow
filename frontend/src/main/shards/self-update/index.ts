@@ -1,0 +1,157 @@
+import { IRiftFlowShardInitDispose, Shard } from '@shared/riftflow-shard'
+import axios from 'axios'
+import { app } from 'electron'
+import { z } from 'zod'
+
+import { RiftFlowApiMain } from '../riftflow-api'
+import { AppCommonMain } from '../app-common'
+import { RiftFlowIpcMain } from '../ipc'
+import { RiftFlowLogger, LoggerFactoryMain } from '../logger-factory'
+import { MobxUtilsMain } from '../mobx-utils'
+import { SettingFactoryMain } from '../setting-factory'
+import { SetterSettingService } from '../setting-factory/setter-setting-service'
+import {
+  DOWNLOAD_DIR_NAME as SELF_UPDATE_DOWNLOAD_DIR_NAME,
+  SELF_UPDATE_MAIN_NAMESPACE,
+  NEW_VERSION_FLAG as SELF_UPDATE_NEW_VERSION_FLAG,
+  UPDATE_PROGRESS_UPDATE_INTERVAL as SELF_UPDATE_PROGRESS_UPDATE_INTERVAL,
+  EXECUTABLE_NAME as SELF_UPDATE_TARGET_EXECUTABLE_NAME,
+  UPDATE_EXECUTABLE_NAME as SELF_UPDATE_UPDATER_EXECUTABLE_NAME,
+  type SelfUpdateMainContext
+} from './context'
+import { SelfUpdateIpcHandlers } from './ipc-handlers'
+import { LastUpdateChecker } from './last-update-checker'
+import { shouldRunSelfUpdateLifecycle } from './platform'
+import { resolveSelfUpdateReleaseInfo } from './release-info'
+import { SelfUpdateSettings, SelfUpdateState } from './state'
+import { SelfUpdateUninstaller } from './uninstaller'
+import { SelfUpdateController } from './update-controller'
+import { SelfUpdateExecutor } from './update-executor'
+
+/**
+ * 负责更新包下载及外部更新器调度
+ */
+@Shard(SelfUpdateMain.id)
+export class SelfUpdateMain implements IRiftFlowShardInitDispose {
+  static id = SELF_UPDATE_MAIN_NAMESPACE
+
+  static DOWNLOAD_DIR_NAME = SELF_UPDATE_DOWNLOAD_DIR_NAME
+  static UPDATE_EXECUTABLE_NAME = SELF_UPDATE_UPDATER_EXECUTABLE_NAME
+  static NEW_VERSION_FLAG = SELF_UPDATE_NEW_VERSION_FLAG
+  static EXECUTABLE_NAME = SELF_UPDATE_TARGET_EXECUTABLE_NAME
+  static UPDATE_PROGRESS_UPDATE_INTERVAL = SELF_UPDATE_PROGRESS_UPDATE_INTERVAL
+
+  public readonly settings = new SelfUpdateSettings()
+  public readonly state: SelfUpdateState
+
+  private readonly _logger: RiftFlowLogger
+  private readonly _settingService: SetterSettingService
+  private readonly _context: SelfUpdateMainContext
+  private readonly _executor: SelfUpdateExecutor
+  private readonly _uninstaller: SelfUpdateUninstaller
+  private readonly _controller: SelfUpdateController
+  private readonly _ipcHandlers: SelfUpdateIpcHandlers
+  private readonly _lastUpdateChecker: LastUpdateChecker
+
+  private readonly _httpClient = axios.create({
+    headers: {
+      'User-Agent': `RiftFlow/${app.getVersion()} `
+    }
+  })
+
+  constructor(
+    private readonly _appCommon: AppCommonMain,
+    private readonly _ipc: RiftFlowIpcMain,
+    private readonly _mobxUtils: MobxUtilsMain,
+    private readonly _riftflowApi: RiftFlowApiMain,
+    _loggerFactory: LoggerFactoryMain,
+    _settingFactory: SettingFactoryMain
+  ) {
+    this._logger = _loggerFactory.create(SelfUpdateMain.id)
+    this.state = new SelfUpdateState(
+      () =>
+        resolveSelfUpdateReleaseInfo(this._riftflowApi.state.latestRelease, app.getVersion(), {
+          platform: process.platform,
+          arch: process.arch
+        }),
+      shouldRunSelfUpdateLifecycle()
+    )
+    this._settingService = _settingFactory.register(
+      SelfUpdateMain.id,
+      {
+        autoCheckUpdates: { default: this.settings.autoCheckUpdates, schema: z.boolean() },
+        autoDownloadUpdates: {
+          default: this.settings.autoDownloadUpdates,
+          schema: z.boolean()
+        },
+        ignoreVersion: { default: this.settings.ignoreVersion, schema: z.string().nullable() }
+      },
+      this.settings
+    )
+
+    this._context = {
+      namespace: SelfUpdateMain.id,
+      settings: this.settings,
+      state: this.state,
+      logger: this._logger,
+      appCommon: this._appCommon,
+      ipc: this._ipc,
+      mobxUtils: this._mobxUtils,
+      riftflowApi: this._riftflowApi,
+      httpClient: this._httpClient
+    }
+
+    this._executor = new SelfUpdateExecutor(this._context)
+    this._uninstaller = new SelfUpdateUninstaller(this._context)
+    this._controller = new SelfUpdateController(this._context, this._executor)
+    this._ipcHandlers = new SelfUpdateIpcHandlers(
+      this._context,
+      this._executor,
+      this._uninstaller,
+      this._controller
+    )
+    this._lastUpdateChecker = new LastUpdateChecker(this._context)
+  }
+
+  private async _setupState() {
+    await this._settingService.applyToState()
+
+    this._mobxUtils.propSync(SelfUpdateMain.id, 'state', this.state, [
+      'isUpdateSupportedOnCurrentPlatform',
+      'isCheckingUpdates',
+      'releaseInfo',
+      'updateProgressInfo',
+      'lastUpdateSucceeded'
+    ])
+
+    this._mobxUtils.propSync(SelfUpdateMain.id, 'settings', this.settings, [
+      'autoCheckUpdates',
+      'autoDownloadUpdates',
+      'ignoreVersion'
+    ])
+  }
+
+  async onInit() {
+    await this._setupState()
+    this._ipcHandlers.register()
+
+    if (!shouldRunSelfUpdateLifecycle()) {
+      this._logger.info('Self-update is available only on Windows x64; disabled on', {
+        platform: process.platform,
+        arch: process.arch
+      })
+      return
+    }
+
+    await this._lastUpdateChecker.check()
+    this._controller.registerHttpProxy()
+    this._controller.watchUpdateProcess()
+    this._controller.watchLatestRelease()
+  }
+
+  async onDispose() {
+    this._controller.dispose()
+    await this._executor.runUpdateOnQuit()
+    this._executor.cancelIfNotWaitingForRestart()
+  }
+}

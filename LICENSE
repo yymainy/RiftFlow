@@ -1,0 +1,84 @@
+RiftFlow 软件许可协议
+版本：1.0（2026-10-29）
+
+Copyright (c) 2026 Hanxven
+Copyright (c) 2026 yymainy
+
+版权归属：Hanxven 保有原项目内容的版权，其内容继续适用附录中的 MIT
+许可证；yymainy 保有其拥有版权的新增及修改内容的版权，这些内容适用
+本协议。并列署名不表示双方对全部内容共有版权或相互认可本协议。
+
+一、适用范围与第三方权利
+
+本协议适用于 RiftFlow 项目维护者拥有版权且有权单独授权的新增代码、
+原创素材，以及官方软件包中属于维护者的相应内容。
+原项目代码、第三方依赖、游戏资源及其他第三方内容分别适用其原有许可，
+不受本协议新增限制。尤其是，原作者 Hanxven 的代码继续适用本文件附录
+所载 MIT 许可证。本协议不撤销或缩减任何已经授予的 MIT 权利；
+对已经以 MIT 发布的内容，不因后续加入本协议而追溯限制。
+修改或重命名原代码不使原作者内容自动变为维护者独占所有。
+
+二、免费使用与非收费分发
+
+在遵守本协议的前提下，您可免费安装、运行和使用适用本协议的内容，
+包括在个人、企业、网吧等商业环境中使用；允许为自身使用进行修改。
+您可免费分享未修改的官方软件包，但须完整保留本协议、原作者版权声明
+及适用的第三方许可，不得暗示获得官方合作或销售授权。
+通过公开链接免费分享，且不以付费、购买其他产品、会员或捐赠为获取条件，
+属于本条允许的免费分享。
+
+三、未经书面授权禁止销售
+
+未经维护者书面授权，不得对适用本协议的内容实施以下行为：
+1. 出售、出租、收费分发或代售软件及其副本；
+2. 以激活码、授权码、会员、付费下载、强制捐赠等方式收取获取或使用费用；
+3. 将软件捆绑进收费商品、安装包、服务或课程，作为销售内容或付费赠品；
+4. 改名、换图标、修改后再收费销售，或以其他形式变相实施上述行为。
+本条不禁止在商业环境中免费使用软件，也不限制对仅含 MIT 或其他
+允许商业利用之第三方内容的独立作品按其原许可证进行商业利用。
+不包含本软件分发或访问收费的独立咨询、技术支持服务不因本条被禁止。
+
+四、版权、品牌与其他授权
+
+除上述明确授权及第三方许可证授予的权利外，其他权利由各权利人保留。
+本协议不授予冒用 RiftFlow 品牌、冒充官方或暗示官方认可的权利。
+其他分发方式或销售授权须另行取得维护者书面许可。
+本协议含销售限制，属于自定义软件许可；不得将整个项目宣称为 MIT
+许可项目或符合开源定义的开源软件。
+
+五、无担保与责任限制
+
+在适用法律允许的最大范围内，软件按“现状”提供，不作适销性、特定用途
+适用性、不侵权、持续可用或游戏账号安全等保证。因使用或无法使用软件
+产生的损失，在法律允许的范围内由使用者自行承担；法律不允许排除或
+限制的责任不受本条影响。
+
+六、违约与终止
+
+违反本协议时，对适用本协议内容的授权终止，应停止相关使用与分发。
+本条不影响第三方许可证独立授予的权利，也不追溯影响合法免费分享。
+如个别条款依法无效，其余条款在法律允许的范围内继续有效。
+
+附录：原作者 MIT 许可证与版权声明（完整保留）
+
+MIT License
+
+Copyright (c) 2026 Hanxven
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.

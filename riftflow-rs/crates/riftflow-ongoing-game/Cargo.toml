@@ -1,0 +1,17 @@
+[package]
+name = "riftflow-ongoing-game"
+version = "1.0.0"
+edition = "2021"
+license = "MIT"
+description = "Ongoing-game window data pipeline, ported from src/main/shards/ongoing-game"
+
+[dependencies]
+riftflow-ipc = { path = "../riftflow-ipc" }
+riftflow-state = { path = "../riftflow-state" }
+riftflow-lcu = { path = "../riftflow-lcu" }
+riftflow-sgp = { path = "../riftflow-sgp" }
+anyhow = "1"
+async-trait = "0.1"
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+tokio = { version = "1", features = ["full"] }

@@ -1,0 +1,7 @@
+{
+  "$schema": "../gen/schemas/desktop-schema.json",
+  "identifier": "default",
+  "description": "Permissions for the riftflow shell windows. The renderer only ever calls the app's own commands (riftflow_call, riftflow_renderer_register) plus core event/window defaults, so no filesystem, http or shell capability is granted.",
+  "windows": ["main", "aux", "opgg", "ongoing-game", "cd-timer"],
+  "permissions": ["core:default"]
+}
