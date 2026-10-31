@@ -2933,7 +2933,7 @@ dependencies = [
 
 [[package]]
 name = "riftflow-app"
-version = "1.6.2"
+version = "1.6.3"
 dependencies = [
  "anyhow",
  "async-trait",
@@ -2963,7 +2963,7 @@ dependencies = [
 
 [[package]]
 name = "riftflow-auto-select"
-version = "1.6.2"
+version = "1.6.3"
 dependencies = [
  "serde",
  "serde_json",
@@ -2979,7 +2979,7 @@ dependencies = [
 
 [[package]]
 name = "riftflow-ipc"
-version = "1.6.2"
+version = "1.6.3"
 dependencies = [
  "anyhow",
  "serde",
@@ -2989,7 +2989,7 @@ dependencies = [
 
 [[package]]
 name = "riftflow-lcu"
-version = "1.6.2"
+version = "1.6.3"
 dependencies = [
  "anyhow",
  "async-trait",
@@ -3012,7 +3012,7 @@ dependencies = [
 
 [[package]]
 name = "riftflow-native"
-version = "1.6.2"
+version = "1.6.3"
 dependencies = [
  "anyhow",
  "riftflow-lcu",
@@ -3036,7 +3036,7 @@ dependencies = [
 
 [[package]]
 name = "riftflow-radix"
-version = "1.6.2"
+version = "1.6.3"
 dependencies = [
  "anyhow",
  "indexmap 2.14.2",
@@ -3046,7 +3046,7 @@ dependencies = [
 
 [[package]]
 name = "riftflow-sgp"
-version = "1.6.2"
+version = "1.6.3"
 dependencies = [
  "anyhow",
  "base64 0.22.1",
@@ -3059,7 +3059,7 @@ dependencies = [
 
 [[package]]
 name = "riftflow-shard"
-version = "1.6.2"
+version = "1.6.3"
 dependencies = [
  "anyhow",
  "async-trait",
@@ -3070,7 +3070,7 @@ dependencies = [
 
 [[package]]
 name = "riftflow-state"
-version = "1.6.2"
+version = "1.6.3"
 dependencies = [
  "anyhow",
  "riftflow-ipc",
@@ -3081,7 +3081,7 @@ dependencies = [
 
 [[package]]
 name = "riftflow-store"
-version = "1.6.2"
+version = "1.6.3"
 dependencies = [
  "anyhow",
  "async-trait",

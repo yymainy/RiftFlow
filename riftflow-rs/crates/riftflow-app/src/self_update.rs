@@ -395,10 +395,14 @@ fn temp_dir() -> PathBuf {
 /// The quit hook: run the staged updater and leave the "new version" marker the
 /// next launch reads. `spawn` rather than `spawn_wait` — the updater replaces this
 /// exe while it is on disk, so it must outlive us.
-pub fn spawn_pending_on_quit(app: &tauri::AppHandle) {
-    super::portable_update::spawn_on_quit(&user_data_dir());
+pub fn spawn_pending_update() -> bool {
+    // Both direct process exits and Tauri's RunEvent::Exit call this. The first
+    // call consumes the pending update; later calls are no-ops.
+    if super::portable_update::spawn_on_quit(&user_data_dir()) {
+        return true;
+    }
     let Some(pending) = pending().lock().unwrap().take() else {
-        return;
+        return false;
     };
 
     match std::process::Command::new(&pending.updater_path)
@@ -418,7 +422,7 @@ pub fn spawn_pending_on_quit(app: &tauri::AppHandle) {
         }
         Err(error) => {
             eprintln!("[self-update] 无法启动更新程序: {error}");
-            return;
+            return false;
         }
     }
 
@@ -426,6 +430,11 @@ pub fn spawn_pending_on_quit(app: &tauri::AppHandle) {
     if let Err(error) = std::fs::write(&flag, format!("\"{}\"", pending.new_version)) {
         eprintln!("[self-update] 写 {NEW_VERSION_FLAG} 失败: {error}");
     }
+    true
+}
+
+pub fn spawn_pending_on_quit(app: &tauri::AppHandle) {
+    let _ = spawn_pending_update();
     let _ = app;
 }
 

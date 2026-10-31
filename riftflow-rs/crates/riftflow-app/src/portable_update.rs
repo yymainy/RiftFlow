@@ -67,8 +67,8 @@ pub fn cancel() {
         let _=std::fs::remove_dir(p.directory);
     }
 }
-pub fn spawn_on_quit(data_dir:&Path) {
-    let Some(p)=pending().lock().unwrap().take() else {return};
+pub fn spawn_on_quit(data_dir:&Path) -> bool {
+    let Some(p)=pending().lock().unwrap().take() else {return false};
     let mut cmd=std::process::Command::new(&p.worker);
     cmd.arg("--riftflow-apply-update").arg(&p.job);
     #[cfg(windows)] {use std::os::windows::process::CommandExt;cmd.creation_flags(0x08000000);}
@@ -76,6 +76,7 @@ pub fn spawn_on_quit(data_dir:&Path) {
         Ok(_)=>{let _=std::fs::write(data_dir.join("NEW_VERSION_FLAG"),serde_json::to_vec(&p.version).unwrap());},
         Err(_)=>{let _=std::fs::write(data_dir.join("NEW_VERSION_FLAG"),"\"999999.0.0\"");}
     }
+    true
 }
 #[cfg(windows)]
 fn wait_parent(pid:u32)->anyhow::Result<()> {

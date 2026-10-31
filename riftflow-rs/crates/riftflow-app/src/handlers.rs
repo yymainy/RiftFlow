@@ -374,6 +374,9 @@ pub fn register(
         riftflow_ipc::handler(move |_ctx, _args| {
             let settings = settings_for_quit.clone();
             async move {
+                // `app.exit()` exits the process directly, so Tauri's RunEvent::Exit
+                // (the other update hook) never runs. Apply a staged update here too.
+                crate::self_update::spawn_pending_update();
                 crate::file_io::quit(&settings);
 
                 Ok(Value::Null)
