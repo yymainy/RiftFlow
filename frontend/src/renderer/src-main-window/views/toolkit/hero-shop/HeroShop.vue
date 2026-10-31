@@ -8,6 +8,7 @@
         <div class="flex flex-col gap-3 p-3">
           <NAlert v-if="!lcs.isConnected" type="info">请连接英雄联盟客户端后刷新。</NAlert>
           <NAlert v-if="error" type="error" :show-icon="true">{{ error }}</NAlert>
+          <NAlert v-if="warnings.length" type="warning">{{ warnings.join('；') }}</NAlert>
           <div class="flex flex-wrap items-center gap-2">
             <span>蓝色精萃：{{ balance === null ? '未读取' : balance.toLocaleString() }}</span>
             <NButton
@@ -60,7 +61,7 @@
               type="primary"
               size="small"
               :loading="preparing"
-              :disabled="busy || loading || !chosen.length || !lcs.isConnected"
+              :disabled="busy || loading || !chosen.length || balance === null || !lcs.isConnected"
               @click="prepare"
               >核对并购买</NButton
             >
@@ -118,6 +119,7 @@
 </template>
 <script setup lang="ts">
 import SettingsSection from '@renderer-shared/components/SettingsSection.vue'
+import { archiveErrorMessage } from '@main-window/views/archive/archive-error'
 import { useInstance } from '@renderer-shared/shards'
 import { RiftFlowIpcRenderer } from '@renderer-shared/shards/ipc'
 import { useLeagueClientStore } from '@renderer-shared/shards/league-client/store'
@@ -169,6 +171,7 @@ const quote = ref<Quote | null>(null),
   search = ref(''),
   results = ref<string[]>([]),
   progress = ref('')
+const warnings = ref<string[]>([])
 const busy = computed(() => preparing.value || buying.value)
 const weekly = computed(() => heroes.value.filter((h) => h.freeToPlay))
 const chosen = computed(() =>
@@ -208,7 +211,7 @@ function excludeWeekly() {
   selected.value = selected.value.filter((id) => !ids.has(id))
 }
 function message(e: unknown) {
-  return e instanceof Error ? e.message : String(e)
+  return archiveErrorMessage(e, '读取失败，请确认客户端已登录后重试')
 }
 let active = true
 let generation = 0
@@ -216,13 +219,18 @@ async function refresh() {
   if (loading.value || busy.value) return
   loading.value = true
   error.value = ''
+  warnings.value = []
   confirm.value = false
   quote.value = null
   selected.value = []
   try {
-    const data = await ipc.call<{ balance: number; heroes: Hero[] }>('hero-shop-main', 'list')
+    const data = await ipc.call<{ balance: number | null; heroes: Hero[]; warnings?: string[] }>(
+      'hero-shop-main',
+      'list'
+    )
     heroes.value = data.heroes
     balance.value = data.balance
+    warnings.value = data.warnings ?? []
   } catch (e) {
     error.value = message(e)
     heroes.value = []

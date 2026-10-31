@@ -5,6 +5,7 @@ import {createHash} from 'node:crypto'
 import {spawn} from 'node:child_process'
 import {fileURLToPath} from 'node:url'
 const root=path.resolve(path.dirname(fileURLToPath(import.meta.url)),'..')
+const version=JSON.parse(fs.readFileSync(path.join(root,'frontend/package.json'),'utf8')).version
 const dir=path.join(root,'riftflow-rs/tmp/update-smoke-'+Date.now());fs.mkdirSync(dir,{recursive:true})
 const release=path.join(root,'riftflow-rs/target/release/riftflow.exe')
 const exe=path.join(dir,'Test-RiftFlow.exe');fs.copyFileSync(release,exe)
@@ -27,10 +28,10 @@ try{
  await ui.wait(`updateTest.releaseInfo !== null`)
  assert(await ui.evaluate('updateTest.isUpdateSupportedOnCurrentPlatform'),'Platform update support disabled')
  const current=await ui.evaluate('updateTest.releaseInfo.currentVersion')
- assert.equal(current,'1.6.0')
+ assert.equal(current,version)
  assert(await ui.evaluate('!updateTest.releaseInfo.isNew'),'Published older build must not cause a downgrade prompt')
  console.log('PASS: real startup automatically checks the release service; older online release is not offered as an update.')
- await ui.evaluate(`(()=>{window.fixture={version:'99.0.0',currentVersion:'1.6.0',publishedAt:new Date().toISOString(),description:'## 测试更新\\n\\n更新说明',isNew:true,isUpdateSupported:true,artifact:{downloadUrl:'https://example.invalid/RiftFlow.exe'}};updateTest.settings.ignoreVersion=null;updateTest.releaseInfo={...fixture}})()`)
+ await ui.evaluate(`(()=>{window.fixture={version:'99.0.0',currentVersion:'${version}',publishedAt:new Date().toISOString(),description:'## 测试更新\\n\\n更新说明',isNew:true,isUpdateSupported:true,artifact:{downloadUrl:'https://example.invalid/RiftFlow.exe'}};updateTest.settings.ignoreVersion=null;updateTest.releaseInfo={...fixture}})()`)
  await ui.wait(`document.body.innerText.includes('99.0.0')`)
  await ui.wait(`!!document.querySelector('[aria-label="软件更新"]')`)
  const count=await ui.evaluate(`document.querySelectorAll('.n-notification').length`)

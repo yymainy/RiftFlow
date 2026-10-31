@@ -14,7 +14,7 @@ const openssl=fs.existsSync(gitOpenSSL)?gitOpenSSL:'openssl'
 const cert=spawnSync(openssl,['req','-x509','-newkey','rsa:2048','-keyout',path.join(dir,'test.key'),'-out',path.join(dir,'test.pem'),'-days','1','-nodes','-subj','/CN=localhost'],{windowsHide:true,stdio:'ignore'})
 assert.equal(cert.status,0,'OpenSSL is required to create the isolated test certificate')
 const heroes=[{id:1,name:'周免测试英雄',freeToPlay:true,ownership:{owned:false}},{id:2,name:'普通测试英雄',freeToPlay:false,ownership:{owned:false}},{id:3,name:'已拥有测试英雄',freeToPlay:true,ownership:{owned:true}}]
-let balance=1000,account='test-account',price=450,fail=false,postDelay=0
+let balance=1000,account='test-account',price=450,fail=false,postDelay=0,storeUnavailable=false,walletMode='modern',inventoryUnavailable=false
 const posts=[]
 const server=https.createServer({key:fs.readFileSync(path.join(dir,'test.key')),cert:fs.readFileSync(path.join(dir,'test.pem'))},async(req,res)=>{
  const url=new URL(req.url,'https://localhost');let data='';for await(const chunk of req)data+=chunk
@@ -22,9 +22,15 @@ const server=https.createServer({key:fs.readFileSync(path.join(dir,'test.key')),
  const send=x=>res.end(JSON.stringify(x))
  if(url.pathname==='/riotclient/auth-token')return send('test')
  if(url.pathname==='/lol-summoner/v1/current-summoner')return send({summonerId:123,puuid:account,gameName:'接口测试',tagLine:'TEST',summonerLevel:30})
- if(url.pathname==='/lol-champions/v1/inventories/123/champions-minimal')return send(heroes)
+ if(url.pathname==='/lol-champions/v1/inventories/123/champions-minimal'){if(inventoryUnavailable){res.statusCode=503;return send({errorCode:'TEST_INVENTORY_UNAVAILABLE'})}return send(heroes)}
+ if(url.pathname==='/lol-store/v1/catalog' && (storeUnavailable || url.searchParams.has('inventoryType'))){res.statusCode=400;return send({errorCode:'TEST_QUERY_UNSUPPORTED'})}
  if(url.pathname==='/lol-store/v1/catalog')return send(heroes.map(h=>({itemId:h.id,inventoryType:'CHAMPION',active:true,prices:[{currency:'IP',cost:price}]})))
- if(url.pathname==='/lol-inventory/v1/wallet/IP')return send({IP:balance})
+ if(url.pathname.startsWith('/lol-inventory/v1/wallet') || url.pathname==='/lol-login/v1/wallet'){
+  const requested=url.pathname.endsWith('/lol_blue_essence') || (url.searchParams.get('currencyTypes')||'').includes('lol_blue_essence')
+  if(walletMode==='modern' || walletMode==='modern-string')return send(requested?{lol_blue_essence:walletMode==='modern-string'?String(balance):balance,RP:99999}:{})
+  if(walletMode==='unavailable' || (walletMode==='legacy' && url.pathname!=='/lol-inventory/v1/wallet/IP')){res.statusCode=503;return send({errorCode:'TEST_WALLET_UNAVAILABLE'})}
+  return send(walletMode==='lower' || walletMode==='legacy'?{ip:balance,rp:99999}:{IP:balance})
+ }
  if(url.pathname==='/lol-purchase-widget/v2/purchaseItems'){
   const body=JSON.parse(data);posts.push(body);if(postDelay)await new Promise(r=>setTimeout(r,postDelay));if(fail){res.statusCode=500;return send({errorCode:'TEST'})}
   const item=body.items[0];assert.equal(item.purchaseCurrencyInfo.currencyType,'IP');assert.equal(item.quantity,1);assert.equal(item.purchaseCurrencyInfo.price,price)
@@ -80,4 +86,21 @@ try {
  assert.equal(balance,550)
  console.log('PASS: stopping a pending transaction preserves that purchase and never submits the next hero.')
  console.log('PASS: changed price/account and low balance block spending; POST failure is not retried and invalidates remaining quote. No real account purchase performed.')
+ fail=false;postDelay=0;balance=1000;heroes[0].ownership.owned=false;heroes[1].ownership.owned=false
+ const beforeReadTests=posts.length
+ walletMode='modern';assert.equal((await call('list')).balance,1000)
+ walletMode='modern-string';assert.equal((await call('list')).balance,1000)
+ walletMode='lower';assert.equal((await call('list')).balance,1000)
+ walletMode='legacy';assert.equal((await call('list')).balance,1000)
+ walletMode='unavailable';let partial=await call('list');assert.equal(partial.balance,null);assert.equal(partial.heroes.length,3);assert(partial.warnings.length);assert(!(await raw('hero-shop-main','prepare',{ids:[1]})).success)
+ await click('刷新');await wait(`document.body.innerText.includes('蓝色精萃余额读取失败')`)
+ await click('全选可购英雄');assert(await evaluate(`[...document.querySelectorAll('button')].find(b=>b.innerText.trim()==='核对并购买').disabled`))
+ walletMode='modern';storeUnavailable=true;partial=await call('list');assert.equal(partial.heroes.length,3);assert.equal(partial.heroes.filter(h=>h.freeToPlay).length,2);assert(partial.heroes.every(h=>h.price===null));assert(partial.warnings.some(w=>w.includes('HTTP 400')))
+ await click('刷新');await wait(`document.body.innerText.includes('英雄价格读取失败') && document.body.innerText.includes('当前周免（2 位）')`)
+ storeUnavailable=false;inventoryUnavailable=true
+ await click('刷新');await wait(`document.body.innerText.includes('HTTP 503')`)
+ assert(!(await evaluate('document.body.innerText')).includes('[object Object]'))
+ assert.equal(posts.length,beforeReadTests)
+ console.log('PASS: no vector catalog query, lowercase/legacy wallet compatibility, missing prices/balance preserve rotation and block purchases, IPC object errors show endpoint and HTTP status. Read-only failures send no purchase POST.')
+
 } finally {ws?.close();child.kill();for(const c of wss.clients)c.terminate();wss.close();server.close()}
