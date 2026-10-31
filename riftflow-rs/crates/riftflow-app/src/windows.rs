@@ -158,6 +158,36 @@ pub fn window_spec(suffix: &str) -> WindowSpec {
             show_on_ready: true,
             ..WindowSpec::default()
         },
+        "opponent-scout-window" => WindowSpec {
+            title: "RiftFlow · Opponent Scout",
+            base_width: 400.0,
+            base_height: 610.0,
+            min_width: 400.0,
+            min_height: 48.0,
+            resizable: false,
+            maximizable: false,
+            minimizable: false,
+            focusable: false,
+            skip_taskbar: true,
+            always_on_top: true,
+            remember_size: false,
+            ..WindowSpec::default()
+        },
+        "ai-advice-window" => WindowSpec {
+            title: "RiftFlow · AI Advice",
+            base_width: 430.0,
+            base_height: 500.0,
+            min_width: 430.0,
+            min_height: 500.0,
+            resizable: false,
+            maximizable: false,
+            minimizable: false,
+            focusable: false,
+            skip_taskbar: true,
+            always_on_top: true,
+            remember_size: false,
+            ..WindowSpec::default()
+        },
         "aux-window" => WindowSpec {
             title: "RiftFlow Mini",
             base_width: 340.0,

@@ -14,6 +14,7 @@ export function archiveErrorMessage(error: unknown, fallback: string): string {
         if (result) return result
       }
     }
+    return undefined
   }
   return message(error, 0) || fallback
 }

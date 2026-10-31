@@ -4,21 +4,27 @@ ongoingGame:
     loading: '正在读取账号迹象'
     insufficient: '无法判断'
     none: '未见明显迹象'
+    watch: '表现偏强，需留意'
     smurf: '疑似小号迹象'
     change: '近期表现突变'
     sample: '近 30 天{{queue}}有效样本：{{count}} 场（最多 40 场）'
     excluded: '当前已加载记录中另有 {{count}} 场未纳入，可能为其他队列、过短或资料不完整。'
     solo: '单／双排'
     flex: '灵活组排'
+    aram: '大乱斗'
     strength: '规则支持程度：{{value}}，并非身份概率。'
     moderate: '中等'
     strong: '较多'
     lowLevel: '账号等级 {{level}}，处于规则观察范围 30–80 级。'
     winRate: '{{count}} 场有效排位胜率 {{rate}}%。'
     kda: 'KDA 中位数 {{value}}，且至少六成对局 KDA 达到 4。'
+    aramWinRate: '{{count}} 场大乱斗胜率 {{rate}}%。'
+    aramKda: 'KDA 中位数 {{value}}，且至少六成大乱斗对局 KDA 达到 4。'
     shift: '可比位置与英雄样本中，最近 10 场胜率 {{after}}%，此前 10 场 {{before}}%；KDA 中位数从 {{oldKda}} 变为 {{newKda}}。'
     minimum: '至少需要 12 场同队列有效排位；表现突变需要 20 场且位置、英雄可比。'
+    aramMinimum: '至少需要 12 场近 30 天内的有效大乱斗；高强度迹象需要胜率与另一项线索同时成立。'
     caution: '仅解释已加载战绩的统计迹象，不能确认小号、代练或陪玩身份。无提示不代表已排除；连胜、版本变化和个人状态也会影响表现。'
+    aramCaution: '仅解释已加载的大乱斗战绩迹象，不能确认小号、代练或陪玩身份；匹配机制、阵容和车队都会影响胜率。'
   titlebar:
     draftMode: 草稿模式
     exitDraft: 退出草稿模式
@@ -164,6 +170,7 @@ ongoingGame:
       bot: 下
     gamesAnalyzed: '{{count}} 场'
   playerCard:
+    incompleteMatchHistory: '战绩已返回，但玩家资料未补齐，请重试'
     reload: 重新加载
     empty: 无此队列对局记录
     loadingMatchHistory: 加载中...
@@ -279,9 +286,77 @@ ongoingGame:
     winRate: 胜率 {{rate}}%
     kda: KDA {{kda}}
   panel:
+    identifiedPlayers_one: '已识别 {{count}} 人'
+    identifiedPlayers_other: '已识别 {{count}} 人'
     disconnected: 未连接到客户端
     waitingForSpectate: 等待观战延迟
     noOngoingGame: 没有正在进行中的游戏
     disabled: 对局页面已禁用，请在设置中重新启用此功能
     avgTeamWinRate: 队伍平均胜率
     avgTeamKda: 队伍平均 KDA
+
+opponentScout:
+  waitingChampion: '英雄信息同步中'
+  rosterStatus: '当前名单 {{total}} 人 · 已识别英雄 {{identified}} 人'
+  title: '对手速览'
+  collapse: '收起'
+  expand: '展开'
+  close: '本局关闭'
+  caption: '本队对面的玩家 · 最近最多 20 场同队列有效对局'
+  record: '{{count}} 场 · {{wins}} 胜 {{losses}} 负'
+  championRecord: '当前英雄：近期样本内 {{championCount}} 场，{{championWins}} 胜'
+  loading: '正在读取对手资料…'
+  failed: '战绩查询失败'
+  retry: '重试'
+  empty: '暂无同队列有效战绩，无法判断'
+  waiting: '等待对局开始并识别对手身份与英雄'
+  disabled: '对局查询已关闭，请在对局设置中开启'
+  caution: '结果仅供参考，不代表实际水平或代练认定。无边框窗口模式下可在游戏上方查看；拖动标题栏可移动。'
+  hiddenName: '已隐藏玩家昵称'
+  unknownName: '身份资料读取中'
+  noRank: '暂无排位资料'
+  windowError: '悬浮窗操作失败，请重试或重启软件'
+  signalSample: '线索样本 {{count}} 场'
+  settings: '对手速览悬浮窗'
+  settingsDescription: '进入对局后自动显示独立小窗，不改变主界面布局。需同时开启对局查询。'
+  open: '打开小窗'
+  autoShow: '自动显示'
+  offRole: '非惯用位置线索'
+  mainPosition: '近期主要位置：{{position}}，占 {{share}}%（有位置记录 {{known}} 场）'
+  unknownPosition: '近期位置资料不足或主要位置并列'
+  positionRecord_one: '{{position}}样本：{{count}} 场，{{wins}} 胜 {{losses}} 负'
+  positionRecord_other: '{{position}}样本：{{count}} 场，{{wins}} 胜 {{losses}} 负'
+  together_one: '与对方{{champion}}共同出现：{{count}} 场，{{wins}} 胜 {{losses}} 负'
+  together_other: '与对方{{champion}}共同出现：{{count}} 场，{{wins}} 胜 {{losses}} 负'
+  apart_one: '未与该玩家同队（可核实）：{{count}} 场，{{wins}} 胜 {{losses}} 负'
+  apart_other: '未与该玩家同队（可核实）：{{count}} 场，{{wins}} 胜 {{losses}} 负'
+  unknownRoster_one: '同队资料不完整 {{count}} 场，未计入上行统计'
+  unknownRoster_other: '同队资料不完整 {{count}} 场，未计入上行统计'
+  partnerCaution: '历史同队记录，不代表已确认双排；未同队也不代表单排。'
+  noPartner: '暂无可确认的重复同队记录（可能资料不足）'
+  positions:
+    TOP: '上单'
+    JUNGLE: '打野'
+    MIDDLE: '中单'
+    BOTTOM: '下路'
+    UTILITY: '辅助'
+  aramStrength:
+    title: '大乱斗对局强度'
+    ours: '我方'
+    enemy: '敌方'
+    line: '{{winRate}}% · KDA {{kda}} · 样本 {{count}} 场 · 均等级 {{level}}'
+    coverage: '有样本 {{sampled}}/{{total}} 人'
+    stack: '车队 {{size}} 人'
+    insufficient: '样本不足'
+    verdict:
+      unknown: '等待双方战绩'
+      insufficient: '样本不足'
+      even: '双方接近'
+      higher: '我方偏高'
+      muchHigher: '我方明显偏高'
+      lower: '我方偏低'
+      muchLower: '我方明显偏低'
+    caution: '基于近 30 天大乱斗胜率、KDA、账号等级与预组队人数，不是隐藏 MMR。'
+  aramPlayer:
+    line: '大乱斗 {{winRate}}% · KDA {{kda}} · {{count}} 场'
+    empty: '大乱斗样本不足'

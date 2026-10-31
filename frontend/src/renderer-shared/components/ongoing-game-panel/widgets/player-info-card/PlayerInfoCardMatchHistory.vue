@@ -1,61 +1,56 @@
 <template>
-  <div class="relative mt-1 flex h-0 flex-1 flex-col gap-0.5">
-    <NVirtualList
-      key-field="gameId"
-      style="height: 100%"
-      :item-size="36"
-      :items="matches"
-      v-if="matches.length"
-    >
-      <template #default="{ item, index }">
+  <div class="relative mt-1 flex min-h-0 flex-1 flex-col gap-0.5">
+    <!-- Render short card histories eagerly: virtual viewport measurements can
+         be stale when a hidden match page becomes visible. -->
+    <NScrollbar v-if="matches.length" class="match-history-scroll" style="height: 100%">
+      <div
+        v-for="(item, index) in matches"
+        :class="[
+          'group relative mb-0.5 box-border flex h-8.5 cursor-pointer items-center rounded px-2 py-0.5 transition-[filter] hover:brightness-110',
+          ongoingGame.settings.showMatchHistoryItemBorder
+            ? `border ${getMatchItemThemeClass(item).border}`
+            : '',
+          getMatchItemThemeClass(item).bg
+        ]"
+        :key="item.gameId"
+        @click="
+          previewGame({
+            summary: item.game,
+            details: ongoingGame.gameDetails[item.gameId],
+            puuid
+          })
+        "
+      >
         <div
-          :class="[
-            'group relative mb-0.5 box-border flex h-8.5 cursor-pointer items-center rounded px-2 py-0.5 transition-[filter] hover:brightness-110',
-            ongoingGame.settings.showMatchHistoryItemBorder
-              ? `border ${getMatchItemThemeClass(item).border}`
-              : '',
-            getMatchItemThemeClass(item).bg
-          ]"
-          :key="item.gameId"
-          @click="
-            previewGame({
-              summary: item.game,
-              details: ongoingGame.gameDetails[item.gameId],
-              puuid
-            })
-          "
+          class="absolute right-0 bottom-0 text-[10px] opacity-0 transition-opacity group-hover:opacity-100"
+          :class="getMatchItemThemeClass(item).resultText"
         >
+          #{{ index + 1 }}
+        </div>
+        <ChampionIcon
+          :champion-id="item.participant.championId"
+          class="mr-1 h-6 w-6 rounded bg-[#4b5b7d]"
+        />
+        <div class="mr-1 w-25">
           <div
-            class="absolute right-0 bottom-0 text-[10px] opacity-0 transition-opacity group-hover:opacity-100"
-            :class="getMatchItemThemeClass(item).resultText"
+            class="overflow-hidden text-xs text-ellipsis whitespace-nowrap"
+            :class="getMatchItemThemeClass(item).text"
           >
-            #{{ index + 1 }}
+            {{ resources.queues.name(item.basicInfo.queueId) }}
           </div>
-          <ChampionIcon
-            :champion-id="item.participant.championId"
-            class="mr-1 h-6 w-6 rounded bg-[#4b5b7d]"
-          />
-          <div class="mr-1 w-25">
-            <div
-              class="overflow-hidden text-xs text-ellipsis whitespace-nowrap"
-              :class="getMatchItemThemeClass(item).text"
-            >
-              {{ resources.queues.name(item.basicInfo.queueId) }}
-            </div>
-            <div class="text-[10px]" :class="getMatchItemThemeClass(item).text">
-              {{ dayjs(item.basicInfo.gameCreation).format('MM-DD HH:mm') }}
-              <span class="ml-1" :class="getMatchItemThemeClass(item).resultText">
-                {{ getWinResultText(item) }}
-              </span>
-            </div>
-          </div>
-          <div class="text-xs" :class="getMatchItemThemeClass(item).text">
-            {{ item.participant.kills }} / {{ item.participant.deaths }} /
-            {{ item.participant.assists }}
+          <div class="text-[10px]" :class="getMatchItemThemeClass(item).text">
+            {{ dayjs(item.basicInfo.gameCreation).format('MM-DD HH:mm') }}
+            <span class="ml-1" :class="getMatchItemThemeClass(item).resultText">
+              {{ getWinResultText(item) }}
+            </span>
           </div>
         </div>
-      </template>
-    </NVirtualList>
+        <div class="text-xs" :class="getMatchItemThemeClass(item).text">
+          {{ item.participant.kills }} / {{ item.participant.deaths }} /
+          {{ item.participant.assists }}
+        </div>
+      </div>
+    </NScrollbar>
 
     <div
       v-if="matchHistoryLoadingState === 'loading'"
@@ -82,10 +77,24 @@
 
     <div
       v-else-if="matches.length === 0"
-      class="pointer-events-none absolute inset-0 flex h-full w-full items-center justify-center rounded text-xs text-black/60 dark:bg-white/5 dark:text-white/60"
+      class="absolute inset-0 flex h-full w-full items-center justify-center rounded text-xs text-black/60 dark:bg-white/5 dark:text-white/60"
     >
       <div class="flex flex-col items-center gap-2">
-        {{ t('ongoingGame.playerCard.empty') }}
+        {{
+          t(
+            !matchHistoryData
+              ? 'ongoingGame.playerCard.loadingMatchHistory'
+              : matchHistoryData.length
+                ? 'ongoingGame.playerCard.incompleteMatchHistory'
+                : 'ongoingGame.playerCard.empty'
+          )
+        }}
+        <NButton
+          v-if="matchHistoryData"
+          size="tiny"
+          @click="ongoingGame.reloadPlayer(puuid, { includes: ['matchHistory'] })"
+          >{{ t('ongoingGame.playerCard.reloadMatchHistory') }}</NButton
+        >
       </div>
     </div>
   </div>
@@ -99,7 +108,7 @@ import { MatchParticipant, toParticipants } from '@shared/data-adapter/match-his
 import { formatI18nOrdinal } from '@shared/i18n'
 import dayjs from 'dayjs'
 import { useTranslation } from 'i18next-vue'
-import { NButton, NSpin, NVirtualList } from 'naive-ui'
+import { NButton, NScrollbar, NSpin } from 'naive-ui'
 import { computed } from 'vue'
 
 import { useOngoingGamePanel } from '../../context'
@@ -184,18 +193,22 @@ const matches = computed(() => {
 
   return matchHistoryData.value
     .map((game) => {
-      const basicInfo = toBasicInfo(game)
-      const participant = toParticipants(game, basicInfo).find((p) => p.puuid === puuid)
+      try {
+        const basicInfo = toBasicInfo(game)
+        const participant = toParticipants(game, basicInfo).find((p) => p.puuid === puuid)
 
-      if (!participant) {
+        if (!participant) {
+          return null
+        }
+
+        return {
+          gameId: game.gameId,
+          basicInfo,
+          participant,
+          game
+        }
+      } catch {
         return null
-      }
-
-      return {
-        gameId: game.gameId,
-        basicInfo,
-        participant,
-        game
       }
     })
     .filter((m) => m !== null)

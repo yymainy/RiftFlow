@@ -2,6 +2,7 @@
   <NScrollbar class="h-full">
     <div class="flex flex-col gap-6">
       <SettingsSection :title="t('settings.ongoingGame.titleCommon')">
+        <ScoutSettings />
         <SettingsRow
           :label="t('settings.ongoingGame.enabled.label')"
           :label-description="t('settings.ongoingGame.enabled.description')"
@@ -394,7 +395,10 @@
               :checked="ogs.settings.playerCardTags.showRiftFlowScoreTag"
               @update:checked="
                 (val) =>
-                  og.setPlayerCardTags({ ...ogs.settings.playerCardTags, showRiftFlowScoreTag: val })
+                  og.setPlayerCardTags({
+                    ...ogs.settings.playerCardTags,
+                    showRiftFlowScoreTag: val
+                  })
               "
             >
               {{ t('settings.ongoingGame.playerCardTags.tags.showRiftFlowScoreTag.label') }}
@@ -423,6 +427,7 @@
 </template>
 
 <script setup lang="ts">
+import ScoutSettings from '@renderer-shared/components/opponent-scout/ScoutSettings.vue'
 import SettingsRow from '@renderer-shared/components/SettingsRow.vue'
 import SettingsSection from '@renderer-shared/components/SettingsSection.vue'
 import { useInstance } from '@renderer-shared/shards'

@@ -791,21 +791,7 @@ fn register_self_update(
 
 /// `isSupportedWin32X64Artifact`: only a win32/x64 7z archive can be applied.
 fn is_supported_artifact(artifact: &Value) -> bool {
-    if artifact.get("platform").and_then(Value::as_str) != Some("win32") {
-        return false;
-    }
-    if artifact.get("arch").and_then(Value::as_str) != Some("x64") {
-        return false;
-    }
-    let content_type = artifact.get("contentType").and_then(Value::as_str).unwrap_or("");
-    if content_type == "application/x-7z-compressed" {
-        return true;
-    }
-    content_type == "application/octet-stream"
-        && artifact
-            .get("fileName")
-            .and_then(Value::as_str)
-            .is_some_and(|name| name.to_ascii_lowercase().ends_with(".7z"))
+    super::portable_update::valid_artifact(artifact)
 }
 
 /// `resolveSelfUpdateReleaseInfo` from `self-update/release-info.ts`.
@@ -948,34 +934,34 @@ mod self_update_tests {
     use super::*;
 
     fn artifact(platform: &str, arch: &str, content_type: &str, file_name: &str) -> Value {
-        json!({ "platform": platform, "arch": arch, "contentType": content_type, "fileName": file_name })
+        json!({ "platform": platform, "arch": arch, "contentType": content_type, "fileName": file_name, "size": 128, "sha256": "a".repeat(64), "downloadUrl":"https://files.example.invalid/RiftFlow.exe" })
     }
 
     #[test]
-    fn only_a_win32_x64_archive_can_be_applied() {
+    fn only_a_verified_win32_x64_exe_can_be_applied() {
         assert!(is_supported_artifact(&artifact(
             "win32",
             "x64",
-            "application/x-7z-compressed",
-            "app.7z"
+            "application/octet-stream",
+            "RiftFlow.exe"
         )));
         assert!(is_supported_artifact(&artifact(
             "win32",
             "x64",
             "application/octet-stream",
-            "RiftFlow.7z"
+            "RiftFlow.exe"
         )));
         assert!(!is_supported_artifact(&artifact(
             "win32",
             "arm64",
-            "application/x-7z-compressed",
-            "app.7z"
+            "application/octet-stream",
+            "RiftFlow.exe"
         )));
         assert!(!is_supported_artifact(&artifact(
             "darwin",
             "x64",
-            "application/x-7z-compressed",
-            "app.7z"
+            "application/octet-stream",
+            "RiftFlow.exe"
         )));
         assert!(!is_supported_artifact(&artifact(
             "win32",
@@ -991,14 +977,14 @@ mod self_update_tests {
             "version": "1.6.0",
             "publishedAt": "2026-10-20T00:00:00Z",
             "description": "notes",
-            "artifacts": [artifact("win32", "x64", "application/x-7z-compressed", "a.7z")],
+            "artifacts": [artifact("win32", "x64", "application/octet-stream", "RiftFlow.exe")],
         });
 
         let info = resolve_release_info(&release, "1.5.1").expect("a release resolves");
         assert_eq!(info["isNew"], json!(true));
         assert_eq!(info["isUpdateSupported"], json!(true));
         assert_eq!(info["currentVersion"], json!("1.5.1"));
-        assert_eq!(info["artifact"]["fileName"], json!("a.7z"));
+        assert_eq!(info["artifact"]["fileName"], json!("RiftFlow.exe"));
 
         let same = resolve_release_info(&release, "1.6.0").expect("still resolves");
         assert_eq!(same["isNew"], json!(false));

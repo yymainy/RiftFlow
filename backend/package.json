@@ -4,5 +4,5 @@
   "private": true,
   "type": "module",
   "engines": { "node": ">=24" },
-  "scripts": { "start": "node server.mjs", "test": "node --test server.test.mjs" }
+  "scripts": { "start": "node server.mjs", "test": "node --test server.test.mjs ai-config.test.mjs" }
 }

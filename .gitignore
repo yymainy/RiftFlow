@@ -3,6 +3,8 @@
 **/target/
 riftflow-rs/renderer-build/
 riftflow-rs/renderer-dist/
+dist/
+riftflow-rs/.desktop-package.lock
 riftflow-rs/*.exe
 **/*.pdb
 **/*.tsbuildinfo
@@ -33,6 +35,9 @@ backend/*.tar.gz
 **/.env.*
 !**/.env.example
 **/service.env
+**/ai-config.json
+**/ai-provider.json
+**/*.dpapi
 **/*.pem
 **/*.key
 .DS_Store

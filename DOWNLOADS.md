@@ -2,21 +2,19 @@
 
 源码仓库：[yymainy/RiftFlow](https://github.com/yymainy/RiftFlow)
 
-## v1.0.0（最新）
+## v1.6.0（最新）
 
-- 下载：[RiftFlow.exe](https://github.com/yymainy/RiftFlow/releases/latest/download/RiftFlow.exe)
-- Release：[v1.0.0](https://github.com/yymainy/RiftFlow/releases/tag/v1.0.0)
-- 大小：28,808,704 字节
-- SHA256：`fd97fbf0bc1b8ffa608ae7127eba2cac31c7c75af2a03657ced93e61aa65be5e`
+- 下载：[RiftFlow.exe](https://github.com/yymainy/RiftFlow/releases/download/v1.6.0/RiftFlow.exe)
+- 服务器副本：[RiftFlow-1.6.0-20261031.exe](https://files.yymainy.online/downloads/RiftFlow/RiftFlow-1.6.0-20261031.exe)
+- 压缩包：[ZIP](https://github.com/yymainy/RiftFlow/releases/download/v1.6.0/RiftFlow-1.6.0-20261031-152344.zip)
+- Release：[v1.6.0](https://github.com/yymainy/RiftFlow/releases/tag/v1.6.0)
+- 更新说明：[1.6.0](docs/releases/1.6.0.zh-CN.md)
+- EXE 大小：38,904,320 字节
+- EXE SHA256：`18cf979d4926f1d9e65fb66d3a9236b0e70d445995e161367789d600d13e3763`
 
-v1.0.0 是仓库公开后的首个发行版本，程序内应显示 v1.0.0；若显示其他版本，请重新下载。自动安装更新仍禁用，需要退出旧版本后手动运行新 EXE。
+首次请退出旧版本后手动运行新版；旧版禁用的自动更新无法接收本次安装。1.6.0 起支持检查更新并提示，确认下载并校验后，可选择重启完成更新。
 
 ## 历史版本
 
-### 1.5.1（旧编号）
-
-- 下载：[Filebrowser 副本](https://files.yymainy.online/downloads/RiftFlow/RiftFlow-1.5.1-20261029.exe)
-- 大小：40,363,008 字节
-- SHA256：`67c58aec157d8301a48711a41d7d3e81cae724942b2eee892f740cb16f9b9189`
-
-1.5.1 使用旧编号，与 v1.0.0 的版本线不连续，不再作为更新来源，仅用于核对历史版本。
+- [v1.0.0](https://github.com/yymainy/RiftFlow/releases/tag/v1.0.0)
+- [1.5.1 旧编号副本](https://files.yymainy.online/downloads/RiftFlow/RiftFlow-1.5.1-20261029.exe)

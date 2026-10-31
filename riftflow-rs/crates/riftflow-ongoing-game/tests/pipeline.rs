@@ -225,6 +225,22 @@ fn in_game_session() -> Value {
     })
 }
 
+#[tokio::test]
+async fn the_same_roster_in_a_new_game_refreshes_history_instead_of_reusing_the_previous_query() {
+    let harness = Harness::new();
+    harness.set(LEAGUE, "gameflow", "phase", json!("InProgress"));
+    harness.set(LEAGUE, "gameflow", "session", in_game_session());
+    harness.settle().await;
+    let before = harness.urls().iter().filter(|url| url.contains("/matches")).count();
+    assert!(before > 0);
+    let mut session = in_game_session();
+    session["gameData"]["gameId"] = json!(16);
+    harness.set(LEAGUE, "gameflow", "session", session);
+    harness.settle().await;
+    let after = harness.urls().iter().filter(|url| url.contains("/matches")).count();
+    assert!(after > before, "a new match must refresh histories even with the same players");
+}
+
 /// every player shares the same one game, so the summary must be fetched once
 fn shared_history(game_id: i64) -> Value {
     json!({

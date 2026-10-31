@@ -90,8 +90,7 @@ pub fn uninstall_updater_arguments(
 /// `shouldRunSelfUpdateLifecycle()` — the original's guard is platform and arch,
 /// not elevation or packaging.
 pub fn lifecycle_supported() -> bool {
-    // A fork must not install release archives intended for another application.
-    false
+    cfg!(all(target_os = "windows", target_arch = "x86_64"))
 }
 
 struct PendingUpdate {
@@ -191,128 +190,47 @@ pub fn register(
 /// `SelfUpdateActionResult`.
 async fn start_update(
     state_sync: &Arc<StateSync>,
-    settings: &Arc<SettingFactory>,
-    force: bool,
+    _settings: &Arc<SettingFactory>,
+    _force: bool,
 ) -> IpcResult<Value> {
     if !lifecycle_supported() {
         eprintln!("[self-update] 当前平台不支持自更新");
         return Ok(json!({ "result": "failed", "reason": PLATFORM_UNSUPPORTED_REASON }));
     }
 
+    if state_sync.get(NAMESPACE,"state","updateProgressInfo").is_some_and(|v|v["phase"]=="downloading" || v["phase"]=="waiting-for-restart"){return Ok(json!({"result":"no-op"}));}
     let Some(info) = release_info(state_sync) else {
         return Ok(json!({ "result": "no-op" }));
     };
 
     let supported = info.get("isUpdateSupported").and_then(Value::as_bool) == Some(true);
     let is_new = info.get("isNew").and_then(Value::as_bool) == Some(true);
-    if !supported || (!force && !is_new) {
+    if !supported || !is_new {
         return Ok(json!({ "result": "no-op" }));
     }
 
-    let artifact = match info.get("artifact") {
-        Some(value) if !value.is_null() => value.clone(),
-        _ => return Ok(json!({ "result": "no-op" })),
-    };
-    let Some(url) = artifact.get("downloadUrl").and_then(Value::as_str) else {
-        return Ok(json!({ "result": "no-op" }));
-    };
-    let file_name = artifact
-        .get("fileName")
-        .and_then(Value::as_str)
-        .unwrap_or("update.7z")
-        .to_string();
-    let version = info
-        .get("version")
-        .and_then(Value::as_str)
-        .unwrap_or_default()
-        .to_string();
-
-    if cancel_flag().load(Ordering::SeqCst) {
-        // a stale cancel from a previous job
-        cancel_flag().store(false, Ordering::SeqCst);
-    }
-
-    progress(
-        state_sync,
-        json!({
-            "phase": "downloading",
-            "downloadingProgress": 0,
-            "averageDownloadSpeed": 0,
-            "downloadTimeLeft": -1,
-            "fileSize": 0,
-        }),
-    );
-
-    let download_dir = user_data_dir().join(DOWNLOAD_DIR_NAME);
-    if let Err(error) = tokio::fs::create_dir_all(&download_dir).await {
-        return Ok(json!({ "result": "failed", "reason": error.to_string() }));
-    }
-    let archive_path = download_dir.join(&file_name);
-
-    match download(url, &archive_path, state_sync, &cancel_flag()).await {
-        Ok(()) => {}
-        Err(reason) => {
-            let _ = tokio::fs::remove_file(&archive_path).await;
-            progress(state_sync, Value::Null);
-            return Ok(json!({ "result": "failed", "reason": reason }));
+    let result=super::portable_update::start(state_sync,&info,&user_data_dir().join(DOWNLOAD_DIR_NAME),&cancel_flag()).await;
+    match result {
+        Ok(value)=>Ok(value),
+        Err(error)=>{
+            progress(state_sync,if cancel_flag().load(Ordering::SeqCst){Value::Null}else{json!({"phase":"download-failed","downloadingProgress":0,"averageDownloadSpeed":0,"downloadTimeLeft":-1,"fileSize":0})});
+            Ok(json!({"result":"failed","reason":error.to_string()}))
         }
     }
-
-    if cancelled() {
-        let _ = tokio::fs::remove_file(&archive_path).await;
-        progress(state_sync, Value::Null);
-        return Ok(json!({ "result": "failed", "reason": "canceled" }));
-    }
-
-    let updater_path = temp_dir().join(UPDATE_EXECUTABLE_NAME);
-    if let Err(error) = tokio::fs::write(&updater_path, UPDATER_BYTES).await {
-        let _ = tokio::fs::remove_file(&archive_path).await;
-        progress(state_sync, Value::Null);
-        return Ok(json!({ "result": "failed", "reason": error.to_string() }));
-    }
-
-    let exe = std::env::current_exe().unwrap_or_else(|_| PathBuf::from("RiftFlow.exe"));
-    let args = apply_updater_arguments(
-        &locale(settings),
-        &archive_path,
-        &exe.parent().unwrap_or(Path::new(".")).to_path_buf(),
-        &exe.file_name().map(|name| name.to_string_lossy().to_string()).unwrap_or_default(),
-    );
-
-    *pending().lock().unwrap() = Some(PendingUpdate {
-        updater_path,
-        archive_path,
-        new_version: version,
-        args,
-    });
-
-    progress(
-        state_sync,
-        json!({
-            "phase": "waiting-for-restart",
-            "downloadingProgress": 1,
-            "averageDownloadSpeed": 0,
-            "downloadTimeLeft": 0,
-            "fileSize": 0,
-        }),
-    );
-    eprintln!("[self-update] 已下载更新，退出时执行替换（重启后完成）");
-    Ok(json!({ "result": "ok" }))
-}
-
-fn cancelled() -> bool {
-    cancel_flag().load(Ordering::SeqCst)
 }
 
 /// `_downloadUpdate`, including the 200 ms progress throttle the original used so
 /// the UI is not flooded with prop pushes.
-async fn download(
+pub(super) async fn download(
     url: &str,
     dest: &Path,
     state_sync: &Arc<StateSync>,
     cancel: &AtomicBool,
 ) -> Result<(), String> {
     let client = reqwest::Client::builder()
+        .https_only(!cfg!(test))
+        .connect_timeout(std::time::Duration::from_secs(15))
+        .timeout(std::time::Duration::from_secs(300))
         .user_agent(riftflow_api::client::user_agent(env!("CARGO_PKG_VERSION")))
         .build()
         .map_err(|error| error.to_string())?;
@@ -323,6 +241,7 @@ async fn download(
         .await
         .map_err(|error| error.to_string())?;
 
+    let response=response.error_for_status().map_err(|error|error.to_string())?;
     let total = response
         .content_length()
         .and_then(|length| i64::try_from(length).ok())
@@ -359,15 +278,16 @@ async fn download(
         else {
             break;
         };
+        if written.saturating_add(chunk.len() as i64)>200*1024*1024 {return Err("更新文件超过大小限制".into());}
         file.write_all(&chunk)
             .await
             .map_err(|error| error.to_string())?;
         written += chunk.len() as i64;
 
         if last_progress.elapsed() >= PROGRESS_INTERVAL {
-            last_progress = started;
+            last_progress = std::time::Instant::now();
             let elapsed = started.elapsed().as_secs_f64().max(0.001);
-            let speed = (written as f64 / elapsed) * 1000.0;
+            let speed = written as f64 / elapsed;
             let fraction = if total > 0 {
                 (written as f64 / total as f64).min(1.0)
             } else {
@@ -394,7 +314,7 @@ async fn download(
     file.flush().await.map_err(|error| error.to_string())?;
 
     let elapsed = started.elapsed().as_secs_f64().max(0.001);
-    let speed = (written as f64 / elapsed) * 1000.0;
+    let speed = written as f64 / elapsed;
     progress(
         state_sync,
         json!({
@@ -411,6 +331,7 @@ async fn download(
 /// `SelfUpdateExecutor.cancel()`.
 fn cancel_update(state_sync: &Arc<StateSync>) -> IpcResult<Value> {
     cancel_flag().store(true, Ordering::SeqCst);
+    super::portable_update::cancel();
 
     if let Some(pending) = pending().lock().unwrap().take() {
         let _ = std::fs::remove_file(&pending.updater_path);
@@ -425,7 +346,7 @@ async fn uninstall_app(
     _state_sync: &Arc<StateSync>,
     settings: &Arc<SettingFactory>,
 ) -> IpcResult<Value> {
-    if !lifecycle_supported() {
+    if UPDATER_BYTES.is_empty() || !lifecycle_supported() {
         return Ok(json!({ "result": "failed", "reason": PLATFORM_UNSUPPORTED_REASON }));
     }
 
@@ -475,6 +396,7 @@ fn temp_dir() -> PathBuf {
 /// next launch reads. `spawn` rather than `spawn_wait` — the updater replaces this
 /// exe while it is on disk, so it must outlive us.
 pub fn spawn_pending_on_quit(app: &tauri::AppHandle) {
+    super::portable_update::spawn_on_quit(&user_data_dir());
     let Some(pending) = pending().lock().unwrap().take() else {
         return;
     };
@@ -576,10 +498,19 @@ pub fn start(
     let version = version.to_string();
     tauri::async_runtime::spawn(async move {
         loop {
+            let mut delay=UPDATE_CHECK_INTERVAL;
             if crate::launchers::auto_check_enabled(&factory) {
-                let _ = crate::launchers::check_latest_release(&api, &sync, &version).await;
+                let _=sync.set(NAMESPACE,"state","isCheckingUpdates",json!(true));
+                let checked=crate::launchers::check_latest_release(&api, &sync, &version).await;
+                let _=sync.set(NAMESPACE,"state","isCheckingUpdates",json!(false));
+                if checked.as_ref().map_or(true,|v|v["result"]=="failed"){delay=std::time::Duration::from_secs(60);}
+                if checked.ok().is_some_and(|v|v["result"]=="new-updates") && setting(&factory,"autoDownloadUpdates")==true {
+                    if let Some(info)=release_info(&sync) {
+                        if setting(&factory,"ignoreVersion")!=info["version"] { let _=start_update(&sync,&factory,false).await; }
+                    }
+                }
             }
-            tokio::time::sleep(UPDATE_CHECK_INTERVAL).await;
+            tokio::time::sleep(delay).await;
         }
     });
 }

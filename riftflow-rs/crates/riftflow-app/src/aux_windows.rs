@@ -369,6 +369,7 @@ pub fn start(app: &AppHandle) -> anyhow::Result<()> {
 
 #[derive(Default)]
 struct Applied {
+    aux_auto_shown: bool,
     /// the per-window work that must happen exactly once after `ready`
     ready_done: bool,
     /// Auto-show OP.GG only once per champion-select phase. A manual close must stick.
@@ -386,6 +387,18 @@ struct Applied {
 }
 
 impl Applied {
+    fn take_aux_auto_show(&mut self, timing: ShowTiming) -> bool {
+        if timing != ShowTiming::Show {
+            self.aux_auto_shown = false;
+            return false;
+        }
+        if self.aux_auto_shown {
+            return false;
+        }
+        self.aux_auto_shown = true;
+        true
+    }
+
     fn take_opgg_auto_show(&mut self, phase: Option<&str>, eligible: bool) -> bool {
         if phase != Some("ChampSelect") {
             self.opgg_shown_in_champ_select = false;
@@ -623,12 +636,14 @@ impl Watcher {
         self.apply_pinned(suffix);
 
         if !enabled {
+            self.applied.entry(suffix.to_string()).or_default().aux_auto_shown = false;
             return;
         }
 
         // the connectionState reaction is not part of `showTiming`: it hides the
         // window even when `autoShow` is off
         if !connected {
+            self.applied.entry(suffix.to_string()).or_default().aux_auto_shown = false;
             self.conceal(suffix);
             return;
         }
@@ -636,10 +651,12 @@ impl Watcher {
         let auto_show = self.flag(suffix, "autoShow");
         let ready = self.ready(suffix);
 
-        match aux_show_timing(auto_show, ready, phase, spectating) {
-            ShowTiming::Show => self.reveal(suffix, false),
+        let timing = aux_show_timing(auto_show, ready, phase, spectating);
+        let reveal = self.applied.entry(suffix.to_string()).or_default().take_aux_auto_show(timing);
+        match timing {
+            ShowTiming::Show if reveal => self.reveal(suffix, false),
             ShowTiming::Hide => self.conceal(suffix),
-            ShowTiming::Ignore => {}
+            _ => {}
         }
     }
 
@@ -1191,6 +1208,20 @@ pub fn unsupported_reason(suffix: &str) -> IpcError {
 
 #[cfg(test)]
 mod tests {
+    #[test]
+    fn mini_manual_hide_survives_ticks_and_pregame_phase_changes() {
+        let mut applied = Applied::default();
+        for (phase, expected) in [("Lobby", true), ("Lobby", false),
+            ("Matchmaking", false), ("ReadyCheck", false), ("ChampSelect", false)] {
+            let timing = aux_show_timing(true, true, Some(phase), false);
+            assert_eq!(applied.take_aux_auto_show(timing), expected);
+        }
+        assert!(!applied.take_aux_auto_show(aux_show_timing(true, true, Some("InProgress"), false)));
+        assert!(applied.take_aux_auto_show(aux_show_timing(true, true, Some("Lobby"), false)));
+        assert!(!applied.take_aux_auto_show(aux_show_timing(false, true, Some("Lobby"), false)));
+        assert!(applied.take_aux_auto_show(aux_show_timing(true, true, Some("Lobby"), false)));
+    }
+
     #[test]
     fn opgg_close_stays_hidden_until_next_champion_select() {
         let mut applied = super::Applied::default();

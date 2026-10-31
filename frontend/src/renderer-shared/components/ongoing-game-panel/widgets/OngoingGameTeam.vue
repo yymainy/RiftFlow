@@ -14,6 +14,9 @@
         $t(`teams.${teamIdentifier}`, { ns: 'common', defaultValue: teamIdentifier })
       }}</span>
 
+      <span class="mr-3 text-xs text-black/60 dark:text-white/60">{{
+        $t('ongoingGame.panel.identifiedPlayers', { count: puuids.length })
+      }}</span>
       <TeamTagsArea v-if="puuids.length >= 1" :teamIdentifier="teamIdentifier" />
     </div>
 

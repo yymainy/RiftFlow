@@ -4,6 +4,7 @@ ongoingGame:
     loading: 'Loading account signals'
     insufficient: 'Insufficient evidence'
     none: 'No clear signals'
+    watch: 'Strong performance, worth noting'
     smurf: 'Possible alternate-account signals'
     change: 'Recent performance shift'
     sample_one: 'Last 30 days, {{queue}}: {{count}} eligible match (up to 40).'
@@ -12,6 +13,7 @@ ongoingGame:
     excluded_other: '{{count}} other loaded matches were excluded due to queue, duration or missing data.'
     solo: 'Solo/Duo'
     flex: 'Flex'
+    aram: 'ARAM'
     strength: 'Rule support: {{value}}. This is not an identity probability.'
     moderate: 'Moderate'
     strong: 'More supporting samples'
@@ -19,9 +21,14 @@ ongoingGame:
     winRate_one: '{{rate}}% win rate over {{count}} eligible ranked match.'
     winRate_other: '{{rate}}% win rate over {{count}} eligible ranked matches.'
     kda: 'Median KDA {{value}}, with KDA of at least 4 in 60% or more of the sample.'
+    aramWinRate_one: '{{rate}}% win rate over {{count}} eligible ARAM match.'
+    aramWinRate_other: '{{rate}}% win rate over {{count}} eligible ARAM matches.'
+    aramKda: 'Median KDA {{value}}, with KDA of at least 4 in 60% or more of the ARAM sample.'
     shift: 'Comparable role and champion samples: recent 10 wins {{after}}% vs prior 10 {{before}}%; median KDA changed from {{oldKda}} to {{newKda}}.'
     minimum: 'Requires 12 eligible matches in one ranked queue. Performance shifts require 20 with comparable roles and champions.'
+    aramMinimum: 'Requires 12 eligible ARAM matches from the last 30 days. High-intensity signals need a high win rate plus one more clue.'
     caution: 'Describes loaded match statistics only. Cannot confirm alternate accounts, boosting or paid companionship. No signal does not rule them out; streaks, patches and form also affect performance.'
+    aramCaution: 'Describes loaded ARAM statistics only. Cannot confirm alternate accounts, boosting or paid companionship; matchmaking, team compositions and premade stacks also affect win rate.'
   titlebar:
     draftMode: Draft Mode
     exitDraft: Exit Draft Mode
@@ -173,6 +180,7 @@ ongoingGame:
     gamesAnalyzed_one: '{{count}} game'
     gamesAnalyzed_other: '{{count}} games'
   playerCard:
+    incompleteMatchHistory: 'History received, but player details are incomplete. Please retry.'
     reload: Reload
     empty: No matches found for this queue
     loadingMatchHistory: Loading...
@@ -307,9 +315,79 @@ ongoingGame:
     winRate: Win Rate {{rate}}%
     kda: KDA {{kda}}
   panel:
+    identifiedPlayers_one: '{{count}} identified player'
+    identifiedPlayers_other: '{{count}} identified players'
     disconnected: Not connected to the client
     waitingForSpectate: Waiting for spectate delay
     noOngoingGame: No ongoing game
     disabled: Game analysis disabled, please re-enable this feature in settings
     avgTeamWinRate: Average Team Win Rate
     avgTeamKda: Average Team KDA
+
+opponentScout:
+  waitingChampion: 'Waiting for champion data'
+  rosterStatus: 'Players in roster: {{total}} · Champions identified: {{identified}}'
+  title: 'Opponent Scout'
+  collapse: 'Collapse'
+  expand: 'Expand'
+  close: 'Close this match'
+  caption: 'Opponents · up to 20 recent completed games in this queue'
+  record: '{{count}} games · {{wins}} W {{losses}} L'
+  championRecord: 'Current champion: {{championCount}} games, {{championWins}} wins in this sample'
+  loading: 'Loading player data…'
+  failed: 'Match history unavailable'
+  retry: 'Retry'
+  empty: 'No completed games in this queue; insufficient data'
+  waiting: 'Waiting for an active match and identifiable opponents'
+  disabled: 'Enable game queries in the game settings to load players'
+  caution: 'Reference only; not proof of skill or boosting. Use borderless game mode to view above the game. Drag the header to move.'
+  hiddenName: 'Player name hidden'
+  unknownName: 'Loading identity'
+  noRank: 'Rank unavailable'
+  windowError: 'Window control failed. Retry or restart the app.'
+  signalSample: '{{count}} games used for signals'
+  settings: 'Opponent Scout overlay'
+  settingsDescription: 'Automatically show a separate compact window when a match starts. Game queries must also be enabled.'
+  open: 'Open window'
+  autoShow: 'Show automatically'
+  offRole: 'Possible off-role pick'
+  mainPosition: 'Most played: {{position}}, {{share}}% · known positions: {{known}}'
+  unknownPosition: 'Position data unavailable or most-played roles tied'
+  positionRecord_one: '{{position}} sample: {{count}} game · {{wins}} W {{losses}} L'
+  positionRecord_other: '{{position}} sample: {{count}} games · {{wins}} W {{losses}} L'
+  together_one: 'With enemy {{champion}}: {{count}} game · {{wins}} W {{losses}} L'
+  together_other: 'With enemy {{champion}}: {{count}} games · {{wins}} W {{losses}} L'
+  apart_one: 'Verified without this player: {{count}} game · {{wins}} W {{losses}} L'
+  apart_other: 'Verified without this player: {{count}} games · {{wins}} W {{losses}} L'
+  unknownRoster_one: '{{count}} incomplete roster excluded from the line above'
+  unknownRoster_other: '{{count}} incomplete rosters excluded from the line above'
+  partnerCaution: 'Past teammates, not confirmed duo partners. Playing apart does not imply solo queue.'
+  noPartner: 'No verified recurring teammate; roster data may be incomplete'
+  positions:
+    TOP: 'Top'
+    JUNGLE: 'Jungle'
+    MIDDLE: 'Mid'
+    BOTTOM: 'Bot'
+    UTILITY: 'Support'
+  aramStrength:
+    title: 'ARAM match strength'
+    ours: 'Our team'
+    enemy: 'Enemy team'
+    line_one: '{{winRate}}% · KDA {{kda}} · {{count}} sampled game · avg level {{level}}'
+    line_other: '{{winRate}}% · KDA {{kda}} · {{count}} sampled games · avg level {{level}}'
+    coverage: '{{sampled}}/{{total}} players sampled'
+    stack: 'Stack {{size}}'
+    insufficient: 'Insufficient sample'
+    verdict:
+      unknown: 'Waiting for both teams'
+      insufficient: 'Insufficient sample'
+      even: 'Evenly matched'
+      higher: 'Our team slightly stronger'
+      muchHigher: 'Our team clearly stronger'
+      lower: 'Our team slightly weaker'
+      muchLower: 'Our team clearly weaker'
+    caution: 'Based on the last 30 days of ARAM win rate, KDA, account level and premade stack size; not hidden MMR.'
+  aramPlayer:
+    line_one: 'ARAM {{winRate}}% · KDA {{kda}} · {{count}} game'
+    line_other: 'ARAM {{winRate}}% · KDA {{kda}} · {{count}} games'
+    empty: 'Insufficient ARAM sample'

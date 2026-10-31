@@ -26,6 +26,7 @@ pub trait SavedPlayer: Send + Sync {
 pub struct Caches {
     game_summary: std::sync::Mutex<Lru>,
     game_details: std::sync::Mutex<Lru>,
+    summary_flights: std::sync::Mutex<std::collections::HashMap<String, std::sync::Weak<tokio::sync::Mutex<()>>>>,
 }
 
 impl Caches {
@@ -33,11 +34,23 @@ impl Caches {
         Arc::new(Self {
             game_summary: std::sync::Mutex::new(Lru::new(256)),
             game_details: std::sync::Mutex::new(Lru::new(256)),
+            summary_flights: std::sync::Mutex::new(std::collections::HashMap::new()),
         })
     }
 
     pub fn summary(&self, key: &str) -> Option<Value> {
         self.game_summary.lock().unwrap().get(key)
+    }
+
+    pub fn summary_gate(&self, key: &str) -> Arc<tokio::sync::Mutex<()>> {
+        let mut flights = self.summary_flights.lock().unwrap();
+        flights.retain(|_, value| value.strong_count() > 0);
+        if let Some(gate) = flights.get(key).and_then(std::sync::Weak::upgrade) {
+            return gate;
+        }
+        let gate = Arc::new(tokio::sync::Mutex::new(()));
+        flights.insert(key.to_string(), Arc::downgrade(&gate));
+        gate
     }
 
     pub fn put_summary(&self, key: &str, value: &Value) {

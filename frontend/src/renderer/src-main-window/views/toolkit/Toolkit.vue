@@ -26,10 +26,12 @@ import InProcess from './in-process/InProcess.vue'
 import Lobby from './lobby/Lobby.vue'
 import LootTools from './loot-tools/LootTools.vue'
 import Misc from './misc/Misc.vue'
+import HeroShop from './hero-shop/HeroShop.vue'
 
 const { t } = useTranslation()
 
 const tabs = computed<TabConfig[]>(() => [
+  { key: 'hero-shop', name: '购买英雄', icon: GiftFilled, component: HeroShop },
   {
     key: 'client',
     name: t('toolkit.home.client'),

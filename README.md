@@ -15,17 +15,18 @@ RiftFlow 是一款 Windows 英雄联盟桌面工具，提供对局分析、客�
 | 皮肤资产       | 按英雄分类查看已拥有与未拥有的皮肤，支持筛选和 CSV 导出；永久拥有与限时体验分别处理。      |
 | 个人工具       | 对线记忆卡、练习目标、大乱斗装备方案批量配置和游戏设置快照。                               |
 | 个人版本简报   | 可选择国服或国际服公告来源，按关注英雄及装备筛选更新内容。                                 |
+| AI 助手        | 使用自己配置的模型进行战绩总结、阵容建议、成长周报、单场复盘、英雄上手和笔记整理。       |
 | 界面与设置     | 支持多种主题，默认跟随系统，提供托盘、快捷键和关闭行为设置。                               |
 
 ## 下载
 
-最新版本为 **v1.0.0**，通过 GitHub Releases 发布：
+最新发布版本为 **v1.6.0**，安装包通过 GitHub Releases 提供：
 
 - 固定下载入口：<https://github.com/yymainy/RiftFlow/releases/latest/download/RiftFlow.exe>
 - 全部版本与发布说明：<https://github.com/yymainy/RiftFlow/releases>
 - 文件大小、SHA256 与历史版本：见 [DOWNLOADS.md](DOWNLOADS.md)
 
-v1.0.0 是仓库公开后的首个发行版本。此前发布的 1.5.1 使用旧编号，与本仓库版本线不连续，不再作为更新来源；请以 Release 页面的最新版本为准。
+v1.0.0 是仓库公开后的首个发行版本。当前版本采用 1.6.0，避免将服务端保留的旧版 1.5.1 误判为更新。首次请手动换用本次新版，之后可以通过软件接收更新提示。
 
 1. 下载 `RiftFlow.exe` 后直接运行，无需安装；是否可单独移动 EXE，以对应版本的发布说明为准。
 2. 启动并登录英雄联盟客户端，等待软件显示已连接。战绩同步、皮肤资产同步等功能需要相应客户端接口可用。
@@ -34,6 +35,8 @@ v1.0.0 是仓库公开后的首个发行版本。此前发布的 1.5.1 使用旧
 未连接时不能同步账号资产；已有本地快照仍可查看。新账号显示 0 项已拥有皮肤可能是正常结果，不能仅凭数量判断同步失败。
 
 ## 系统要求
+
+AI 默认配置由服务器通过 HTTPS、X25519 和 AES-256-GCM 加密下发，不再需要本地 JSON。点击右上角星光图标打开助手，可在设置中填写自己的 URL、密钥、模型，或恢复默认；自定义配置使用 Windows DPAPI 保护。设置中也可启停选人结束后的自动建议。普通问答默认不附带战绩，数据分析可展开查看资料。详细说明见 [AI 配置说明](riftflow-rs/AI配置说明.md)。
 
 - Windows 10 或 Windows 11（64 位）。
 - Microsoft Edge WebView2 Runtime；Windows 11 通常已自带，Windows 10 若缺失需先安装。
@@ -49,7 +52,7 @@ v1.0.0 是仓库公开后的首个发行版本。此前发布的 1.5.1 使用旧
 - 版本简报分别使用腾讯国服与 Riot 国际服公告；国际服的发布时间、上线时间和数值不应直接视为国服结论。
 - 皮肤快照对应同步时登录的账号；限时体验不计为永久拥有。客户端目录与实际可购买商品不一定一致。
 - 独立服务提供公告、联系渠道、配置及版本信息，未接入玩家档案或皮肤资产上传。
-- 自动安装更新目前禁用，发布版本元数据不代表软件能自动替换 EXE。
+- Windows x64 支持自动检查更新并提示，确认后下载并校验 EXE，选择重启或正常退出后完成替换。
 
 本工具不是 Riot Games 或腾讯的官方产品。使用前请确认相关游戏规则及用户协议，软件不保证账号安全或所有环境下的兼容性。
 
@@ -58,7 +61,7 @@ v1.0.0 是仓库公开后的首个发行版本。此前发布的 1.5.1 使用旧
 - **启动后一直显示未连接客户端？** 先启动并登录英雄联盟客户端。部分功能还要求进入英雄选择或对局，客户端未就绪时相关按钮可能不可用。
 - **新账号显示 0 项已拥有皮肤？** 统计只计入永久拥有；租用、限时体验以及默认/经典模型不计入。客户端目录与商城在售列表也可能不同。
 - **“同步全部”为什么没有覆盖账号全部历史？** 该操作只同步上游当前能返回的记录，不代表完整历史。
-- **可以自动安装更新吗？** 目前不行。发布信息中的版本元数据不代表软件会自动替换 EXE。
+- **可以自动安装更新吗？** Windows x64 可以。默认先提示，下载完成后由用户选择重启；设置中可开启自动下载。详见 [自动更新](docs/AUTO_UPDATE.md)。
 - **国服和国际服的结果为什么不同？** 两服的接口、公告来源和数据范围不同；国际服的发布时间与数值不应直接当作国服结论。
 
 ## 目录
@@ -75,20 +78,13 @@ v1.0.0 是仓库公开后的首个发行版本。此前发布的 1.5.1 使用旧
 在仓库根目录打开 PowerShell：
 
 ```powershell
-git clone https://github.com/yymainy/RiftFlow.git
-cd RiftFlow
-cd frontend
-node .yarn/releases/yarn-4.9.1.cjs install --immutable
-node scripts/build-desktop-renderer.mjs
-cd ../riftflow-rs
-New-Item -ItemType Directory -Force renderer-dist
-Copy-Item renderer-build/* renderer-dist -Recurse -Force
-cargo build -p riftflow-app --bin riftflow --release
+.\scripts\package-desktop.ps1 -CheckOnly  # 检查已有界面资源
+.\scripts\package-desktop.ps1             # 构建并整理完整发布包
 ```
 
-输出为 `riftflow-rs/target/release/riftflow.exe`。上述命令构建桌面程序，不会自动准备所有游戏图标缓存或生成完整发布包；发布时需检查资源是否齐全，并随包提供许可和第三方声明。
+完整流程和常见遗漏记录在 [打包手册](docs/PACKAGING.md)。脚本按顺序执行前端构建、窗口与图标校验、Rust 编译，并在 `dist/` 生成附带许可、资源构建记录和 SHA256 的目录与 ZIP；不会发布或部署。首次没有构建产物时可直接运行正常构建；需要更新图标时加 `-RefreshIcons`。不要在 Vite 清空输出目录期间并行编译 Tauri。
 
-历史 Electron 原生插件与旧更新器二进制不再随源码提供。当前 Rust/Tauri 发布入口不使用这些插件；自动安装更新保持禁用，启用前需重新构建并验证自有更新器。
+历史 Electron 原生插件与旧更新器二进制不再随源码提供。当前 Rust/Tauri 发布入口不使用这些插件；更新助手由当前程序复制生成，不需要另带旧更新器二进制。
 
 ## 验证
 
@@ -120,7 +116,7 @@ node --test backend/server.test.mjs
 3. 在对应 GitHub Release 中把可执行文件以 `RiftFlow.exe` 文件名上传；`https://github.com/yymainy/RiftFlow/releases/latest/download/RiftFlow.exe` 为固定下载入口。
 4. 更新 [DOWNLOADS.md](DOWNLOADS.md) 中的版本、大小和 SHA256。
 
-自动安装更新目前保持禁用；发布元数据不代表客户端会自动替换自身。
+自动更新元数据需提供 Windows x64 EXE 的真实大小、SHA256 与不可变 HTTPS 地址，详见 [自动更新发布约定](docs/AUTO_UPDATE.md)。
 
 ## 独立后端
 

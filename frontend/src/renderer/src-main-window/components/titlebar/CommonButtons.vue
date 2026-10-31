@@ -1,5 +1,49 @@
 <template>
   <div class="common-buttons" :class="{ blurred: mws.focus === 'blurred' }">
+    <NTooltip :z-index="TITLE_BAR_TOOLTIP_Z_INDEX">
+      <template #trigger>
+        <div
+          class="common-button-outer ai-assistant-trigger"
+          role="button"
+          tabindex="0"
+          :aria-label="t('aiAssistant.title')"
+          @click="openAiAssistant"
+          @keydown.enter.prevent="openAiAssistant"
+          @keydown.space.prevent="openAiAssistant"
+        >
+          <div class="common-button-inner">
+            <NIcon><SparklesOutline /></NIcon>
+          </div>
+        </div>
+      </template>
+      {{ t('aiAssistant.title') }}
+    </NTooltip>
+    <NTooltip
+      v-if="updateState.releaseInfo?.isNew || updateState.updateProgressInfo"
+      :z-index="TITLE_BAR_TOOLTIP_Z_INDEX"
+    >
+      <template #trigger>
+        <div
+          class="common-button-outer"
+          role="button"
+          tabindex="0"
+          aria-label="软件更新"
+          @click="sn.showNewReleaseModal()"
+          @keydown.enter.prevent="sn.showNewReleaseModal()"
+          @keydown.space.prevent="sn.showNewReleaseModal()"
+        >
+          <NBadge dot
+            ><div class="common-button-inner">
+              <NIcon><ArrowUpCircleOutline /></NIcon></div
+          ></NBadge>
+        </div>
+      </template>
+      {{
+        updateState.updateProgressInfo?.phase === 'waiting-for-restart'
+          ? '更新已就绪，点击重启'
+          : '发现新版本，点击查看'
+      }}
+    </NTooltip>
     <!-- notice -->
     <NPopover
       :z-index="TITLE_BAR_TOOLTIP_Z_INDEX"
@@ -147,7 +191,12 @@ import {
 } from '@shared/types/app-theme'
 import { Checkmark, Notification } from '@vicons/carbon'
 import { Window24Filled } from '@vicons/fluent'
-import { ColorPaletteOutline, LogoGithub } from '@vicons/ionicons5'
+import {
+  ArrowUpCircleOutline,
+  ColorPaletteOutline,
+  LogoGithub,
+  SparklesOutline
+} from '@vicons/ionicons5'
 import { useTranslation } from 'i18next-vue'
 import { NBadge, NButton, NDropdown, NIcon, NPopover, NTag, NTooltip } from 'naive-ui'
 import { DropdownMixedOption } from 'naive-ui/es/dropdown/src/interface'
@@ -156,15 +205,19 @@ import { computed, h, ref } from 'vue'
 import { SimpleNotificationsRenderer } from '@main-window/shards/simple-notifications'
 import { useSimpleNotificationsStore } from '@main-window/shards/simple-notifications/store'
 
+import { useSelfUpdateStore } from '@renderer-shared/shards/self-update/store'
 import BackgroundTasks from '../BackgroundTasks.vue'
+import { useMainWindowAppContext } from '@main-window/context'
 
 const { t } = useTranslation()
+const { openAiAssistant } = useMainWindowAppContext()
 
 const mws = useMainWindowStore()
 const aws = useAuxWindowStore()
 const ows = useOpggWindowStore()
 const aks = useRiftFlowApiStore()
 const sns = useSimpleNotificationsStore()
+const updateState = useSelfUpdateStore()
 const as = useAppCommonStore()
 const wm = useInstance(WindowManagerRenderer)
 const sn = useInstance(SimpleNotificationsRenderer)

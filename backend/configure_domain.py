@@ -35,6 +35,7 @@ if activate:
         proxy_pass http://127.0.0.1:8091;
         proxy_set_header Host $host;
         proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_set_header X-Real-IP $remote_addr;
         client_max_body_size 1m;
         proxy_read_timeout 20s;
     }}

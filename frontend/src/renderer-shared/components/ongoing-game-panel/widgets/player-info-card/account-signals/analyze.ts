@@ -12,13 +12,37 @@ export interface SignalMatch {
 }
 
 export interface AccountSignals {
-  status: 'insufficient' | 'none' | 'smurf' | 'change'
+  status: 'insufficient' | 'none' | 'watch' | 'smurf' | 'change'
   strength: 'limited' | 'moderate' | 'strong'
   count: number
   excluded: number
   queue: number | null
   evidence: { key: string; values: Record<string, number> }[]
   gameIds: number[]
+}
+
+export type AccountMode = 'sr' | 'aram'
+
+const MODE_CONFIG = {
+  sr: {
+    queues: [420, 440] as number[],
+    minDuration: 900,
+    maxDuration: 7200,
+    minSample: 12,
+    winRate: 0.75,
+    kdaMedian: 4,
+    sustainedKda: 4
+  },
+  // ARAM has no LP and a separate hidden MMR; these are descriptive performance rules.
+  aram: {
+    queues: [450] as number[],
+    minDuration: 600,
+    maxDuration: 3600,
+    minSample: 12,
+    winRate: 0.65,
+    kdaMedian: 5,
+    sustainedKda: 4
+  }
 }
 
 const median = (values: number[]) => {
@@ -42,15 +66,17 @@ export function analyzeAccount(
   matches: SignalMatch[],
   level: number | undefined,
   now: number,
-  preferredQueue?: number
+  preferredQueue?: number,
+  mode: AccountMode = 'sr'
 ): AccountSignals {
+  const config = MODE_CONFIG[mode]
   const unique = new Map<number, SignalMatch>()
   for (const m of matches) {
     if (typeof m.won !== 'boolean') continue
     if (
-      ![420, 440].includes(m.queue) ||
-      m.duration < 900 ||
-      m.duration > 7200 ||
+      !config.queues.includes(m.queue) ||
+      m.duration < config.minDuration ||
+      m.duration > config.maxDuration ||
       m.at > now ||
       now - m.at > 30 * 86400000
     )
@@ -65,12 +91,14 @@ export function analyzeAccount(
     unique.set(m.id, m)
   }
   const valid = [...unique.values()]
-  const queue = [420, 440].includes(preferredQueue || 0)
+  const queue = config.queues.includes(preferredQueue || 0)
     ? preferredQueue!
-    : [420, 440].sort(
-        (a, b) =>
-          valid.filter((m) => m.queue === b).length - valid.filter((m) => m.queue === a).length
-      )[0]
+    : mode === 'aram'
+      ? 450
+      : [420, 440].sort(
+          (a, b) =>
+            valid.filter((m) => m.queue === b).length - valid.filter((m) => m.queue === a).length
+        )[0]
   const sample = valid
     .filter((m) => m.queue === queue)
     .sort((a, b) => b.at - a.at)
@@ -84,20 +112,33 @@ export function analyzeAccount(
     evidence: [],
     gameIds: sample.map((m) => m.id)
   }
-  if (sample.length < 12) return result
+  if (sample.length < config.minSample) return result
   result.status = 'none'
   const wr = winRate(sample)
   const typicalKda = median(sample.map(kda))
-  const sustained = sample.filter((m) => kda(m) >= 4).length / sample.length >= 0.6
+  const sustained =
+    sample.filter((m) => kda(m) >= config.sustainedKda).length / sample.length >= 0.6
   if (Number.isFinite(level) && level! >= 30 && level! <= 80)
     result.evidence.push({ key: 'lowLevel', values: { level: level! } })
-  if (wr >= 0.75)
+  if (wr >= config.winRate)
     result.evidence.push({
-      key: 'winRate',
+      key: mode === 'aram' ? 'aramWinRate' : 'winRate',
       values: { count: sample.length, rate: Math.round(wr * 100) }
     })
-  if (typicalKda >= 4 && sustained)
-    result.evidence.push({ key: 'kda', values: { value: Number(typicalKda.toFixed(1)) } })
+  if (typicalKda >= config.kdaMedian && sustained)
+    result.evidence.push({
+      key: mode === 'aram' ? 'aramKda' : 'kda',
+      values: { value: Number(typicalKda.toFixed(1)) }
+    })
+  if (mode === 'aram') {
+    if (result.evidence.length >= 3) {
+      result.status = 'smurf'
+      result.strength = sample.length >= 20 ? 'strong' : 'moderate'
+    } else if (result.evidence.length === 2) {
+      result.status = 'watch'
+    }
+    return result
+  }
   if (result.evidence.length === 3) {
     result.status = 'smurf'
     result.strength = sample.length >= 20 ? 'strong' : 'moderate'

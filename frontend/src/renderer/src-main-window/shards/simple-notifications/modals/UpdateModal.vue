@@ -37,7 +37,18 @@
       >
         <div class="markdown-container markdown-body" v-html="markdownHtmlText"></div>
       </NScrollbar>
+      <div v-if="updateProgressInfo" class="para my-3">{{ updateButtonText }}</div>
       <div class="button-group">
+        <NButton v-if="updateProgressInfo" size="small" @click="emits('cancelDownload')"
+          >取消更新</NButton
+        >
+        <NButton
+          v-if="updateProgressInfo?.phase === 'waiting-for-restart'"
+          size="small"
+          type="primary"
+          @click="emits('restart')"
+          >重启完成更新</NButton
+        >
         <ExternalLink class="small-link" v-if="externalDownloadUrl" :href="externalDownloadUrl">
           {{ t('notifications.updateModal.externalDownload') }}
         </ExternalLink>
@@ -51,8 +62,12 @@
           {{ t('notifications.updateModal.ignoreThisVersion') }}
         </NCheckbox>
         <NButton
-          v-if="release.isNew && release.isUpdateSupported"
-          :loading="isUpdating"
+          v-if="
+            release.isNew &&
+            release.isUpdateSupported &&
+            updateProgressInfo?.phase !== 'waiting-for-restart'
+          "
+          :loading="updateProgressInfo?.phase === 'downloading'"
           :disabled="isUpdating"
           size="small"
           type="primary"
@@ -67,7 +82,7 @@
 
 <script setup lang="ts">
 import ExternalLink from '@renderer-shared/components/ExternalLink.vue'
-import { markdownIt } from '@renderer-shared/utils/markdown'
+import { renderAiMarkdown } from '@renderer-shared/components/ai-advice/markdown'
 import type { SelfUpdateReleaseInfo, UpdateProgressInfo } from '@shared/shards/self-update'
 import { useTranslation } from 'i18next-vue'
 import { NButton, NCheckbox, NModal, NScrollbar } from 'naive-ui'
@@ -82,15 +97,19 @@ const props = defineProps<{
 const emits = defineEmits<{
   ignoreVersion: [version: string, ignore: boolean]
   startDownload: []
+  restart: []
+  cancelDownload: []
 }>()
 
 const { t } = useTranslation()
 
 const markdownHtmlText = computed(() => {
-  return markdownIt.render(props.release?.description || t('notifications.updateModal.noUpdateMd'))
+  return renderAiMarkdown(props.release?.description || t('notifications.updateModal.noUpdateMd'))
 })
 
-const isUpdating = computed(() => props.updateProgressInfo !== null)
+const isUpdating = computed(
+  () => props.updateProgressInfo !== null && props.updateProgressInfo.phase !== 'download-failed'
+)
 
 const updateButtonText = computed(() => {
   if (!props.updateProgressInfo) {

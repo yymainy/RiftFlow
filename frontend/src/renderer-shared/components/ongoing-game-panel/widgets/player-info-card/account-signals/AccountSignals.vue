@@ -21,9 +21,11 @@
           t('ongoingGame.accountSignals.sample', {
             count: result.count,
             queue:
-              result.queue === 440
-                ? t('ongoingGame.accountSignals.flex')
-                : t('ongoingGame.accountSignals.solo')
+              result.queue === 450
+                ? t('ongoingGame.accountSignals.aram')
+                : result.queue === 440
+                  ? t('ongoingGame.accountSignals.flex')
+                  : t('ongoingGame.accountSignals.solo')
           })
         }}
       </div>
@@ -39,7 +41,13 @@
         • {{ t(`ongoingGame.accountSignals.${item.key}`, item.values) }}
       </div>
       <div v-if="result.status === 'insufficient'">
-        {{ t('ongoingGame.accountSignals.minimum') }}
+        {{
+          t(
+            result.queue === 450
+              ? 'ongoingGame.accountSignals.aramMinimum'
+              : 'ongoingGame.accountSignals.minimum'
+          )
+        }}
       </div>
       <div v-if="result.gameIds.length" class="flex flex-wrap gap-1">
         <span>{{ t('ongoingGame.accountSignals.sources') }}</span>
@@ -52,7 +60,15 @@
           >#{{ id }}</NButton
         >
       </div>
-      <div>{{ t('ongoingGame.accountSignals.caution') }}</div>
+      <div>
+        {{
+          t(
+            result.queue === 450
+              ? 'ongoingGame.accountSignals.aramCaution'
+              : 'ongoingGame.accountSignals.caution'
+          )
+        }}
+      </div>
     </div>
   </NPopover>
 </template>
@@ -79,13 +95,19 @@ const opponent = computed(() => {
   return !!own && !own.includes(puuid) && teams.some((team) => team.includes(puuid))
 })
 const loading = computed(() => ongoingGame.value.matchHistoryLoadingState[puuid] === 'loading')
+const queue = computed(() => ongoingGame.value.queryStage.gameInfo?.queueId ?? -1)
+const isAram = computed(() => queue.value === 450)
 const result = computed(() => {
   const matches: SignalMatch[] = []
   const history = ongoingGame.value.matchHistory[puuid]?.data || []
   for (const game of history) {
     try {
       const basic = toBasicInfo(game)
-      if (basic.gameMode !== 'CLASSIC' || basic.mapId !== 11) continue
+      if (isAram.value) {
+        if (basic.queueId !== 450 && basic.mapId !== 12) continue
+      } else if (basic.gameMode !== 'CLASSIC' || basic.mapId !== 11) {
+        continue
+      }
       const player = toParticipants(game, basic).find((player) => player.puuid === puuid)
       if (!player || !['win', 'loss'].includes(player.winResult)) continue
       matches.push({
@@ -108,7 +130,8 @@ const result = computed(() => {
     matches,
     ongoingGame.value.summoner[puuid]?.summonerLevel,
     Date.now(),
-    ongoingGame.value.queryStage.gameInfo?.queueId
+    queue.value,
+    isAram.value ? 'aram' : 'sr'
   )
   report.excluded = history.length - report.count
   return report

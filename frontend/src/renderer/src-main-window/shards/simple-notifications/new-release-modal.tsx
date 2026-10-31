@@ -29,12 +29,7 @@ export function registerNewReleaseModal(context: SimpleNotificationsRendererCont
       watch(
         () => [selfUpdateStore.releaseInfo, selfUpdateStore.settings.ignoreVersion] as const,
         ([release, ignoreVersion]) => {
-          if (
-            !release ||
-            !release.isNew ||
-            !release.isUpdateSupported ||
-            ignoreVersion === release.version
-          ) {
+          if (!release || !release.isNew || ignoreVersion === release.version) {
             return
           }
 
@@ -74,6 +69,18 @@ export function registerNewReleaseModal(context: SimpleNotificationsRendererCont
         { immediate: true }
       )
 
+      watch(
+        () => selfUpdateStore.updateProgressInfo?.phase,
+        (phase, previous) => {
+          if (phase === 'waiting-for-restart' && previous !== phase) {
+            notification.success({
+              title: '更新已准备好',
+              content: '更新包校验通过。点击右上角更新图标，可选择重启完成更新。',
+              duration: 0
+            })
+          }
+        }
+      )
       appCommon.onRendererLink((url) => {
         const u = new URL(url)
 
@@ -95,13 +102,19 @@ export function registerNewReleaseModal(context: SimpleNotificationsRendererCont
             onIgnoreVersion: (version: string, ignore: boolean) => {
               selfUpdate.setIgnoreVersion(ignore ? version : null)
             },
-            onStartDownload: () => {
-              simpleNotificationsStore.showNewReleaseModal = false
-              if (import.meta.env.DEV) {
-                selfUpdate.forceStartUpdate()
-              } else {
-                selfUpdate.startUpdate()
-              }
+            onRestart: () => {
+              void appCommon.exit()
+            },
+            onCancelDownload: () => {
+              void selfUpdate.cancelUpdate()
+            },
+            onStartDownload: async () => {
+              const result = (await selfUpdate.startUpdate()) as { result: string; reason?: string }
+              if (result.result === 'failed')
+                notification.error({
+                  title: '更新下载失败',
+                  content: result.reason || '请稍后重试'
+                })
             }
           }}
         />

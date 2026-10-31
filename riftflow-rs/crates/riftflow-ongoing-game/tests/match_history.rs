@@ -21,6 +21,7 @@ const NS: &str = "ongoing-game-main";
 
 #[derive(Default)]
 struct Stub {
+    summary_delay: std::sync::atomic::AtomicU64,
     urls: Mutex<Vec<String>>,
     responses: Mutex<HashMap<String, Value>>,
     /// any url containing this substring comes back as a 500
@@ -38,6 +39,9 @@ impl Fetcher for Stub {
     async fn fetch(&self, request: FetchRequest) -> Result<Value, FetchError> {
         let url = request.url.clone();
         self.urls.lock().unwrap().push(url.clone());
+        if url.contains("/games/") {
+            tokio::time::sleep(std::time::Duration::from_millis(self.summary_delay.load(std::sync::atomic::Ordering::Relaxed))).await;
+        }
 
         if let Some(prefix) = self.fail_containing.lock().unwrap().as_ref() {
             if url.contains(prefix.as_str()) {
@@ -60,7 +64,10 @@ impl Fetcher for Stub {
 
         if url.contains("/games/") {
             let game_id = url.rsplit('/').next().unwrap_or_default().to_string();
-            return Ok(json!({ "gameId": game_id.parse::<i64>().unwrap_or_default(), "detailed": true }));
+            return Ok(json!({ "gameId": game_id.parse::<i64>().unwrap_or_default(), "detailed": true,
+                "participants": [{"participantId":1},{"participantId":2}],
+                "participantIdentities": [{"participantId":1,"player":{"puuid":"a"}},{"participantId":2,"player":{"puuid":"b"}}]
+            }));
         }
 
         Ok(json!({ "url": url }))
@@ -269,6 +276,34 @@ async fn a_failed_summary_falls_back_to_the_list_entry() {
 
     assert_eq!(entry.data[0]["data"]["fromList"], json!(true), "the wrapper kept the list payload");
     assert_eq!(entry.source, ApiSource::Lcu);
+}
+
+#[tokio::test]
+async fn a_partial_shared_cache_never_replaces_the_requested_players_own_record() {
+    let (ctx, _) = harness();
+    ctx.cache.put_summary("lcu:7", &wrap_game(ApiSource::Lcu, 7, json!({
+        "participants":[{"participantId":1}],
+        "participantIdentities":[{"participantId":1,"player":{"puuid":"a"}}]
+    })));
+    let list = json!({"games":{"games":[{"gameId":7,"ownerRecord":true,
+        "participants":[{"participantId":2}],
+        "participantIdentities":[{"participantId":2,"player":{"puuid":"b"}}]
+    }]}});
+    let entry = match_history::lcu_entry(ctx, "b", &list, MatchHistoryQueryParams::with_tag(0,20,None)).await;
+    assert_eq!(entry.data[0]["data"]["ownerRecord"],json!(true));
+}
+
+#[tokio::test]
+async fn concurrent_teammates_wait_for_the_shared_match_instead_of_publishing_incomplete_lists() {
+    let (ctx, stub) = harness();
+    stub.summary_delay.store(30, std::sync::atomic::Ordering::Relaxed);
+    let list = json!({"games":{"games":[{"gameId":7}]}});
+    let params = MatchHistoryQueryParams::with_tag(0,20,None);
+    let (a,b) = tokio::join!(match_history::lcu_entry(ctx.clone(),"a",&list,params.clone()),
+        match_history::lcu_entry(ctx.clone(),"b",&list,params));
+    assert_eq!(a.data[0]["data"]["detailed"],json!(true));
+    assert_eq!(b.data[0]["data"]["detailed"],json!(true));
+    assert_eq!(stub.urls.lock().unwrap().iter().filter(|url|url.contains("/games/7")).count(),1);
 }
 
 #[tokio::test]

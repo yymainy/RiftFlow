@@ -11,6 +11,11 @@ const router = createRouter({
   history: createWebHashHistory(),
   routes: [
     {
+      name: 'ai-assistant',
+      path: '/ai-assistant',
+      component: () => import('../views/ai-assistant/AiAssistant.vue')
+    },
+    {
       name: 'archive',
       path: '/archive',
       component: () => import('../views/archive/ArchiveWorkspace.vue')

@@ -5,7 +5,7 @@ import { ref, shallowReactive, shallowRef } from 'vue'
 export const useSelfUpdateStore = defineStore('shard:self-update-renderer', () => {
   const settings = shallowReactive({
     autoCheckUpdates: true,
-    autoDownloadUpdates: true,
+    autoDownloadUpdates: false,
     ignoreVersion: null as string | null
   })
 

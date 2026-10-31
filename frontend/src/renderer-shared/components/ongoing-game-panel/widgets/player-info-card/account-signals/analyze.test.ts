@@ -91,4 +91,58 @@ describe('account signals', () => {
       ).status
     ).toBe('none')
   })
+  it('uses ARAM-specific samples and requires a high win rate plus another clue', () => {
+    const aram = (n: number) =>
+      games(n).map((m) => ({ ...m, queue: 450, duration: 1200, position: null }))
+
+    const high = analyzeAccount(aram(20), 40, now, 450, 'aram')
+    expect(high.status).toBe('smurf')
+    expect(high.strength).toBe('strong')
+    expect(high.evidence.map((item) => item.key)).toEqual(['lowLevel', 'aramWinRate', 'aramKda'])
+
+    expect(analyzeAccount(aram(20), 400, now, 450, 'aram').status).toBe('watch')
+
+    expect(
+      analyzeAccount(
+        aram(20).map((m) => ({ ...m, kills: 1, assists: 1, deaths: 10 })),
+        400,
+        now,
+        450,
+        'aram'
+      ).status
+    ).toBe('none')
+    expect(
+      analyzeAccount(
+        aram(20).map((m, i) => ({ ...m, won: i % 2 === 0 })),
+        400,
+        now,
+        450,
+        'aram'
+      ).status
+    ).toBe('none')
+  })
+  it('does not mix ARAM samples with ranked games, short games or old games', () => {
+    const aram = (n: number) =>
+      games(n).map((m) => ({ ...m, queue: 450, duration: 1200, position: null }))
+    const mixed = [...aram(10), ...aram(10).map((m) => ({ ...m, id: m.id + 100, queue: 420 }))]
+    expect(analyzeAccount(mixed, 400, now, 450, 'aram').count).toBe(10)
+    expect(
+      analyzeAccount(
+        aram(20).map((m) => ({ ...m, duration: 300 })),
+        400,
+        now,
+        450,
+        'aram'
+      ).count
+    ).toBe(0)
+    expect(
+      analyzeAccount(
+        aram(20).map((m) => ({ ...m, at: now - 31 * 86400000 })),
+        400,
+        now,
+        450,
+        'aram'
+      ).count
+    ).toBe(0)
+  })
 })

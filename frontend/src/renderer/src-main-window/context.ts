@@ -5,6 +5,7 @@ export type AppContext = {
   contentHeight: Ref<number>
 
   openSettingsModal: (tabName?: string) => void
+  openAiAssistant: () => void
 }
 
 export const MainWindowAppContext: InjectionKey<AppContext> = Symbol('MainWindowAppContext')
@@ -13,11 +14,13 @@ export function provideMainWindowAppContext(props: {
   contentWidth: MaybeRefOrGetter<number>
   contentHeight: MaybeRefOrGetter<number>
   openSettingsModal: (tabName?: string) => void
+  openAiAssistant: () => void
 }) {
   provide(MainWindowAppContext, {
     contentWidth: toRef(props.contentWidth),
     contentHeight: toRef(props.contentHeight),
-    openSettingsModal: props.openSettingsModal
+    openSettingsModal: props.openSettingsModal,
+    openAiAssistant: props.openAiAssistant
   })
 }
 

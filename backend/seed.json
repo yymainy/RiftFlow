@@ -515,21 +515,21 @@
     "updatedAt": "2026-10-29T06:00:00.000Z"
   },
   "notice/zh-CN": {
-    "revision": "riftflow-service-20261029-1",
+    "revision": "riftflow-welcome-20261030-1",
     "language": "zh-CN",
     "severity": "low",
-    "summary": "RiftFlow 服务公告",
+    "summary": "欢迎使用 RiftFlow · 使用入门与更新提醒",
     "contentType": "text/markdown",
-    "content": "## 欢迎使用 RiftFlow\n\n公告服务已独立部署。战绩、皮肤资产和个人档案仍由本机处理。\n\n更新程序前请先退出旧版本。",
-    "updatedAt": "2026-10-29T06:00:00.000Z"
+    "content": "## 欢迎使用 RiftFlow\n\n把战绩、皮肤资产和日常练习整理在一起，让每次打开客户端都更有准备。\n\n### 开始使用\n- 启动并登录英雄联盟客户端，等待 RiftFlow 显示已连接，再同步战绩与皮肤资产。\n- 在个人档案中查看记录，按需使用对线记忆卡、练习目标和设置快照。\n- 启用自动选人、自动回复等操作前，请先检查配置并了解对应服区的游戏规则。\n\n### 查看数据时请留意\n- 战绩同步仅包含接口当前可返回的记录，不保证覆盖全部历史；未连接时仍可查看已有本地快照。\n- 皮肤统计区分永久拥有和限时体验，新账号显示 0 项永久皮肤也可能是正常结果。\n- 对手历史分析仅供参考，不能据此认定代练、小号或违规行为。\n- 国服与国际服的版本简报分别使用对应来源，请核对服区与版本。\n\n### 更新与反馈\n更新前请退出旧程序并备份重要档案与配置，从项目发布渠道获取新版本；当前不支持自动安装更新。遇到问题时，请提供版本号、服区、复现步骤和脱敏后的错误信息。\n\n感谢使用。愿每次复盘都有收获，每次开局都更从容。",
+    "updatedAt": "2026-10-30T04:00:00.000Z"
   },
   "notice/en": {
-    "revision": "riftflow-service-20261029-1",
+    "revision": "riftflow-welcome-20261030-1",
     "language": "en",
     "severity": "low",
-    "summary": "RiftFlow service notice",
+    "summary": "Welcome to RiftFlow · Getting started and update reminders",
     "contentType": "text/markdown",
-    "content": "## Welcome to RiftFlow\n\nRiftFlow now hosts its own service notices. Match archives and skin snapshots remain on your computer.",
-    "updatedAt": "2026-10-29T06:00:00.000Z"
+    "content": "## Welcome to RiftFlow\n\nKeep match history, skin inventory and practice notes together, ready for your next session.\n\n### Getting started\n- Launch and sign in to the League client. Wait for RiftFlow to connect before syncing matches or skins.\n- Browse your local archive and try matchup notes, practice goals and settings snapshots.\n- Review settings and your region's game rules before enabling champion selection, replies or other automated actions.\n\n### Reading your data\n- Sync includes only records currently returned by the API, not necessarily your full history. Existing local snapshots remain available while disconnected.\n- Permanent skin ownership and temporary access are counted separately. A new account may correctly show zero permanent skins.\n- Opponent history analysis is for reference and does not prove boosting, alternate accounts or misconduct.\n- Regional patch summaries use their respective sources. Check the region and version before drawing conclusions.\n\n### Updates and feedback\nExit the old app and back up important archives and settings before updating. Get new versions from the project release channel; automatic update installation is currently unavailable. For bug reports, include the app version, region, reproduction steps and redacted error details.\n\nThanks for using RiftFlow. Make every review useful and every match a fresh start.",
+    "updatedAt": "2026-10-30T04:00:00.000Z"
   }
 }

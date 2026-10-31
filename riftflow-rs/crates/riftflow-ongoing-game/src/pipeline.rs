@@ -104,6 +104,7 @@ struct Reactions {
     invalidation: Reaction,
     concurrency: i64,
     was_unavailable: bool,
+    history_game_id: Option<i64>,
 }
 
 impl Default for Reactions {
@@ -120,6 +121,7 @@ impl Default for Reactions {
             invalidation: Reaction::new(Duration::ZERO),
             concurrency: -1,
             was_unavailable: false,
+            history_game_id: None,
         }
     }
 }
@@ -497,10 +499,16 @@ impl OngoingGame {
                 "apiShouldUse": api_source.as_str(),
                 "sgpTokenReady": snapshot.sgp_token_ready,
                 "count": settings.match_history_load_count,
+                "gameId": derived.stage.game_id(),
                 "params": self.ctx.store.match_history_tag_params().to_json(),
             }),
             now,
         ) {
+            let history_game_id = derived.stage.game_id();
+            let force_history = history_game_id.is_some() && history_game_id != reactions.history_game_id;
+            if api_source != ApiSource::Sgp || snapshot.sgp_token_ready {
+                if history_game_id.is_some() { reactions.history_game_id = history_game_id; }
+            }
             drop(reactions);
             if api_source != ApiSource::Sgp || snapshot.sgp_token_ready {
                 let ctx = self.ctx.clone();
@@ -508,7 +516,7 @@ impl OngoingGame {
                 let params = history_params(settings.match_history_load_count, &self.ctx.store.match_history_tag_params());
 
                 tokio::spawn(async move {
-                    crate::match_history::update_match_histories(&ctx, &puuids, &params, api_source, false);
+                    crate::match_history::update_match_histories(&ctx, &puuids, &params, api_source, force_history);
                 });
             }
             reactions = self.reactions.lock().unwrap();

@@ -109,7 +109,7 @@ pub fn declare_all(
         "settings",
         &[
             ("autoCheckUpdates", json!(true)),
-            ("autoDownloadUpdates", json!(true)),
+            ("autoDownloadUpdates", json!(false)),
             ("ignoreVersion", NULL),
         ],
     )?;

@@ -30,6 +30,48 @@ const REQUEST_ID_HEADER: &str = "x-riftflow-proxy-request-id";
 /// renderer's axios interceptor puts a request id on any `riftflow://` call that has
 /// an `AbortSignal`, and calls `cancelProxyRequest(id)` when that signal fires.
 /// Dropping the sender ends the request, exactly like aborting the controller.
+fn bundled_game_icon_path(path: &str) -> Option<String> {
+    static ICONS: std::sync::LazyLock<serde_json::Value> = std::sync::LazyLock::new(|| {
+        serde_json::from_str(include_str!("../assets/game-icon-map.json")).expect("valid bundled icon map")
+    });
+    let path = path.trim_start_matches('/').to_ascii_lowercase();
+    let path = path.strip_prefix("lol-game-data/assets/")?;
+    let key = if let Some(public) = path.strip_prefix("v1/") {
+        public.to_string()
+    } else if path.contains("/items/icons2d/") {
+        let file = path.rsplit('/').next()?;
+        let id = file.split('_').next()?.trim_end_matches(".png").parse::<u32>().ok()?;
+        format!("item-icons/{id}.png")
+    } else if path.contains("/spells/icons2d/") {
+        let name: String = path.rsplit('/').next()?.trim_end_matches(".png")
+            .chars().filter(|c| c.is_ascii_alphanumeric()).collect();
+        format!("spell-names/{name}")
+    } else {
+        return None;
+    };
+    ICONS.get("files")?.get(key)?.as_str().map(str::to_string)
+}
+
+#[cfg(test)]
+mod bundled_icon_tests {
+    use super::bundled_game_icon_path;
+
+    #[test]
+    fn client_icon_paths_resolve_to_packaged_public_assets() {
+        assert_eq!(bundled_game_icon_path("lol-game-data/assets/v1/champion-icons/103.png"), Some("champion-icons/103.png".into()));
+        assert_eq!(bundled_game_icon_path("/lol-game-data/assets/ASSETS/Items/Icons2D/1001_Class_T1_BootsOfSpeed.png"), Some("item-icons/1001.png".into()));
+        assert_eq!(bundled_game_icon_path("lol-game-data/assets/ASSETS/Spells/Icons2D/Summoner_flash.png"), Some("spell-icons/summonerflash.png".into()));
+        assert!(bundled_game_icon_path("lol-game-data/assets/v1/perk-images/styles/7200_domination.png").is_some());
+    }
+
+    #[test]
+    fn unrelated_or_missing_resources_fall_back_to_the_client() {
+        assert_eq!(bundled_game_icon_path("lol-summoner/v1/current-summoner"), None);
+        assert_eq!(bundled_game_icon_path("lol-game-data/assets/v1/champion-icons/999999.png"), None);
+        assert_eq!(bundled_game_icon_path("lol-game-data/assets/v1/../../service.env"), None);
+    }
+}
+
 static CANCELLATIONS: std::sync::LazyLock<
     std::sync::Mutex<std::collections::HashMap<String, tokio::sync::oneshot::Sender<()>>>,
 > = std::sync::LazyLock::new(|| std::sync::Mutex::new(std::collections::HashMap::new()));
@@ -256,11 +298,8 @@ async fn dispatch_inner(
             // Champion portraits are public static data, usable before the client
             // starts. They are embedded with the renderer in the standalone EXE.
             if method.eq_ignore_ascii_case("GET") {
-                if let Some(id) = target.0.strip_prefix("lol-game-data/assets/v1/champion-icons/")
-                    .and_then(|name| name.strip_suffix(".png"))
-                    .and_then(|id| id.parse::<i64>().ok())
-                {
-                    if let Some(asset) = app.asset_resolver().get(format!("game-data/champion-icons/{id}.png")) {
+                if let Some(path) = bundled_game_icon_path(&target.0) {
+                    if let Some(asset) = app.asset_resolver().get(format!("game-data/{path}")) {
                         let mut headers = cors_headers();
                         let mime = if asset.bytes.starts_with(b"\xff\xd8") {
                             "image/jpeg"

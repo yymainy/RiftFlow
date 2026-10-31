@@ -16,8 +16,10 @@ const RIFTFLOW_LEAGUE_CLIENT_HOST = 'league-client'
 const PROTOCOL_RE =
   /^(?:https?:|riftflow:|image:|data:|blob:|file:|ftp:|mailto:|tel:|javascript:|about:)/
 
-const isBundledChampionIcon = (path: string) =>
-  /^\/lol-game-data\/assets\/v1\/champion-icons\/-?\d+\.png$/.test(path)
+const isBundledGameIcon = (path: string) =>
+  /^\/lol-game-data\/assets\/v1\/(?:champion-icons\/-?\d+\.png|item-icons\/\d+\.png|perk-images\/)/i.test(
+    path
+  ) || /^\/lol-game-data\/assets\/.*\/(?:items|spells)\/icons2d\//i.test(path)
 
 function normalizeLcuPath(path: string) {
   const normalized = path.trim()
@@ -38,10 +40,7 @@ export function createRiftFlowGameResourceProvider(): GameResourceProviderValue 
       }
 
       if (!PROTOCOL_RE.test(normalizedSource)) {
-        if (
-          !leagueClient.isConnected &&
-          !isBundledChampionIcon(normalizeLcuPath(normalizedSource))
-        ) {
+        if (!leagueClient.isConnected && !isBundledGameIcon(normalizeLcuPath(normalizedSource))) {
           return null
         }
 
@@ -59,7 +58,7 @@ export function createRiftFlowGameResourceProvider(): GameResourceProviderValue 
           return null
         }
 
-        if (!leagueClient.isConnected && !isBundledChampionIcon(url.pathname)) {
+        if (!leagueClient.isConnected && !isBundledGameIcon(url.pathname)) {
           return null
         }
 

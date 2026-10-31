@@ -23,6 +23,12 @@ mod launchers;
 mod lc_state;
 mod logger;
 mod ongoing_game_main;
+mod opponent_scout;
+mod ai_assistant;
+mod hero_shop;
+mod portable_update;
+mod ai_configuration;
+mod ai_advice_window;
 mod protocol;
 mod riot_client;
 mod rng;
@@ -300,6 +306,7 @@ fn dump_ipc_registry(handle: &tauri::AppHandle, path: &std::ffi::OsStr) -> bool 
 }
 
 fn main() -> anyhow::Result<()> {
+    if let Some(result)=portable_update::run_worker(){return result;}
     // WebView2 defaults its user-data folder next to the executable, which fails
     // for a dev build sitting under target/debug (0x800700AA). Point it at the
     // app's own data directory instead, like the Electron build does.
@@ -462,6 +469,8 @@ fn main() -> anyhow::Result<()> {
     ongoing_game_main::start(&ongoing_game, &league_client, &state_sync, &settings)?;
 
     saved_player::register(&ipc, &settings)?;
+    ai_assistant::register(&ipc, &base_config_dir)?;
+    hero_shop::register(&ipc, &league_client)?;
     archive::register(&ipc, &league_client, &state_sync, &base_config_dir, &settings)?;
 
     // The preset send surface: 22 methods, the three selection props, and the two
@@ -571,6 +580,8 @@ fn main() -> anyhow::Result<()> {
 
             aux_windows::create_enabled(&handle)?;
             aux_windows::start(&handle)?;
+            opponent_scout::start(&handle)?;
+            ai_advice_window::start(&handle)?;
             tray::start(&handle)?;
 
             // mirror LeagueClientUxMain._watchExistingUx(): poll for credentials,

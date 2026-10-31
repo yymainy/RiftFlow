@@ -11,7 +11,9 @@
       <NNotificationProvider>
         <NDialogProvider>
           <GameResourceProvider :value="gameResourceProvider">
-            <App />
+            <AiAdviceWindow v-if="isAiAdvice" />
+            <OpponentScout v-else-if="isOpponentScout" />
+            <App v-else />
           </GameResourceProvider>
         </NDialogProvider>
       </NNotificationProvider>
@@ -35,6 +37,11 @@ import { NConfigProvider, NDialogProvider, NMessageProvider, NNotificationProvid
 import { computed } from 'vue'
 
 import App from './App.vue'
+import OpponentScout from '@renderer-shared/components/opponent-scout/OpponentScout.vue'
+import AiAdviceWindow from '@renderer-shared/components/ai-advice/AiAdviceWindow.vue'
+
+const isOpponentScout = location.pathname.endsWith('/opponent-scout-window.html')
+const isAiAdvice = location.pathname.endsWith('/ai-advice-window.html')
 
 const as = useAppCommonStore()
 const gameResourceProvider = createRiftFlowGameResourceProvider()

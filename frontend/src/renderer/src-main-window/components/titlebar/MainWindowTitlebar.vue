@@ -46,20 +46,22 @@ import TrafficButtons from './TrafficButtons.vue'
 const route = useRoute()
 const { t } = useTranslation()
 const workspaceTitle = computed(() =>
-  route.name === 'archive'
-    ? t('archiveWorkspace.navigation')
-    : route.name === 'skin-assets'
-      ? t('skinAssets.title')
-      : t(
-          'navigation.sidebar.menu.' +
-            ({
-              'player-tabs': 'match-history',
-              'ongoing-game': 'ongoing-game',
-              automation: 'automation',
-              toolkit: 'toolkit',
-              test: 'test'
-            }[String(route.name)] || 'match-history')
-        )
+  route.name === 'ai-assistant'
+    ? t('aiAssistant.title')
+    : route.name === 'archive'
+      ? t('archiveWorkspace.navigation')
+      : route.name === 'skin-assets'
+        ? t('skinAssets.title')
+        : t(
+            'navigation.sidebar.menu.' +
+              ({
+                'player-tabs': 'match-history',
+                'ongoing-game': 'ongoing-game',
+                automation: 'automation',
+                toolkit: 'toolkit',
+                test: 'test'
+              }[String(route.name)] || 'match-history')
+          )
 )
 
 const lcs = useLeagueClientStore()

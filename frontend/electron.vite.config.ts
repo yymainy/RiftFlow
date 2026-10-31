@@ -112,6 +112,8 @@ export default defineConfig({
           auxWindow: resolve(__dirname, 'src/renderer/aux-window.html'),
           opggWindow: resolve(__dirname, 'src/renderer/opgg-window.html'),
           ongoingGameWindow: resolve(__dirname, 'src/renderer/ongoing-game-window.html'),
+          opponentScoutWindow: resolve(__dirname, 'src/renderer/opponent-scout-window.html'),
+          aiAdviceWindow: resolve(__dirname, 'src/renderer/ai-advice-window.html'),
           cdTimerWindow: resolve(__dirname, 'src/renderer/cd-timer-window.html')
         }
       }

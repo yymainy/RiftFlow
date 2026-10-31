@@ -8,6 +8,7 @@
   >
     <SettingsModal v-model:show="isShowingSettingModal" v-model:tab-name="settingModelTab" />
     <MainWindowCloseConfirmModal />
+    <AiAssistantModal v-if="aiEverOpened" v-model:show="aiOpen" />
 
     <SetupInAppScope />
 
@@ -57,7 +58,7 @@ import { SetupInAppScope } from '@renderer-shared/shards/setup-in-app-scope/setu
 import { greeting } from '@renderer-shared/utils/greeting'
 import { useElementSize } from '@vueuse/core'
 import { useTranslation } from 'i18next-vue'
-import { onBeforeUnmount, ref, useTemplateRef, watchEffect } from 'vue'
+import { defineAsyncComponent, onBeforeUnmount, ref, useTemplateRef, watchEffect } from 'vue'
 
 import Sidebar from '@main-window/components/sidebar/Sidebar.vue'
 
@@ -79,11 +80,20 @@ const { t } = useTranslation()
 greeting(as.version)
 
 const contentEl = useTemplateRef('contentEl')
+const AiAssistantModal = defineAsyncComponent(
+  () => import('./views/ai-assistant/AiAssistantModal.vue')
+)
+const aiOpen = ref(false)
+const aiEverOpened = ref(false)
 const { width, height } = useElementSize(contentEl)
 
 provideMainWindowAppContext({
   contentWidth: width,
   contentHeight: height,
+  openAiAssistant: () => {
+    aiEverOpened.value = true
+    aiOpen.value = true
+  },
   openSettingsModal: (tabName?: string) => {
     isShowingSettingModal.value = true
     if (tabName) {

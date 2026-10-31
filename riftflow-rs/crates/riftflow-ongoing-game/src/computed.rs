@@ -548,8 +548,9 @@ fn in_game_champion_selections(snapshot: &LcSnapshot, additional: &Additional) -
         .flatten()
     {
         let puuid = entry.get("puuid").and_then(Value::as_str).unwrap_or_default();
-        if !puuid.is_empty() && puuid != EMPTY_PUUID {
-            upsert(&mut selections, puuid.to_string(), entry.get("championId").and_then(Value::as_i64).unwrap_or_default());
+        let champion_id = entry.get("championId").and_then(Value::as_i64).unwrap_or_default();
+        if !puuid.is_empty() && puuid != EMPTY_PUUID && champion_id > 0 {
+            upsert(&mut selections, puuid.to_string(), champion_id);
         }
     }
 
@@ -565,7 +566,9 @@ fn in_game_champion_selections(snapshot: &LcSnapshot, additional: &Additional) -
     }
 
     for (puuid, champion_id) in &additional.selections {
-        upsert(&mut selections, puuid.clone(), *champion_id);
+        if *champion_id > 0 && !puuid.is_empty() && puuid != EMPTY_PUUID {
+            upsert(&mut selections, puuid.clone(), *champion_id);
+        }
     }
 
     selections
@@ -1233,6 +1236,30 @@ mod tests {
             ]
         );
     }
+
+    #[test]
+    fn a_pending_champion_does_not_erase_a_known_opponent_or_remove_the_roster_slot() {
+        let mut snapshot = in_game_session(vec![json!({"puuid":"self", "championId":1})]);
+        let session = snapshot.gameflow_session.as_mut().unwrap();
+        session["gameData"]["teamTwo"] = json!([
+            {"puuid":"e1","championId":10}, {"puuid":"e2","championId":20},
+            {"puuid":"e3","championId":30}, {"puuid":"e4","championId":40},
+            {"puuid":"e5","championId":0}
+        ]);
+        session["gameData"]["playerChampionSelections"] = json!([
+            {"puuid":"e5","championId":50}
+        ]);
+        let additional = Additional { selections: vec![("e5".into(),0)], ..Default::default() };
+        let selections = in_game_champion_selections(&snapshot, &additional);
+        assert_eq!(selections.iter().find(|(id,_)|id=="e5").map(|(_,champion)|*champion), Some(50));
+        snapshot.gameflow_session.as_mut().unwrap()["gameData"]["playerChampionSelections"] = json!([{ "puuid":"e5", "championId":0 }]);
+        let pending = in_game_champion_selections(&snapshot, &additional);
+        assert!(!pending.iter().any(|(id,_)| id=="e5"));
+        let teams = in_game_teams(&snapshot, &Input::new(snapshot.clone()).stage(), &additional);
+        assert_eq!(teams.iter().find(|(team,_)|team=="TEAM-200").unwrap().1.len(),5);
+    }
+
+
 
     #[test]
     fn positions_carry_the_parsed_role_and_the_raw_position() {

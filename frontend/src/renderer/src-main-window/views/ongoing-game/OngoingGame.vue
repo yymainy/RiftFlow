@@ -1,5 +1,6 @@
 <template>
-  <div class="h-full">
+  <div class="relative h-full">
+    <AiMatchTools />
     <ConnectedMatchPreviewer
       v-model:show="showPreviewModal"
       :game-id="previewingGame.gameId"
@@ -24,6 +25,7 @@
 </template>
 
 <script lang="ts" setup>
+import AiMatchTools from '../ai-assistant/AiMatchTools.vue'
 import ConnectedMatchPreviewer from '@renderer-shared/components/match-preview/ConnectedMatchPreviewer.vue'
 import OngoingGamePanel from '@renderer-shared/components/ongoing-game-panel/OngoingGamePanel.vue'
 import {

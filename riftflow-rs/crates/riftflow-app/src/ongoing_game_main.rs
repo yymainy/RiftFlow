@@ -285,12 +285,39 @@ pub fn start(
     launching?;
 
     let ticker = game.clone();
+    let roster_client = league_client.clone();
+    let roster_sync = state_sync.clone();
     tauri::async_runtime::spawn(async move {
         let mut interval = tokio::time::interval(BACKSTOP);
         interval.set_missed_tick_behavior(tokio::time::MissedTickBehavior::Delay);
 
+        let mut roster_game_id = None;
+        let mut roster_attempts = 0;
         loop {
             interval.tick().await;
+            let session = roster_sync.get(LEAGUE, "gameflow", "session").unwrap_or(Value::Null);
+            let game_id = session.pointer("/gameData/gameId").and_then(Value::as_i64);
+            if game_id != roster_game_id {
+                roster_game_id = game_id;
+                roster_attempts = 0;
+            }
+            let enabled = roster_sync.get(NAMESPACE, "settings", "enabled").and_then(|value| value.as_bool()).unwrap_or(true);
+            let phase = roster_sync.get(LEAGUE, "gameflow", "phase").unwrap_or(Value::Null);
+            if enabled && matches!(phase.as_str(), Some("InProgress" | "Reconnect")) && roster_attempts < 30 && roster_needs_refresh(&session) {
+                if let Some(http) = roster_client.http() {
+                    roster_attempts += 1;
+                    if let Ok(fresh) = http.get("/lol-gameflow/v1/session").await {
+                        let current = roster_sync.get(LEAGUE, "gameflow", "session").unwrap_or(Value::Null);
+                        if current.pointer("/gameData/gameId").and_then(Value::as_i64) == game_id
+                            && fresh.pointer("/gameData/gameId").and_then(Value::as_i64) == game_id
+                            && roster_sync.get(LEAGUE, "gameflow", "phase").is_some_and(|value| matches!(value.as_str(), Some("InProgress" | "Reconnect")))
+                            && matches!(current.get("phase").and_then(Value::as_str), Some("InProgress" | "Reconnect"))
+                            && matches!(fresh.get("phase").and_then(Value::as_str), Some("InProgress" | "Reconnect")) {
+                            let _ = roster_sync.set(LEAGUE, "gameflow", "session", fresh);
+                        }
+                    }
+                }
+            }
             ticker.wake();
         }
     });
@@ -322,6 +349,26 @@ pub fn start(
     tauri::async_runtime::spawn(async move { side_effects.run(wakes).await });
 
     Ok(())
+}
+
+fn roster_needs_refresh(session: &Value) -> bool {
+    if !matches!(session.get("phase").and_then(Value::as_str), Some("InProgress" | "Reconnect")) {
+        return false;
+    }
+    let data = session.get("gameData").unwrap_or(&Value::Null);
+    let mode = data.pointer("/queue/gameMode").and_then(Value::as_str);
+    if !matches!(mode, Some("CLASSIC" | "ARAM")) || data.get("isCustomGame").and_then(Value::as_bool) == Some(true) {
+        return false;
+    }
+    let expected = data.pointer("/queue/maximumParticipantListSize").and_then(Value::as_u64).unwrap_or(10) as usize / 2;
+    ["teamOne", "teamTwo"].iter().any(|side| {
+        let members = data.get(*side).and_then(Value::as_array);
+        members.is_none_or(|members| members.len() < expected || members.iter().any(|member| {
+            let id = member.get("puuid").and_then(Value::as_str).unwrap_or_default();
+            id.is_empty() || id == "00000000-0000-0000-0000-000000000000"
+                || member.get("championId").and_then(Value::as_i64).unwrap_or_default() <= 0
+        }))
+    })
 }
 
 // --------------------------------------------------------------- settings schema
@@ -929,6 +976,22 @@ fn reminder_message(label: &str, name: &str, tag: &str) -> String {
 
 #[cfg(test)]
 mod tests {
+    #[test]
+    fn incomplete_live_rosters_are_rechecked_but_complete_and_ended_matches_are_not() {
+        let member = |id: i64| json!({"puuid":format!("p{id}"),"championId":id+1});
+        let mut session = json!({"phase":"InProgress","gameData":{
+            "queue":{"gameMode":"ARAM","maximumParticipantListSize":10},
+            "teamOne":(0..5).map(member).collect::<Vec<_>>(),
+            "teamTwo":(5..9).map(member).collect::<Vec<_>>()
+        }});
+        assert!(roster_needs_refresh(&session));
+        session["gameData"]["teamTwo"].as_array_mut().unwrap().push(member(9));
+        assert!(!roster_needs_refresh(&session));
+        session["gameData"]["teamTwo"][4]["puuid"] = json!("");
+        assert!(roster_needs_refresh(&session));
+        session["phase"] = json!("EndOfGame");
+        assert!(!roster_needs_refresh(&session));
+    }
     use super::*;
 
     fn cell() -> Arc<OnceLock<Arc<SettingsService>>> {

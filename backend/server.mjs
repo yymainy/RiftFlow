@@ -1,8 +1,10 @@
 import http from 'node:http'
+import { isIP } from 'node:net'
 import { createHash, randomUUID, timingSafeEqual } from 'node:crypto'
 import { mkdir, readFile, rename, writeFile } from 'node:fs/promises'
 import { resolve, dirname } from 'node:path'
 import { fileURLToPath, pathToFileURL } from 'node:url'
+import { encryptedAiConfig } from './ai-config.mjs'
 
 const languages = ['zh-CN', 'en']
 const configKeys = ['app/feature-gates', 'sgp/league-servers', 'sgp/supported-queues', 'auto-select/groups']
@@ -57,7 +59,7 @@ async function body(req) {
   try { return JSON.parse(Buffer.concat(chunks).toString('utf8')) } catch { fail(400, 'JSON 格式错误') }
 }
 
-export async function createService({ dataDir, publicBase, adminToken, seeds = {} }) {
+export async function createService({ dataDir, publicBase, adminToken, seeds = {}, aiConfigFile = resolve(dataDir,'ai-provider.json') }) {
   const base = new URL(publicBase)
   if (!['https:','http:'].includes(base.protocol) || base.search || base.hash || base.username || base.password) throw new Error('PUBLIC_BASE_URL 无效')
   publicBase = base.href.replace(/\/$/, '')
@@ -80,10 +82,23 @@ export async function createService({ dataDir, publicBase, adminToken, seeds = {
     res.writeHead(status, { 'Content-Type':'application/json; charset=utf-8', 'Cache-Control':'no-store', 'X-Content-Type-Options':'nosniff', 'Content-Length':Buffer.byteLength(text) })
     res.end(req.method === 'HEAD' ? undefined : text)
   }
+  const aiLimits = new Map()
   const server = http.createServer(async (req, res) => {
     try {
       const url = new URL(req.url, 'http://localhost')
       const path = url.pathname
+      if(path==='/ai/v1/config'){
+        if(req.method!=='POST')fail(405,'仅支持加密配置请求')
+        const forwarded=req.headers['x-real-ip']
+        const now=Date.now(),ip=typeof forwarded==='string'&&isIP(forwarded)?forwarded:(req.socket.remoteAddress||'unknown')
+        for(const [key,bucket] of aiLimits)if(now-bucket.at>60000)aiLimits.delete(key)
+        if(!aiLimits.has(ip)&&aiLimits.size>=10000)fail(429,'请求过于频繁')
+        const bucket=aiLimits.get(ip)||{at:now,count:0}
+        if(now-bucket.at>=60000){bucket.at=now;bucket.count=0}
+        if(++bucket.count>30)fail(429,'请求过于频繁，请稍后重试')
+        aiLimits.set(ip,bucket)
+        return send(req,res,200,await encryptedAiConfig(aiConfigFile,await body(req)))
+      }
       if (path.startsWith('/admin/')) {
         authorized(req)
         const key = path.slice(7)

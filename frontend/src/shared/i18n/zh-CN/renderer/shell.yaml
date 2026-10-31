@@ -1,3 +1,105 @@
+aiAssistant:
+  defaultSource: 默认服务器配置
+  customSource: 自定义配置
+  serverConfigHint: 留空使用服务器下发的默认配置。也可以填写自己的接口地址、密钥和模型；密钥加密保存在当前 Windows 用户下，默认服务的配置不会显示在这里。
+  urlInput: 接口地址，例如 https://你的服务/v1
+  keyInput: API 密钥
+  keyRetained: 已保存密钥，留空则保留原密钥
+  modelInput: 模型名称
+  saveConfig: 保存配置
+  restoreDefault: 恢复默认
+  configSaved: 自定义配置已加密保存
+  defaultRestored: 已恢复服务器默认配置
+  panes:
+    chat: 问 AI
+    notes: 我的笔记
+    settings: 设置
+  connected: 已连接配置
+  welcome: 想了解什么？
+  simpleIntro: 选一个问题，或直接输入你想问的内容。
+  quick:
+    lineup: 这局怎么打
+    history: 总结我的表现
+    beginner: 学一个英雄
+    fun: 今天玩什么
+  starters:
+    chat: ''
+    lineup: 这局我们适合怎么打？我应该优先注意什么？
+    history: 帮我看看最近表现怎么样，有什么值得练习的？
+    weekly: 总结一下我这周的表现，给我一个下周练习目标。
+    review: 帮我复盘这场比赛，有哪些值得注意的地方？
+    beginner: 我想学这个英雄，从哪里入手？
+    fun: 今天想轻松玩几局，有什么有趣的英雄或开黑组合？
+    knowledge: ''
+    notes: 帮我整理这些笔记，提醒我本局能用上的经验。
+  attachData: 附带战绩和当前阵容
+  questionOnly: 普通问答：只发送你的问题和本次对话，不读取战绩。
+  simpleQuestion: 例如：我刚开始玩辅助，应该先练习什么？
+  adjustData: 调整分析对象与资料
+  send: 发送
+  newConversation: 开始新话题
+  simpleNoteHint: 把有用的经验记下来。选英雄可绑定笔记，不选则保存为通用笔记。
+  modelLabel: 当前模型
+  historyScope: '将分析 {{player}} 的 {{count}} 场有效战绩。只代表已加载的样本。'
+  lineupScope: '本局已识别 {{count}} 人，将根据已知阵容给建议。'
+  heroScope: '为你介绍 {{champion}} 的玩法与练习思路。'
+  notesScope: '将整理 {{count}} 条相关笔记。'
+  reviewScope: 选择下面的一场比赛进行复盘。
+  noLineup: 还没有识别到本局阵容。进入选人或对局后，再试试“这局怎么打”。
+  autoAdvice: 选人结束后自动给建议
+  autoHint: 进入加载阶段后，自动调用已配置的 AI，在独立悬浮窗显示本局建议。每局一次，关闭后本局不再自动弹出。
+  preGameTitle: AI · 本局怎么打
+  preGameCaption: 根据已识别阵容，给你几个开局思路。
+  adviceLoading: 正在分析本局阵容…
+  adviceCaution: 仅供参考 · 可直接关闭，不影响游戏
+  retry: 重试
+  title: AI 助手
+  subtitle: 读懂战绩、理解阵容，积累自己的游戏经验
+  unconfigured: 尚未配置
+  refresh: 刷新配置与资料
+  configure: 填写本地 AI 配置
+  configHint: 在上述文件填写 url、api_key 和 model 后点击刷新。支持 Chat Completions 兼容接口；url 填含 /v1 的基础地址或完整 /chat/completions 地址。
+  scope: 本次分析资料
+  player: 选择玩家
+  self: 自己
+  champion: 选择英雄（可搜索）
+  match: 选择复盘对局
+  coverage: '可见个人记录：{{matches}} 场 · 当前阵容：{{players}} 人'
+  dataHint: 只使用最近加载的本地档案及对局记录；档案最多读取最近 200 条，各账号独立分析。更多记录可先在档案页同步。
+  preview: 查看将发送的资料
+  question: 输入你想问的问题，也可以先选择上方功能，再补充偏好或背景。
+  generate: 开始分析
+  stop: 停止生成
+  sendHint: 点击后将本次问题及预览中的资料发送至你配置的 AI 服务。
+  answer: AI 分析
+  truncated: 回复达到长度限制，可缩小问题范围，或在配置中增加 max_tokens。
+  copy: 复制结果
+  copied: 已复制
+  copyError: 复制失败，可以手动选中文字复制。
+  saveAnswer: 保存为笔记
+  notes: 我的打法笔记
+  noteReminder: '相关笔记 {{count}} 条'
+  noteTitle: 笔记标题
+  noteBody: 记录自己的观察、经验或下次想练习的内容。
+  noteHint: 绑定上方所选英雄，未选则保存为通用笔记。右侧展示通用及本局相关英雄笔记；仅“笔记整理”会发送这些内容。
+  saveNote: 保存笔记
+  generalNote: 通用笔记
+  delete: 删除
+  loadError: 无法读取 AI 配置或本地资料
+  requestError: AI 请求失败，请检查配置和网络。
+  saveError: 笔记保存失败
+  selectChampion: 请先选择需要了解的英雄。
+  selectMatch: 暂无可复盘记录，请先选择玩家并同步战绩。
+  modes:
+    chat: 自由问答
+    lineup: 阵容与选人
+    history: 战绩总结
+    weekly: 成长周报
+    review: 单场复盘
+    beginner: 英雄上手
+    fun: 今天玩什么
+    knowledge: 游戏知识
+    notes: 笔记整理
 notices:
   modal:
     title: 公告
@@ -19,9 +121,9 @@ notices:
         other: 其他
 legal:
   declaration:
-    title: 声明
+    title: 使用须知
     isFree: 为免费软件
-    ok: 我已知晓此软件{isFree}并已认同免责条款
+    ok: 我已阅读并同意使用须知，知晓此软件{isFree}
     quit: 退出
     newContent: |
       <div class="riftflow-disclaimer">
@@ -61,40 +163,33 @@ legal:
       }
       </style>
 
-      # $t(common:appName) 用户须知与免责声明
+      # $t(common:appName) 使用须知
 
-      > **请在下载、安装或使用本软件之前，务必仔细阅读并充分理解本须知与免责声明。**
-      > 一旦您开始使用，即视为已充分理解并同意下列全部条款。
+      请阅读以下说明，再选择是否继续使用。点击下方同意按钮表示你已阅读并同意本页内容；不接受时可选择退出。
 
-      ---
+      ## 软件与使用范围
+      - RiftFlow 是免费的英雄联盟桌面辅助工具，提供对局分析、客户端自动操作、个人战绩档案、皮肤资产管理和版本简报。
+      - 本项目由独立开发者维护，与 Riot Games、腾讯不存在官方隶属或背书关系。
+      - 软件使用及分发范围以随附 LICENSE 为准；第三方组件与资源的许可见 THIRD_PARTY_NOTICES.md 和 LICENSES 目录。
 
-      ## 一、软件性质与获取途径
-      - **$t(common:appName)** 可免费使用，包括在商业环境中免费使用；所有功能均以「按现状」方式提供。
-      - 未经书面授权，禁止倒卖、收费分发或捆绑销售本软件中适用自定义许可的内容；原有 MIT 代码及其他第三方内容仍按各自许可证授权。完整条款见随附 LICENSE。
+      ## 客户端连接与自动操作
+      - 相关功能需要连接本机已登录的游戏客户端。国服与国际服的接口、数据范围和功能可用性可能不同，客户端更新也可能导致功能暂时失效。
+      - 请按需启用自动选人、自动回复等功能，并在启用前检查配置。这些操作可能改变客户端状态或向其他玩家发送消息。
+      - 请遵守所在服区的游戏规则与用户协议。软件无法保证账号安全、接口持续可用或操作始终成功；遇到异常请关闭相关功能并退出软件。
 
-      ## 二、风险提示与责任限制
-      - 使用本软件**可能**导致（包括但不限于）：
-        1. 游戏账户被暂停或永久封禁；
-        2. 游戏数据丢失、损坏或与服务器数据不一致；
-        3. 客户端异常、性能下降或其他不良游戏体验。
-      - 对因使用或无法使用本软件所引发的任何直接、间接、偶然、特殊或后续损失，**$t(common:appName)** 开发团队及全部贡献者概不承担任何责任，相关风险由用户自行承担。
+      ## 数据与隐私
+      - 个人战绩档案、皮肤快照和个人工具数据保存在本机。当前独立服务提供公告、联系渠道、配置与版本信息，未接入玩家档案或皮肤资产上传。
+      - 在线查询、图片加载和版本简报等功能需要向相应数据提供方发起网络请求；这些请求受对方的服务规则约束。
+      - 本地日志、截图及导出文件可能含有账号或对局信息。反馈问题前请检查并遮盖敏感内容，不要分享令牌、密码或客户端认证信息。
 
-      > 请参考 [Patch 25.17 更新说明](https://www.leagueoflegends.com/en-us/news/game-updates/patch-25-17-notes/) 中的 **Game Info Tracking Improvements** 一节。
+      ## 结果与使用限制
+      - 战绩同步仅覆盖上游当前能返回的记录；皮肤统计以同步时的账号及客户端返回结果为准，限时体验不代表永久拥有。
+      - 对手历史分析属于参考线索，不能作为认定代练、陪玩、小号或违规行为的证据。国服与国际服的版本简报请分别参考。
+      - 软件按现状提供，可能存在错误或中断。重要档案、导出文件和配置请自行备份，不要将软件结果作为唯一判断依据。
 
-      ## 三、服务器兼容性声明
-      - **自本声明发布之日起，$t(common:appName) 不再对腾讯游戏服务器提供任何形式的支持。**
-      - 在腾讯服务器环境中使用本软件**极有可能**违反腾讯游戏相关用户协议、管理规范或技术保护措施；由此产生的封号、数据丢失或其他不利后果，概由用户自行负责。
-
-      ## 四、信息收集与隐私保护
-      - 为改进产品质量、分析错误及进行安全统计，软件运行时将收集**必要且有限**的系统信息与崩溃日志。
-      - 所收集信息**不含**可识别个人身份之数据，不会上传至任何第三方服务器，亦不会用于商业用途。
-
-      ## 五、其他事项
-      - 连续使用右键点击三次确认按钮，可快速关闭这个页面，同时视为您已经阅读并同意本须知与免责声明。
-
-      ---
-
-      > 第三方开源组件的许可与归属请参阅随附的 LICENSE。
+      ## 更新与反馈
+      - 请从项目发布渠道获取版本，更新前退出旧程序并备份重要数据；当前版本不提供自动安装更新。
+      - 反馈时请提供软件版本、服区、复现步骤和经过脱敏的错误信息。
 
       </div>
 titlebar:

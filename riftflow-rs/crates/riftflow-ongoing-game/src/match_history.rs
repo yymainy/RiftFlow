@@ -274,6 +274,7 @@ pub async fn lcu_entry(
             let game_id = game.get("gameId").and_then(Value::as_i64).unwrap_or_default();
             ctx.cache
                 .summary(&format!("lcu:{game_id}"))
+                .filter(|cached| summary_has_player(cached.get("data").unwrap_or(&Value::Null), puuid))
                 .unwrap_or_else(|| wrap_game(ApiSource::Lcu, game_id, game.clone()))
         })
         .collect();
@@ -281,19 +282,25 @@ pub async fn lcu_entry(
     MatchHistoryEntry { source: ApiSource::Lcu, params, data: games }
 }
 
+fn summary_has_player(game: &Value, puuid: &str) -> bool {
+    game.get("participantIdentities").and_then(Value::as_array).into_iter().flatten().any(|identity| {
+        identity.pointer("/player/puuid").and_then(Value::as_str) == Some(puuid) &&
+        game.get("participants").and_then(Value::as_array).into_iter().flatten()
+            .any(|participant| participant.get("participantId").is_some() && participant.get("participantId") == identity.get("participantId"))
+    })
+}
+
 /// `completeGame`: cache, then queue, then `/lol-match-history/v1/games/<id>`.
 async fn complete_game(ctx: Arc<Ctx>, puuid: String, game_id: i64) {
     let key = format!("lcu:{game_id}");
+    let gate = ctx.cache.summary_gate(&key);
+    let _guard = gate.lock().await;
 
     if ctx.cache.summary(&key).is_some() {
         return;
     }
 
     let task_id = format!("lcu-game-summary:{game_id}");
-    if ctx.queues.has_task(&task_id) {
-        trace(&format!("game summary already in queue: lcu {game_id}"));
-        return;
-    }
 
     let part_of = format!("part-of:{game_id}");
     let options = TaskOptions::new().priority(PRIORITY_NOW).tags(&[
