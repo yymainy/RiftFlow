@@ -1,6 +1,6 @@
 import http from 'node:http'
 import { isIP } from 'node:net'
-import { createHash, randomBytes, randomUUID, timingSafeEqual } from 'node:crypto'
+import { createHash, randomBytes, randomUUID, scryptSync, timingSafeEqual } from 'node:crypto'
 import { mkdir, readFile, rename, writeFile } from 'node:fs/promises'
 import { resolve, dirname } from 'node:path'
 import { fileURLToPath, pathToFileURL } from 'node:url'
@@ -80,9 +80,26 @@ export async function createService({ dataDir, publicBase, adminToken, adminUser
   const expectedToken = createHash('sha256').update(adminToken).digest()
   const loginUser = adminUser || 'admin'
   const loginPassword = adminPassword || adminToken
-  const expectedUser = createHash('sha256').update(loginUser).digest()
   const expectedPassword = createHash('sha256').update(loginPassword).digest()
+  const authFile = resolve(dataDir, 'admin-auth.json')
   const sessions = new Map()
+  async function readAuth() {
+    try { return JSON.parse(await readFile(authFile, 'utf8')) }
+    catch (error) { if (error.code === 'ENOENT') return null; throw error }
+  }
+  function verifyScrypt(password, auth) {
+    const salt = Buffer.from(auth?.salt || '', 'base64')
+    const expected = Buffer.from(auth?.hash || '', 'base64')
+    if (salt.length !== 16 || expected.length !== 64) return false
+    return timingSafeEqual(scryptSync(password, salt, 64), expected)
+  }
+  async function verifyLogin(username, password) {
+    const auth = await readAuth()
+    const expectedUser = createHash('sha256').update(auth?.username || loginUser).digest()
+    const userOk = matches(username, expectedUser)
+    const passwordOk = auth ? verifyScrypt(password, auth) : matches(password, expectedPassword)
+    return Boolean(userOk & passwordOk)
+  }
   function matches(value, expected) {
     if (typeof value !== 'string') return false
     return timingSafeEqual(createHash('sha256').update(value).digest(), expected)
@@ -153,7 +170,7 @@ export async function createService({ dataDir, publicBase, adminToken, adminUser
         loginLimits.set(ip, bucket)
         const input = await body(req)
         check(object(input), '请求内容必须为 JSON 对象')
-        const ok = matches(input.username, expectedUser) & matches(input.password, expectedPassword)
+        const ok = await verifyLogin(input.username, input.password)
         if (!ok) fail(401, '账号或密码错误')
         for (const [key, session] of sessions) if (session.expires <= now) sessions.delete(key)
         const token = randomBytes(32).toString('hex')
@@ -173,6 +190,28 @@ export async function createService({ dataDir, publicBase, adminToken, adminUser
         if (session) return send(req, res, 200, { user: session.user })
         if (bearerAuthorized(req)) return send(req, res, 200, { user: loginUser })
         fail(401, '需要管理员身份')
+      }
+      if (path === '/admin/password') {
+        if (req.method !== 'POST') fail(405, '仅支持 POST')
+        if (!sessionFor(req) && !bearerAuthorized(req)) fail(401, '需要管理员身份')
+        const input = await body(req)
+        check(object(input), '请求内容必须为 JSON 对象')
+        const current = string(input.current_password) ? input.current_password : ''
+        const next = string(input.new_password) ? input.new_password : ''
+        check(await verifyLogin(loginUser, current), '当前密码错误')
+        check(next.length >= 10 && next.length <= 200, '新密码长度需为 10–200 位')
+        check(next !== current, '新密码不能与当前密码相同')
+        const salt = randomBytes(16)
+        const hash = scryptSync(next, salt, 64)
+        const auth = { version: 1, username: loginUser, salt: salt.toString('base64'), hash: hash.toString('base64'), updatedAt: new Date().toISOString() }
+        await mkdir(dirname(authFile), { recursive: true })
+        const temp = authFile + '.' + randomUUID() + '.tmp'
+        await writeFile(temp, JSON.stringify(auth, null, 2), { mode:0o600 })
+        await rename(temp, authFile)
+        sessions.clear()
+        const token = randomBytes(32).toString('hex')
+        sessions.set(token, { user: loginUser, expires: Date.now() + 7 * 24 * 60 * 60 * 1000 })
+        return send(req,res,200,{ok:true},{'Set-Cookie':sessionCookie(req, token, 604800)})
       }
       if (path==='/admin/ui') {
         if (req.method==='GET'||req.method==='HEAD') return sendHtml(req,res,200,adminHtml)

@@ -68,6 +68,9 @@ a:hover{text-decoration:underline}
 .field select{appearance:auto}
 .field textarea{min-height:320px;resize:vertical;font:13px/1.75 ui-monospace,Consolas,monospace}
 .field-hint{display:flex;justify-content:space-between;gap:12px;margin-top:6px;color:var(--muted);font-size:11px}
+.field-label-row{display:flex;align-items:center;justify-content:space-between;gap:8px;min-height:19px;margin-bottom:7px}
+.field-label-row label{margin:0}
+.field-note{color:var(--muted);font-size:11px}
 .key-row{position:relative}
 .key-row input{padding-right:72px}
 .key-toggle{position:absolute;right:7px;top:50%;transform:translateY(-50%);padding:4px 8px;border:0;background:transparent;color:var(--secondary);font-size:11px}
@@ -159,6 +162,7 @@ input:-webkit-autofill{-webkit-text-fill-color:var(--text);-webkit-box-shadow:0 
       <button type="button" role="tab" id="nav-notice" data-tab="notice" aria-controls="tab-notice" aria-selected="true"><svg viewBox="0 0 24 24"><path d="M6 3h9l4 4v14H6z"/><path d="M14 3v5h5M9 12h7M9 16h7M9 8h3"/></svg>公告</button>
       <button type="button" role="tab" id="nav-ai" data-tab="ai" aria-controls="tab-ai" aria-selected="false"><svg viewBox="0 0 24 24"><path d="M12 3a5 5 0 0 1 5 5v3h-2V8a3 3 0 0 0-6 0v3H7V8a5 5 0 0 1 5-5Z"/><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M12 15v3"/></svg>AI 默认配置</button>
       <button type="button" role="tab" id="nav-release" data-tab="release" aria-controls="tab-release" aria-selected="false"><svg viewBox="0 0 24 24"><path d="m12 3 8 4.5v9L12 21l-8-4.5v-9z"/><path d="m4 7.5 8 4.5 8-4.5M12 12v9M8 5.5l8 4.5"/></svg>版本信息</button>
+      <button type="button" role="tab" id="nav-account" data-tab="account" aria-controls="tab-account" aria-selected="false"><svg viewBox="0 0 24 24"><rect x="4" y="10" width="16" height="11" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3M12 14v3"/></svg>账号安全</button>
     </nav>
     <div class="rail-account"><div><strong id="currentUser">admin</strong><span>v1.6.3</span></div><button id="logout" type="button">退出登录</button></div>
   </aside>
@@ -192,7 +196,7 @@ input:-webkit-autofill{-webkit-text-fill-color:var(--text);-webkit-box-shadow:0 
           <div class="field"><label for="aiUrl">上游 URL</label><input id="aiUrl" placeholder="https://example.com/v1"><div class="field-hint"><span>仅允许 http/https，不带查询参数或账号密码</span></div></div>
           <div class="form-row">
             <div class="field"><label for="aiModel">模型</label><input id="aiModel" placeholder="model-name"></div>
-            <div class="field"><label for="aiKey">API Key <span id="aiKeyState" class="field-hint"></span></label><div class="key-row"><input id="aiKey" type="password" autocomplete="new-password" placeholder="留空表示不修改"><button class="key-toggle" id="aiKeyToggle" type="button" aria-pressed="false" aria-label="显示或隐藏 API Key">显示</button></div><div class="field-hint"><span>已保存的密钥不会回显，留空保持原值</span></div></div>
+            <div class="field"><div class="field-label-row"><label for="aiKey">API Key</label><span class="field-note" id="aiKeyState"></span></div><div class="key-row"><input id="aiKey" type="password" autocomplete="new-password" placeholder="留空表示不修改"><button class="key-toggle" id="aiKeyToggle" type="button" aria-pressed="false" aria-label="显示或隐藏 API Key">显示</button></div><div class="field-hint"><span>已保存的密钥不会回显，留空保持原值</span></div></div>
           </div>
           <div class="form-row">
             <div class="field"><label for="aiTimeout">超时（秒）</label><input id="aiTimeout" type="number" min="10" max="180" step="1"></div>
@@ -218,6 +222,25 @@ input:-webkit-autofill{-webkit-text-fill-color:var(--text);-webkit-box-shadow:0 
           <div class="context-section"><h3>自动更新</h3><p>客户端按版本号、平台、架构、大小和 SHA256 校验下载包。</p></div>
         </aside>
       </section>
+
+      <section class="editor" id="tab-account" role="tabpanel" aria-labelledby="nav-account" hidden>
+        <div class="editor-main">
+          <div class="panel-title"><div><h2>账号安全</h2><p>修改管理台登录密码，修改后其他登录状态会失效。</p></div></div>
+          <form id="passwordForm" novalidate>
+            <div class="field"><label for="currentPassword">当前密码</label><div class="key-row"><input id="currentPassword" type="password" autocomplete="current-password"><button class="key-toggle" id="currentPasswordToggle" type="button" aria-pressed="false" aria-label="显示或隐藏当前密码">显示</button></div></div>
+            <div class="form-row">
+              <div class="field"><label for="newPassword">新密码</label><div class="key-row"><input id="newPassword" type="password" autocomplete="new-password"><button class="key-toggle" id="newPasswordToggle" type="button" aria-pressed="false" aria-label="显示或隐藏新密码">显示</button></div><div class="field-hint"><span>至少 10 位</span></div></div>
+              <div class="field"><label for="confirmPassword">确认新密码</label><input id="confirmPassword" type="password" autocomplete="new-password"></div>
+            </div>
+            <div class="actions"><button class="btn btn-primary" id="passwordSave" type="submit">保存新密码</button><span class="status" id="accountStatus" aria-live="polite"></span></div>
+          </form>
+        </div>
+        <aside class="context">
+          <div class="context-section"><h3>密码存储</h3><p>密码使用 scrypt 哈希保存到数据卷，不写入仓库或日志。</p></div>
+          <div class="context-section"><h3>会话</h3><p>修改成功后其他浏览器会话失效，当前页面会保持登录。</p></div>
+          <div class="context-section"><h3>忘记密码</h3><p>需要在服务器删除 <span class="code">/data/admin-auth.json</span>，然后使用服务端配置的初始密码登录。</p></div>
+        </aside>
+      </section>
     </div>
   </main>
 </div>
@@ -231,7 +254,8 @@ document.querySelectorAll('[data-logo]').forEach(img=>{img.src=brandLogo})
 const tabs = {
   notice:['公告','编辑客户端公告，保存后立即生效。'],
   ai:['AI 默认配置','修改客户端默认使用的模型、上游和密钥。'],
-  release:['版本信息','查看当前发布版本与安装包校验信息。']
+  release:['版本信息','查看当前发布版本与安装包校验信息。'],
+  account:['账号安全','修改管理台登录密码。']
 }
 function setStatus(id,text,kind){const el=$(id);el.textContent=text||'';el.className='status'+(kind?' '+kind:'')}
 function toast(text,kind='success'){
@@ -243,7 +267,7 @@ function tab(name){
   if(!tabs[name])name='notice'
   state.tab=name
   for(const b of document.querySelectorAll('.nav [data-tab]'))b.setAttribute('aria-selected',String(b.dataset.tab===name))
-  for(const p of ['notice','ai','release'])$(('tab-'+p)).hidden=p!==name
+  for(const p of ['notice','ai','release','account'])$(('tab-'+p)).hidden=p!==name
   $('pageTitle').textContent=tabs[name][0];$('pageDesc').textContent=tabs[name][1]
   history.replaceState(null,'', '#'+name)
 }
@@ -401,8 +425,26 @@ $('noticeLoad').onclick=loadNotice;$('noticeSave').onclick=saveNotice
 for(const id of ['noticeSummary','noticeContent'])$(id).addEventListener('input',noticeTextChanged)
 $('aiLoad').onclick=loadAi;$('aiSave').onclick=saveAi
 for(const id of ['aiUrl','aiModel','aiKey','aiTimeout','aiTokens'])$(id).addEventListener('input',()=>markDirty('ai',true))
-$('aiKeyToggle').onclick=()=>{const show=$('aiKey').type==='password';$('aiKey').type=show?'text':'password';$('aiKeyToggle').textContent=show?'隐藏':'显示';$('aiKeyToggle').setAttribute('aria-pressed',String(show))}
+function bindReveal(buttonId,inputId){
+  const button=$(buttonId),input=$(inputId)
+  button.onclick=()=>{const show=input.type==='password';input.type=show?'text':'password';button.textContent=show?'隐藏':'显示';button.setAttribute('aria-pressed',String(show))}
+}
+bindReveal('aiKeyToggle','aiKey');bindReveal('currentPasswordToggle','currentPassword');bindReveal('newPasswordToggle','newPassword')
 $('releaseLoad').onclick=loadRelease
+$('passwordForm').addEventListener('submit',async event=>{
+  event.preventDefault()
+  const current=$('currentPassword').value,next=$('newPassword').value,confirm=$('confirmPassword').value
+  if(!current||!next){setStatus('accountStatus','请填写当前密码和新密码','bad');return}
+  if(next.length<10){setStatus('accountStatus','新密码至少需要 10 位','bad');return}
+  if(next!==confirm){setStatus('accountStatus','两次输入的新密码不一致','bad');return}
+  $('passwordSave').disabled=true;setStatus('accountStatus','保存中…')
+  try{
+    await api('/admin/password',{method:'POST',body:JSON.stringify({current_password:current,new_password:next})})
+    $('currentPassword').value='';$('newPassword').value='';$('confirmPassword').value=''
+    setStatus('accountStatus','密码已更新','ok');toast('密码已更新，其他登录已失效')
+  }catch(e){setStatus('accountStatus','修改失败：'+e.message,'bad');toast('修改密码失败：'+e.message,'error')}
+  finally{$('passwordSave').disabled=false}
+})
 $('loginForm').addEventListener('submit',doLogin)
 $('logout').onclick=doLogout
 $('loginKeyToggle').onclick=()=>{const show=$('loginPassword').type==='password';$('loginPassword').type=show?'text':'password';$('loginKeyToggle').textContent=show?'隐藏':'显示';$('loginKeyToggle').setAttribute('aria-pressed',String(show))}

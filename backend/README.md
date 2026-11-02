@@ -26,7 +26,7 @@ docker build -t riftflow-backend:local .
 
 ## 发布公告
 
-管理页：`https://riftflow-api.yymainy.online/admin/ui`。页面内使用账号密码登录，登录成功后服务端下发 `HttpOnly`、`SameSite=Strict` 的会话 Cookie；会话保存在内存中，后端重启后需重新登录。登录接口按来源 IP 限流 10 次/分钟，管理接口限流 120 次/分钟。账号密码来自 `ADMIN_USER` / `ADMIN_PASSWORD`，`ADMIN_TOKEN` 仍用于命令行和发布脚本。Nginx 只做 HTTPS 反向代理，不再使用 Basic Auth 或注入令牌。
+管理页：`https://riftflow-api.yymainy.online/admin/ui`。页面内使用账号密码登录，登录成功后服务端下发 `HttpOnly`、`SameSite=Strict` 的会话 Cookie；会话保存在内存中，后端重启后需重新登录。登录接口按来源 IP 限流 10 次/分钟，管理接口限流 120 次/分钟。初始账号密码来自 `ADMIN_USER` / `ADMIN_PASSWORD`，`ADMIN_TOKEN` 仍用于命令行和发布脚本。登录后可在“账号安全”页修改密码；新密码以 scrypt 哈希写入 `/data/admin-auth.json`，并使其会话失效后重新签发当前会话。Nginx 只做 HTTPS 反向代理，不再使用 Basic Auth 或注入令牌。
 
 通过 `Authorization: Bearer <ADMIN_TOKEN>` 调用 `PUT /admin/notice/zh-CN`，JSON 示例：
 

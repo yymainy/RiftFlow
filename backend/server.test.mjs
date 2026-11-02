@@ -117,3 +117,33 @@ test('page login issues and clears an HttpOnly admin session', async () => {
     await rm(dataDir,{recursive:true,force:true})
   }
 })
+
+test('password change stores a scrypt hash and rotates sessions', async () => {
+  const dataDir = await mkdtemp(join(tmpdir(),'riftflow-password-'))
+  const token = 'test-only-token-with-at-least-32-characters'
+  const server = await createService({dataDir,publicBase:'https://files.example.com/riftflow',adminToken:token,adminUser:'admin',adminPassword:'test-password-123'})
+  server.listen(0,'127.0.0.1'); await once(server,'listening')
+  const base = `http://127.0.0.1:${server.address().port}`
+  const login = (username,password) => fetch(base+'/admin/login',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({username,password})})
+  const first = await login('admin','test-password-123')
+  const cookie = first.headers.get('set-cookie').split(';')[0]
+  const change = (current_password,new_password) => fetch(base+'/admin/password',{method:'POST',headers:{cookie,'content-type':'application/json'},body:JSON.stringify({current_password,new_password})})
+  try {
+    assert.equal((await change('wrong-password','new-password-456')).status,400)
+    assert.equal((await change('test-password-123','short')).status,400)
+    const changed = await change('test-password-123','new-password-456')
+    assert.equal(changed.status,200)
+    const newCookie = changed.headers.get('set-cookie').split(';')[0]
+    assert.equal((await fetch(base+'/admin/session',{headers:{cookie}})).status,401)
+    assert.equal((await fetch(base+'/admin/session',{headers:{cookie:newCookie}})).status,200)
+    assert.equal((await login('admin','test-password-123')).status,401)
+    assert.equal((await login('admin','new-password-456')).status,200)
+    const stored = JSON.parse(await readFile(join(dataDir,'admin-auth.json'),'utf8'))
+    assert.equal(stored.username,'admin'); assert.equal(stored.version,1)
+    assert.ok(stored.salt); assert.ok(stored.hash)
+    assert.equal(JSON.stringify(stored).includes('new-password-456'),false)
+  } finally {
+    if (server.listening) await new Promise(resolve=>server.close(resolve))
+    await rm(dataDir,{recursive:true,force:true})
+  }
+})
