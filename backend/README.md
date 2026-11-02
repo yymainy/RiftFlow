@@ -6,7 +6,7 @@ Node.js 24，无 npm 依赖。提供与桌面程序现有协议兼容的公告�
 
 ## 运行
 
-设置 `PUBLIC_BASE_URL`（外部 HTTPS 地址，例如 `https://riftflow-api.yymainy.online`）、`ADMIN_TOKEN`（随机值，至少 32 字符）、`DATA_DIR`（持久目录），执行 `node server.mjs`。默认绑定 `127.0.0.1:8080`。容器内绑定 `0.0.0.0`，宿主机仅映射回环端口，经 Nginx 提供 HTTPS。
+设置 `PUBLIC_BASE_URL`（外部 HTTPS 地址，例如 `https://riftflow-api.yymainy.online`）、`ADMIN_TOKEN`（随机值，至少 32 字符）、`ADMIN_USER` / `ADMIN_PASSWORD`（管理页账号密码）、`DATA_DIR`（持久目录），执行 `node server.mjs`。未设置管理页密码时回退使用 `ADMIN_TOKEN`。默认绑定 `127.0.0.1:8080`。容器内绑定 `0.0.0.0`，宿主机仅映射回环端口，经 Nginx 提供 HTTPS。
 
 ```sh
 node --test server.test.mjs
@@ -26,7 +26,7 @@ docker build -t riftflow-backend:local .
 
 ## 发布公告
 
-管理页：`https://riftflow-api.yymainy.online/admin/ui`。页面由 Nginx Basic Auth 保护，浏览器使用管理员账号密码登录；Nginx 校验后再把 `ADMIN_TOKEN` 注入到后端请求，页面本身不接触令牌。`ADMIN_TOKEN` 仍用于命令行和发布脚本，泄露等于管理权限泄露。管理接口按来源 IP 限流 120 次/分钟。账号密码保存在服务器 `/etc/nginx/riftflow-admin.htpasswd`，修改后执行 `nginx -t && nginx -s reload`。
+管理页：`https://riftflow-api.yymainy.online/admin/ui`。页面内使用账号密码登录，登录成功后服务端下发 `HttpOnly`、`SameSite=Strict` 的会话 Cookie；会话保存在内存中，后端重启后需重新登录。登录接口按来源 IP 限流 10 次/分钟，管理接口限流 120 次/分钟。账号密码来自 `ADMIN_USER` / `ADMIN_PASSWORD`，`ADMIN_TOKEN` 仍用于命令行和发布脚本。Nginx 只做 HTTPS 反向代理，不再使用 Basic Auth 或注入令牌。
 
 通过 `Authorization: Bearer <ADMIN_TOKEN>` 调用 `PUT /admin/notice/zh-CN`，JSON 示例：
 
@@ -46,7 +46,7 @@ docker build -t riftflow-backend:local .
 
 ## 当前部署
 
-Ubuntu SSH 别名 `ubuntu`（从 YYM 连接），服务目录 `/opt/riftflow-backend`，容器 `riftflow-backend`，仅映射 `127.0.0.1:8091`。独立域名 `https://riftflow-api.yymainy.online`。Nginx 将 `/admin/` 代理到后端，先做 Basic Auth，再注入后端 `ADMIN_TOKEN`。配置 `/www/server/panel/vhost/nginx/riftflow-api.yymainy.online.conf`，账号文件 `/etc/nginx/riftflow-admin.htpasswd`。证书由现有 acme.sh 账户签发，使用 install-cert 保存安装路径及重载命令；不在仓库中保存私钥。
+Ubuntu SSH 别名 `ubuntu`（从 YYM 连接），服务目录 `/opt/riftflow-backend`，容器 `riftflow-backend`，仅映射 `127.0.0.1:8091`。独立域名 `https://riftflow-api.yymainy.online`。Nginx 将 `/admin/` 与其他 API 路径一起代理到后端，登录和会话校验在后端完成。配置 `/www/server/panel/vhost/nginx/riftflow-api.yymainy.online.conf`。证书由现有 acme.sh 账户签发，使用 install-cert 保存安装路径及重载命令；不在仓库中保存私钥。
 
 服务器上发布：`sudo python3 /opt/riftflow-backend/publish.py notice/zh-CN /path/to/announcement.json`。管理密钥由该命令在服务器本地读取，不发给客户端。
 

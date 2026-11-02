@@ -1,6 +1,6 @@
 import http from 'node:http'
 import { isIP } from 'node:net'
-import { createHash, randomUUID, timingSafeEqual } from 'node:crypto'
+import { createHash, randomBytes, randomUUID, timingSafeEqual } from 'node:crypto'
 import { mkdir, readFile, rename, writeFile } from 'node:fs/promises'
 import { resolve, dirname } from 'node:path'
 import { fileURLToPath, pathToFileURL } from 'node:url'
@@ -59,7 +59,7 @@ async function body(req) {
   try { return JSON.parse(Buffer.concat(chunks).toString('utf8')) } catch { fail(400, 'JSON 格式错误') }
 }
 
-export async function createService({ dataDir, publicBase, adminToken, seeds = {}, aiConfigFile = resolve(dataDir,'ai-provider.json') }) {
+export async function createService({ dataDir, publicBase, adminToken, adminUser='admin', adminPassword, seeds = {}, aiConfigFile = resolve(dataDir,'ai-provider.json') }) {
   const base = new URL(publicBase)
   if (!['https:','http:'].includes(base.protocol) || base.search || base.hash || base.username || base.password) throw new Error('PUBLIC_BASE_URL 无效')
   publicBase = base.href.replace(/\/$/, '')
@@ -78,14 +78,46 @@ export async function createService({ dataDir, publicBase, adminToken, seeds = {
   }
   const publicAiConfig = value => ({url:value.url||'',model:value.model||'',timeout_seconds:value.timeout_seconds||90,max_tokens:value.max_tokens||1800,api_key_set:!!(value.api_key&&value.api_key.trim())})
   const expectedToken = createHash('sha256').update(adminToken).digest()
-  function authorized(req) {
-    if (!req.headers.authorization?.startsWith('Bearer ')) fail(401, '需要管理员身份')
-    const actual = createHash('sha256').update(req.headers.authorization.slice(7)).digest()
-    if (!timingSafeEqual(actual, expectedToken)) fail(401, '需要管理员身份')
+  const loginUser = adminUser || 'admin'
+  const loginPassword = adminPassword || adminToken
+  const expectedUser = createHash('sha256').update(loginUser).digest()
+  const expectedPassword = createHash('sha256').update(loginPassword).digest()
+  const sessions = new Map()
+  function matches(value, expected) {
+    if (typeof value !== 'string') return false
+    return timingSafeEqual(createHash('sha256').update(value).digest(), expected)
   }
-  function send(req, res, status, value) {
+  function cookieToken(req) {
+    const entry = (req.headers.cookie || '').split(';').map(value => value.trim()).find(value => value.startsWith('rf_admin_session='))
+    return entry ? decodeURIComponent(entry.slice('rf_admin_session='.length)) : null
+  }
+  function sessionFor(req) {
+    const token = cookieToken(req)
+    if (!token) return null
+    const session = sessions.get(token)
+    if (!session) return null
+    if (session.expires <= Date.now()) { sessions.delete(token); return null }
+    return session
+  }
+  function bearerAuthorized(req) {
+    if (!req.headers.authorization?.startsWith('Bearer ')) return false
+    return timingSafeEqual(createHash('sha256').update(req.headers.authorization.slice(7)).digest(), expectedToken)
+  }
+  function authorized(req) {
+    if (bearerAuthorized(req) || sessionFor(req)) return
+    fail(401, '需要管理员身份')
+  }
+  function sessionCookie(req, token, maxAge) {
+    const secure = req.headers['x-forwarded-proto'] === 'https' ? '; Secure' : ''
+    return `rf_admin_session=${encodeURIComponent(token)}; HttpOnly; Path=/admin; SameSite=Strict; Max-Age=${maxAge}${secure}`
+  }
+  function clientIp(req) {
+    const forwarded = req.headers['x-real-ip']
+    return typeof forwarded === 'string' && isIP(forwarded) ? forwarded : (req.socket.remoteAddress || 'unknown')
+  }
+  function send(req, res, status, value, headers = {}) {
     const text = JSON.stringify(value)
-    res.writeHead(status, { 'Content-Type':'application/json; charset=utf-8', 'Cache-Control':'no-store', 'X-Content-Type-Options':'nosniff', 'Content-Length':Buffer.byteLength(text) })
+    res.writeHead(status, { 'Content-Type':'application/json; charset=utf-8', 'Cache-Control':'no-store', 'X-Content-Type-Options':'nosniff', 'Content-Length':Buffer.byteLength(text), ...headers })
     res.end(req.method === 'HEAD' ? undefined : text)
   }
   function sendHtml(req, res, status, text) {
@@ -94,6 +126,7 @@ export async function createService({ dataDir, publicBase, adminToken, seeds = {
   }
   const aiLimits = new Map()
   const adminLimits = new Map()
+  const loginLimits = new Map()
   const server = http.createServer(async (req, res) => {
     try {
       const url = new URL(req.url, 'http://localhost')
@@ -110,13 +143,43 @@ export async function createService({ dataDir, publicBase, adminToken, seeds = {
         aiLimits.set(ip,bucket)
         return send(req,res,200,await encryptedAiConfig(aiConfigFile,await body(req)))
       }
+      if (path === '/admin/login') {
+        if (req.method !== 'POST') fail(405, '仅支持 POST')
+        const now = Date.now(), ip = clientIp(req)
+        for (const [key, bucket] of loginLimits) if (now - bucket.at > 60000) loginLimits.delete(key)
+        const bucket = loginLimits.get(ip) || { at: now, count: 0 }
+        if (now - bucket.at >= 60000) { bucket.at = now; bucket.count = 0 }
+        if (++bucket.count > 10) fail(429, '登录尝试过于频繁，请稍后再试')
+        loginLimits.set(ip, bucket)
+        const input = await body(req)
+        check(object(input), '请求内容必须为 JSON 对象')
+        const ok = matches(input.username, expectedUser) & matches(input.password, expectedPassword)
+        if (!ok) fail(401, '账号或密码错误')
+        for (const [key, session] of sessions) if (session.expires <= now) sessions.delete(key)
+        const token = randomBytes(32).toString('hex')
+        sessions.set(token, { user: loginUser, expires: Date.now() + 7 * 24 * 60 * 60 * 1000 })
+        loginLimits.delete(ip)
+        return send(req, res, 200, { ok: true, user: loginUser }, { 'Set-Cookie': sessionCookie(req, token, 604800) })
+      }
+      if (path === '/admin/logout') {
+        if (req.method !== 'POST') fail(405, '仅支持 POST')
+        const token = cookieToken(req)
+        if (token) sessions.delete(token)
+        return send(req, res, 200, { ok: true }, { 'Set-Cookie': sessionCookie(req, '', 0) })
+      }
+      if (path === '/admin/session') {
+        if (req.method !== 'GET') fail(405, '仅支持 GET')
+        const session = sessionFor(req)
+        if (session) return send(req, res, 200, { user: session.user })
+        if (bearerAuthorized(req)) return send(req, res, 200, { user: loginUser })
+        fail(401, '需要管理员身份')
+      }
       if (path==='/admin/ui') {
         if (req.method==='GET'||req.method==='HEAD') return sendHtml(req,res,200,adminHtml)
         fail(405, '仅支持 GET')
       }
       if (path.startsWith('/admin')) {
-        const forwarded=req.headers['x-real-ip']
-        const now=Date.now(),ip=typeof forwarded==='string'&&isIP(forwarded)?forwarded:(req.socket.remoteAddress||'unknown')
+        const now=Date.now(),ip=clientIp(req)
         for(const [key,bucket] of adminLimits)if(now-bucket.at>60000)adminLimits.delete(key)
         const bucket=adminLimits.get(ip)||{at:now,count:0}
         if(now-bucket.at>=60000){bucket.at=now;bucket.count=0}
@@ -185,7 +248,7 @@ export async function createService({ dataDir, publicBase, adminToken, seeds = {
 
 if (process.argv[1] && import.meta.url === pathToFileURL(resolve(process.argv[1])).href) {
   const seeds = JSON.parse(await readFile(new URL('./seed.json',import.meta.url),'utf8'))
-  const server = await createService({dataDir:process.env.DATA_DIR || resolve(dirname(fileURLToPath(import.meta.url)),'data'),publicBase:process.env.PUBLIC_BASE_URL,adminToken:process.env.ADMIN_TOKEN,seeds})
+  const server = await createService({dataDir:process.env.DATA_DIR || resolve(dirname(fileURLToPath(import.meta.url)),'data'),publicBase:process.env.PUBLIC_BASE_URL,adminToken:process.env.ADMIN_TOKEN,adminUser:process.env.ADMIN_USER,adminPassword:process.env.ADMIN_PASSWORD,seeds})
   server.listen(Number(process.env.PORT || 8080),process.env.HOST || '127.0.0.1',() => console.log('RiftFlow backend ready'))
   for (const signal of ['SIGTERM','SIGINT']) process.on(signal,() => server.close(() => process.exit(0)))
 }

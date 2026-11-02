@@ -86,3 +86,34 @@ test('admin UI and AI default configuration editing', async () => {
     await rm(dataDir,{recursive:true,force:true})
   }
 })
+
+test('page login issues and clears an HttpOnly admin session', async () => {
+  const dataDir = await mkdtemp(join(tmpdir(),'riftflow-login-'))
+  const token = 'test-only-token-with-at-least-32-characters'
+  const server = await createService({dataDir,publicBase:'https://files.example.com/riftflow',adminToken:token,adminUser:'admin',adminPassword:'test-password-123'})
+  server.listen(0,'127.0.0.1'); await once(server,'listening')
+  const base = `http://127.0.0.1:${server.address().port}`
+  const login = (username,password) => fetch(base+'/admin/login',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({username,password})})
+  try {
+    assert.equal((await login('admin','wrong-password')).status,401)
+    const response = await login('admin','test-password-123')
+    assert.equal(response.status,200)
+    const setCookie = response.headers.get('set-cookie')
+    assert.match(setCookie,/rf_admin_session=/)
+    assert.match(setCookie,/HttpOnly/)
+    assert.match(setCookie,/SameSite=Strict/)
+    const cookie = setCookie.split(';')[0]
+    const session = await (await fetch(base+'/admin/session',{headers:{cookie}})).json()
+    assert.equal(session.user,'admin')
+    assert.equal((await fetch(base+'/admin/ai-config',{headers:{cookie}})).status,200)
+    assert.equal((await fetch(base+'/admin/session',{headers:{authorization:'Bearer '+token}})).status,200)
+    const logout = await fetch(base+'/admin/logout',{method:'POST',headers:{cookie}})
+    assert.equal(logout.status,200)
+    assert.match(logout.headers.get('set-cookie'),/Max-Age=0/)
+    assert.equal((await fetch(base+'/admin/session',{headers:{cookie}})).status,401)
+    assert.equal((await fetch(base+'/admin/ai-config')).status,401)
+  } finally {
+    if (server.listening) await new Promise(resolve=>server.close(resolve))
+    await rm(dataDir,{recursive:true,force:true})
+  }
+})

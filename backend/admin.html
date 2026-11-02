@@ -102,6 +102,22 @@ a:hover{text-decoration:underline}
 .artifact{margin-top:12px;padding:12px;border:1px solid var(--line-soft);border-radius:8px;background:var(--surface-alt)}
 .artifact-name{font-weight:600}
 .artifact-line{margin-top:6px;color:var(--secondary);font:var(--mono)}
+.rail-account{margin-top:auto;display:flex;align-items:center;justify-content:space-between;gap:10px;padding:16px 10px 0;border-top:1px solid var(--line-soft)}
+.rail-account strong{display:block;font-size:12px}
+.rail-account span{display:block;margin-top:2px;color:var(--muted);font-size:11px}
+.rail-account button{border:0;background:transparent;color:var(--secondary);font-size:12px;padding:5px 7px;border-radius:6px}
+.rail-account button:hover{background:var(--raised);color:var(--text)}
+.auth-shell{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:28px;background:radial-gradient(900px 560px at 50% -8%,rgb(164 201 183 / .08),transparent 62%),var(--bg)}
+.login-card{width:min(420px,100%);padding:30px;border:1px solid var(--line);border-radius:14px;background:var(--surface)}
+.login-logo{display:block;width:56px;height:56px;border-radius:14px;margin-bottom:20px}
+.login-card h1{margin:0;font-size:22px;line-height:1.3;letter-spacing:-.01em}
+.login-sub{margin:8px 0 22px;color:var(--secondary);font-size:13px}
+.login-error{min-height:20px;margin:0 0 10px;color:var(--danger);font-size:12px}
+.login-submit{width:100%;margin-top:4px}
+.login-foot{margin:18px 0 0;color:var(--muted);font-size:11px;text-align:center}
+.boot{display:flex;flex-direction:column;align-items:center;gap:18px}
+.boot-status{display:flex;align-items:center;gap:9px;color:var(--secondary);font-size:13px}
+input:-webkit-autofill{-webkit-text-fill-color:var(--text);-webkit-box-shadow:0 0 0 1000px var(--raised) inset;caret-color:var(--text)}
 #toastHost{position:fixed;right:20px;bottom:20px;z-index:30;display:flex;flex-direction:column;gap:10px;max-width:min(430px,calc(100vw - 32px))}
 .toast{display:flex;align-items:flex-start;gap:9px;padding:12px 14px;border-radius:9px;background:#1b2a22;color:var(--text);box-shadow:0 8px 16px rgb(0 0 0 / .25);font-size:13px;animation:toast-in .18s ease-out}
 .toast.error{background:#33201f}.toast.success{background:#172b20}
@@ -111,14 +127,31 @@ a:hover{text-decoration:underline}
 @media(max-width:820px){
  .shell{display:block}.rail{position:static;display:flex;width:auto;height:auto;flex-wrap:wrap;align-items:center;gap:14px;padding:16px 18px;border-right:0;border-bottom:1px solid var(--line-soft)}
  .brand{padding:0}.brand img{width:34px;height:34px}.rail-meta{display:none}.nav{flex:1;flex-direction:row;flex-wrap:wrap}.nav button{width:auto;padding:8px 11px}.rail-foot{display:none}
- .page-head{padding:24px 20px 18px}.workspace{padding:0 20px 32px}.editor{grid-template-columns:1fr}.context{border-left:0;border-top:1px solid var(--line-soft)}
+ .page-head{padding:24px 20px 18px}.workspace{padding:0 20px 32px}.editor{grid-template-columns:1fr}.context{border-left:0;border-top:1px solid var(--line-soft)}.rail-account{margin-top:0;padding:0;border-top:0}
 }
 @media(max-width:540px){.form-row{grid-template-columns:1fr}.page-head h1{font-size:21px}.page-head{flex-wrap:wrap}.editor-main{padding:18px}.context{padding:18px}.field textarea{min-height:240px}.actions .btn{flex:1 1 auto}}
 @media(prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important}}
 </style>
 </head>
 <body>
-<div class="shell">
+<main id="bootView" class="auth-shell">
+  <div class="boot"><img class="login-logo" data-logo alt="RiftFlow"><div class="boot-status"><span class="spinner"></span>正在检查登录状态…</div></div>
+</main>
+<main id="loginView" class="auth-shell" hidden>
+  <section class="login-card">
+    <img class="login-logo" data-logo alt="RiftFlow">
+    <h1>登录管理台</h1>
+    <p class="login-sub">使用管理员账号密码继续。</p>
+    <form id="loginForm" novalidate>
+      <div class="field"><label for="loginUser">账号</label><input id="loginUser" value="admin" autocomplete="username" spellcheck="false"></div>
+      <div class="field"><label for="loginPassword">密码</label><div class="key-row"><input id="loginPassword" type="password" autocomplete="current-password"><button class="key-toggle" id="loginKeyToggle" type="button" aria-pressed="false" aria-label="显示或隐藏密码">显示</button></div></div>
+      <p class="login-error" id="loginError" role="alert"></p>
+      <button class="btn btn-primary login-submit" id="loginSubmit" type="submit">登录</button>
+    </form>
+    <p class="login-foot">公网 HTTPS · 会话保存在 HttpOnly Cookie</p>
+  </section>
+</main>
+<div class="shell" id="consoleView" hidden>
   <aside class="rail">
     <div class="brand"><img src="data:image/png;base64,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" alt="RiftFlow"><div><strong>RiftFlow</strong><span>管理台</span></div></div>
     <div class="rail-meta">公网 HTTPS · 服务端管理<br>公告、AI 默认配置与版本信息</div>
@@ -127,7 +160,7 @@ a:hover{text-decoration:underline}
       <button type="button" role="tab" id="nav-ai" data-tab="ai" aria-controls="tab-ai" aria-selected="false"><svg viewBox="0 0 24 24"><path d="M12 3a5 5 0 0 1 5 5v3h-2V8a3 3 0 0 0-6 0v3H7V8a5 5 0 0 1 5-5Z"/><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M12 15v3"/></svg>AI 默认配置</button>
       <button type="button" role="tab" id="nav-release" data-tab="release" aria-controls="tab-release" aria-selected="false"><svg viewBox="0 0 24 24"><path d="m12 3 8 4.5v9L12 21l-8-4.5v-9z"/><path d="m4 7.5 8 4.5 8-4.5M12 12v9M8 5.5l8 4.5"/></svg>版本信息</button>
     </nav>
-    <div class="rail-foot">admin · 1.6.3</div>
+    <div class="rail-account"><div><strong id="currentUser">admin</strong><span>v1.6.3</span></div><button id="logout" type="button">退出登录</button></div>
   </aside>
   <main class="main">
     <header class="page-head">
@@ -191,7 +224,10 @@ a:hover{text-decoration:underline}
 <div id="toastHost" aria-live="polite"></div>
 <script>
 const $ = id => document.getElementById(id)
-const state = {tab:'notice', notice:{lang:'zh-CN',dirty:false}, ai:{dirty:false}}
+const state = {tab:'notice', loaded:false, notice:{lang:'zh-CN',dirty:false}, ai:{dirty:false}}
+const consoleView=$('consoleView'), loginView=$('loginView'), bootView=$('bootView')
+const brandLogo=document.querySelector('.brand img').src
+document.querySelectorAll('[data-logo]').forEach(img=>{img.src=brandLogo})
 const tabs = {
   notice:['公告','编辑客户端公告，保存后立即生效。'],
   ai:['AI 默认配置','修改客户端默认使用的模型、上游和密钥。'],
@@ -215,6 +251,7 @@ async function api(path,options={}){
   const headers=Object.assign({},options.headers)
   if(options.body!==undefined)headers['Content-Type']='application/json'
   const res=await fetch(path,Object.assign({},options,{headers,credentials:'same-origin'}))
+  if(res.status===401)showLogin('登录已过期，请重新登录')
   const text=await res.text();let data
   try{data=text?JSON.parse(text):null}catch{data={error:{message:text}}}
   if(!res.ok)throw new Error((data&&data.error&&data.error.message)||('HTTP '+res.status))
@@ -223,6 +260,46 @@ async function api(path,options={}){
 function busy(kind,value){
   for(const id of kind==='notice'?['noticeSave','noticeLoad']:kind==='ai'?['aiSave','aiLoad']:['releaseLoad'])$(id).disabled=value
   const panel=$('tab-'+kind);panel.setAttribute('aria-busy',String(value))
+}
+function showLogin(message){
+  state.loaded=false
+  bootView.hidden=true;consoleView.hidden=true;loginView.hidden=false
+  $('loginError').textContent=message||''
+  $('loginPassword').value='';$('loginPassword').type='password';$('loginKeyToggle').textContent='显示';$('loginKeyToggle').setAttribute('aria-pressed','false')
+  $('loginSubmit').disabled=false;$('loginSubmit').textContent='登录'
+  setTimeout(()=>$('loginUser').focus(),0)
+}
+function showConsole(user){
+  bootView.hidden=true;loginView.hidden=true;consoleView.hidden=false
+  $('currentUser').textContent=user||'admin'
+  tab(location.hash.slice(1))
+  if(!state.loaded){state.loaded=true;loadNotice();loadAi();loadRelease()}
+}
+async function boot(){
+  try{
+    const res=await fetch('/admin/session',{credentials:'same-origin'})
+    if(res.ok){const data=await res.json();showConsole(data.user);return}
+    showLogin('')
+  }catch{showLogin('无法连接后端，请刷新重试')}
+}
+async function doLogin(event){
+  event.preventDefault()
+  const username=$('loginUser').value.trim(),password=$('loginPassword').value
+  if(!username||!password){$('loginError').textContent='请输入账号和密码';return}
+  $('loginError').textContent='';$('loginSubmit').disabled=true;$('loginSubmit').textContent='登录中…'
+  try{
+    const res=await fetch('/admin/login',{method:'POST',credentials:'same-origin',headers:{'Content-Type':'application/json'},body:JSON.stringify({username,password})})
+    const text=await res.text();let data
+    try{data=text?JSON.parse(text):null}catch{data={}}
+    if(!res.ok)throw new Error((data&&data.error&&data.error.message)||'登录失败')
+    $('loginPassword').value=''
+    showConsole((data&&data.user)||username)
+  }catch(e){$('loginError').textContent=e.message||'登录失败'}
+  finally{$('loginSubmit').disabled=false;$('loginSubmit').textContent='登录'}
+}
+async function doLogout(){
+  await fetch('/admin/logout',{method:'POST',credentials:'same-origin'}).catch(()=>{})
+  showLogin('')
 }
 function markDirty(kind,value){
   state[kind].dirty=value
@@ -326,7 +403,10 @@ $('aiLoad').onclick=loadAi;$('aiSave').onclick=saveAi
 for(const id of ['aiUrl','aiModel','aiKey','aiTimeout','aiTokens'])$(id).addEventListener('input',()=>markDirty('ai',true))
 $('aiKeyToggle').onclick=()=>{const show=$('aiKey').type==='password';$('aiKey').type=show?'text':'password';$('aiKeyToggle').textContent=show?'隐藏':'显示';$('aiKeyToggle').setAttribute('aria-pressed',String(show))}
 $('releaseLoad').onclick=loadRelease
-tab(location.hash.slice(1));loadNotice();loadAi();loadRelease()
+$('loginForm').addEventListener('submit',doLogin)
+$('logout').onclick=doLogout
+$('loginKeyToggle').onclick=()=>{const show=$('loginPassword').type==='password';$('loginPassword').type=show?'text':'password';$('loginKeyToggle').textContent=show?'隐藏':'显示';$('loginKeyToggle').setAttribute('aria-pressed',String(show))}
+boot()
 </script>
 </body>
 </html>
