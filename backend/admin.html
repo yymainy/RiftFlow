@@ -71,6 +71,8 @@ a:hover{text-decoration:underline}
 .field-label-row{display:flex;align-items:center;justify-content:space-between;gap:8px;min-height:19px;margin-bottom:7px}
 .field-label-row label{margin:0}
 .field-note{color:var(--muted);font-size:11px}
+.check{display:flex;align-items:flex-start;gap:9px;margin:0;color:var(--secondary);font-size:12px;font-weight:500;line-height:1.6}
+.check input{width:15px;height:15px;margin:2px 0 0;flex:none;accent-color:var(--accent)}
 .key-row{position:relative}
 .key-row input{padding-right:72px}
 .key-toggle{position:absolute;right:7px;top:50%;transform:translateY(-50%);padding:4px 8px;border:0;background:transparent;color:var(--secondary);font-size:11px}
@@ -179,6 +181,7 @@ input:-webkit-autofill{-webkit-text-fill-color:var(--text);-webkit-box-shadow:0 
             <div class="field"><label for="noticeLang">语言</label><select id="noticeLang"><option value="zh-CN">zh-CN</option><option value="en">en</option></select></div>
             <div class="field"><label for="noticeSeverity">级别</label><select id="noticeSeverity"><option value="low">low · 仅公告</option><option value="medium">medium · 徽标提示</option><option value="high">high · 重要提醒</option></select></div>
           </div>
+          <div class="field" id="noticeSyncWrap"><label class="check"><input id="noticeSyncEnglish" type="checkbox" checked> 保存中文时自动翻译并覆盖英文公告</label><div class="field-hint"><span>使用 AI 默认配置翻译摘要和正文；失败时保留原英文并提示</span></div></div>
           <div class="field"><label for="noticeSummary">摘要</label><input id="noticeSummary" maxlength="500" placeholder="客户端列表中显示的一句话摘要"><div class="field-hint"><span>必填，最多 500 字</span><span id="noticeSummaryCount">0 / 500</span></div></div>
           <div class="field"><label for="noticeContent">正文（Markdown）</label><textarea id="noticeContent" maxlength="200000" placeholder="## 标题&#10;&#10;- 内容"></textarea><div class="field-hint"><span>支持 Markdown，最多 200000 字</span><span id="noticeContentCount">0 / 200000</span></div></div>
           <div class="actions"><button class="btn btn-primary" id="noticeSave" type="button">保存公告</button><button class="btn btn-secondary" id="noticeLoad" type="button">重新读取</button><span class="status" id="noticeStatus" aria-live="polite"></span></div>
@@ -329,7 +332,8 @@ function markDirty(kind,value){
   state[kind].dirty=value
   $(kind+'Dirty').hidden=!value
 }
-function noticePayload(){return{severity:$('noticeSeverity').value,summary:$('noticeSummary').value,content:$('noticeContent').value}}
+function noticePayload(){return{severity:$('noticeSeverity').value,summary:$('noticeSummary').value,content:$('noticeContent').value,sync_english:$('noticeSyncEnglish').checked}}
+function syncNoticeControls(){$('noticeSyncWrap').hidden=$('noticeLang').value!=='zh-CN'}
 function noticeTextChanged(){
   markDirty('notice',true)
   $('noticeSummaryCount').textContent=$('noticeSummary').value.length+' / 500'
@@ -339,6 +343,7 @@ function noticeTextChanged(){
 async function loadNotice(){
   const lang=$('noticeLang').value
   state.notice.lang=lang
+  syncNoticeControls()
   busy('notice',true);setStatus('noticeStatus','读取中…')
   try{
     const data=await api('/admin/notice/'+encodeURIComponent(lang))
@@ -356,11 +361,16 @@ async function loadNotice(){
 }
 async function saveNotice(){
   if(!$('noticeSummary').value.trim()||!$('noticeContent').value.trim()){setStatus('noticeStatus','请填写摘要和正文','bad');return}
-  busy('notice',true);setStatus('noticeStatus','保存中…')
+  const sync=state.notice.lang==='zh-CN'&&$('noticeSyncEnglish').checked
+  busy('notice',true);setStatus('noticeStatus',sync?'保存并翻译中…':'保存中…')
   try{
     const data=await api('/admin/notice/'+encodeURIComponent(state.notice.lang),{method:'PUT',body:JSON.stringify(noticePayload())})
     $('noticeRevision').textContent=data.revision||'—';$('noticeUpdated').textContent=data.updatedAt||'—'
-    markDirty('notice',false);setStatus('noticeStatus','已保存','ok');toast('公告已保存')
+    markDirty('notice',false)
+    if(sync&&data.translation){
+      if(data.translation.ok){setStatus('noticeStatus','已保存，英文已同步','ok');toast('公告已保存，英文翻译已同步')}
+      else{setStatus('noticeStatus','已保存，英文翻译失败','bad');toast('公告已保存，但英文翻译失败：'+data.translation.error,'error')}
+    }else{setStatus('noticeStatus','已保存','ok');toast('公告已保存')}
   }catch(e){setStatus('noticeStatus','保存失败：'+e.message,'bad');toast('保存公告失败：'+e.message,'error')}
   finally{busy('notice',false)}
 }

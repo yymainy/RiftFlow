@@ -40,6 +40,8 @@ docker build -t riftflow-backend:local .
 
 管理页的“AI 默认配置”页通过 `GET/PUT /admin/ai-config` 读写容器内 `/data/ai-provider.json`。`GET` 不回显 `api_key`，只返回 `api_key_set`；`PUT` 时留空 `api_key` 表示保持原值。公开的 `POST /ai/v1/config` 只返回加密载荷，不提供明文读取。
 
+保存 `zh-CN` 公告时，管理页默认勾选“自动翻译并覆盖英文公告”：后端使用 `/data/ai-provider.json` 的默认 AI 上游把摘要和正文翻译成英文，写入并替换 `en` 公告。翻译失败时中文公告仍会保存，英文保持原样并返回警告；取消勾选则只保存中文。`/admin/` 的 Nginx 反向代理超时设为 180 秒以容纳翻译。
+
 备份持久数据目录及 `seed.json`。管理员密钥只保存于服务器权限受限的环境文件，绝不能放进 EXE。请求正文上限 1 MB。服务不记录 Authorization 内容。
 
 桌面联调可设置 `RIFTFLOW_BOOTSTRAP_URL=https://riftflow-api.yymainy.online/bootstrap.json` 后启动 EXE。服务发现响应保留客户端当前要求的字段名；这不是额外依赖原服务。

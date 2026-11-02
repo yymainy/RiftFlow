@@ -1,9 +1,10 @@
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
-import { mkdtemp, readFile, rm } from 'node:fs/promises'
+import { mkdtemp, readFile, rm, writeFile } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { once } from 'node:events'
+import http from 'node:http'
 import { createService } from './server.mjs'
 
 test('publication authentication, persistence, languages and desktop-compatible API', async () => {
@@ -144,6 +145,46 @@ test('password change stores a scrypt hash and rotates sessions', async () => {
     assert.equal(JSON.stringify(stored).includes('new-password-456'),false)
   } finally {
     if (server.listening) await new Promise(resolve=>server.close(resolve))
+    await rm(dataDir,{recursive:true,force:true})
+  }
+})
+
+test('saving a Chinese notice can translate and replace the English notice', async () => {
+  const dataDir = await mkdtemp(join(tmpdir(),'riftflow-translate-'))
+  const token = 'test-only-token-with-at-least-32-characters'
+  const ai = http.createServer((req,res) => {
+    let body=''
+    req.on('data', chunk => { body += chunk })
+    req.on('end', () => {
+      const input = JSON.parse(body)
+      assert.equal(req.url,'/v1/chat/completions')
+      assert.equal(input.model,'test-model')
+      res.setHeader('content-type','application/json')
+      res.end(JSON.stringify({choices:[{message:{content:JSON.stringify({summary:'English summary',content:'## English\n\nTranslated body'})}}]}))
+    })
+  })
+  ai.listen(0,'127.0.0.1'); await once(ai,'listening')
+  const aiConfigFile = join(dataDir,'ai-provider.json')
+  await writeFile(aiConfigFile, JSON.stringify({url:`http://127.0.0.1:${ai.address().port}/v1`,api_key:'test-key',model:'test-model',timeout_seconds:10,max_tokens:512}))
+  const server = await createService({dataDir,publicBase:'https://files.example.com/riftflow',adminToken:token,adminUser:'admin',adminPassword:'test-password-123',aiConfigFile})
+  server.listen(0,'127.0.0.1'); await once(server,'listening')
+  const base = `http://127.0.0.1:${server.address().port}`
+  try {
+    const response = await fetch(base+'/admin/notice/zh-CN',{method:'PUT',headers:{authorization:'Bearer '+token,'content-type':'application/json'},body:JSON.stringify({severity:'low',summary:'中文摘要',content:'中文正文',sync_english:true})})
+    assert.equal(response.status,200)
+    const saved = await response.json()
+    assert.equal(saved.summary,'中文摘要')
+    assert.equal(saved.translation.ok,true)
+    assert.ok(saved.translation.revision)
+    const zh = await (await fetch(base+'/notice/v1/latest?lang=zh-CN')).json()
+    assert.equal(zh.summary,'中文摘要')
+    const en = await (await fetch(base+'/notice/v1/latest?lang=en')).json()
+    assert.equal(en.summary,'English summary')
+    assert.equal(en.content,'## English\n\nTranslated body')
+    assert.equal(en.language,'en')
+  } finally {
+    if (server.listening) await new Promise(resolve=>server.close(resolve))
+    await new Promise(resolve=>ai.close(resolve))
     await rm(dataDir,{recursive:true,force:true})
   }
 })

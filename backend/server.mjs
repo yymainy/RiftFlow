@@ -77,6 +77,51 @@ export async function createService({ dataDir, publicBase, adminToken, adminUser
     catch (error) { if (error.code === 'ENOENT') return null; throw error }
   }
   const publicAiConfig = value => ({url:value.url||'',model:value.model||'',timeout_seconds:value.timeout_seconds||90,max_tokens:value.max_tokens||1800,api_key_set:!!(value.api_key&&value.api_key.trim())})
+  async function writeResource(key, value) {
+    const temp = file(key) + '.' + randomUUID() + '.tmp'
+    await writeFile(temp, JSON.stringify(value, null, 2), { mode:0o600 })
+    await rename(temp, file(key))
+    return value
+  }
+  function extractJson(text) {
+    const stripped = String(text).trim().replace(/^```(?:json)?\s*/i, '').replace(/\s*```$/, '')
+    const start = stripped.indexOf('{'), end = stripped.lastIndexOf('}')
+    if (start < 0 || end <= start) throw new Error('翻译结果不是 JSON')
+    return JSON.parse(stripped.slice(start, end + 1))
+  }
+  async function translateNotice(summary, content) {
+    const config = await readAiConfig()
+    if (!config?.url || !config?.api_key || !config?.model) throw new Error('未配置 AI 默认上游')
+    if (content.length > 20000) throw new Error('公告正文过长，暂不自动翻译')
+    const base = config.url.replace(/\/+$/, '')
+    const endpoint = base.endsWith('/chat/completions') ? base : base + '/chat/completions'
+    const controller = new AbortController()
+    const timer = setTimeout(() => controller.abort(), Math.min(90, Number(config.timeout_seconds) || 90) * 1000)
+    let response
+    try {
+      response = await fetch(endpoint, {
+        method: 'POST',
+        headers: { 'Content-Type':'application/json', Authorization: 'Bearer ' + config.api_key },
+        body: JSON.stringify({
+          model: config.model,
+          temperature: 0.1,
+          max_tokens: Math.min(8192, Math.max(1024, Number(config.max_tokens) || 1800)),
+          messages: [
+            { role:'system', content:'You are a precise Chinese-to-English translator for in-app notices of a Windows desktop application. Preserve Markdown structure, links, code, numbers and product names such as RiftFlow and League of Legends. Translate faithfully; do not add or remove facts. Return strictly one JSON object with string fields summary and content, without code fences or explanation.' },
+            { role:'user', content: JSON.stringify({ summary, content }) }
+          ]
+        }),
+        signal: controller.signal
+      })
+    } finally { clearTimeout(timer) }
+    if (!response.ok) throw new Error('AI 翻译请求失败（HTTP ' + response.status + '）')
+    const payload = await response.json()
+    const message = payload?.choices?.[0]?.message?.content
+    if (typeof message !== 'string') throw new Error('AI 翻译返回格式无效')
+    const result = extractJson(message)
+    if (!string(result.summary) || !string(result.content)) throw new Error('AI 翻译缺少摘要或正文')
+    return { summary: result.summary.trim().slice(0,500), content: result.content.trim() }
+  }
   const expectedToken = createHash('sha256').update(adminToken).digest()
   const loginUser = adminUser || 'admin'
   const loginPassword = adminPassword || adminToken
@@ -253,11 +298,22 @@ export async function createService({ dataDir, publicBase, adminToken, adminUser
           return send(req,res,200,value)
         }
         if (req.method !== 'PUT') fail(405, '仅支持 GET 和 PUT')
-        const value = validate(key, await body(req))
-        const temp = file(key) + '.' + randomUUID() + '.tmp'
-        await writeFile(temp, JSON.stringify(value, null, 2), { mode:0o600 })
-        await rename(temp, file(key))
-        return send(req,res,200,value)
+        const input = await body(req)
+        const value = validate(key, input)
+        const saved = await writeResource(key, value)
+        let translation = null
+        if (key === 'notice/zh-CN' && input.sync_english === true) {
+          try {
+            const translated = await translateNotice(value.summary, value.content)
+            const english = validate('notice/en', { severity: value.severity, summary: translated.summary, content: translated.content })
+            await writeResource('notice/en', english)
+            translation = { ok: true, revision: english.revision, updatedAt: english.updatedAt }
+          } catch (error) {
+            translation = { ok: false, error: error.message }
+            console.error('[admin] notice translation failed:', error.message)
+          }
+        }
+        return send(req,res,200, translation ? { ...saved, translation } : saved)
       }
       if (!['GET','HEAD'].includes(req.method)) fail(405, '仅支持读取')
       if (path === '/healthz') return send(req,res,200,{status:'ok',service:'riftflow-backend'})
