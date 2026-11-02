@@ -26,7 +26,9 @@ docker build -t riftflow-backend:local .
 
 ## 发布公告
 
-管理接口只允许内网／SSH 使用，不经公网 Nginx 暴露。通过 `Authorization: Bearer <ADMIN_TOKEN>` 调用 `PUT /admin/notice/zh-CN`，JSON 示例：
+管理页：`https://riftflow-api.yymainy.online/admin/ui`。页面和 `/admin/` 接口通过 HTTPS 公网提供，必须使用 `ADMIN_TOKEN` 登录；接口按来源 IP 限流 120 次/分钟。令牌泄露等于管理权限泄露，必须使用高熵随机值并定期更换。登录令牌保存在访问者浏览器本地，公共电脑用完请点“清除令牌”。
+
+通过 `Authorization: Bearer <ADMIN_TOKEN>` 调用 `PUT /admin/notice/zh-CN`，JSON 示例：
 
 ```json
 {"severity":"medium","summary":"新版已发布","content":"## 更新内容\n修复公告显示与默认主题。"}
@@ -36,13 +38,15 @@ docker build -t riftflow-backend:local .
 
 另支持 `PUT /admin/contacts`（`channels` 数组）和 `PUT /admin/release/zh-CN`、`PUT /admin/release/en`。版本资料包含 `version`、`publishedAt`、`description`、`artifacts`；每个安装包必须有 HTTPS 下载地址、正整数大小、SHA256 校验值。EXE 由 Nginx 下载目录提供，不接受匿名文件上传。
 
+管理页的“AI 默认配置”页通过 `GET/PUT /admin/ai-config` 读写容器内 `/data/ai-provider.json`。`GET` 不回显 `api_key`，只返回 `api_key_set`；`PUT` 时留空 `api_key` 表示保持原值。公开的 `POST /ai/v1/config` 只返回加密载荷，不提供明文读取。
+
 备份持久数据目录及 `seed.json`。管理员密钥只保存于服务器权限受限的环境文件，绝不能放进 EXE。请求正文上限 1 MB。服务不记录 Authorization 内容。
 
 桌面联调可设置 `RIFTFLOW_BOOTSTRAP_URL=https://riftflow-api.yymainy.online/bootstrap.json` 后启动 EXE。服务发现响应保留客户端当前要求的字段名；这不是额外依赖原服务。
 
 ## 当前部署
 
-Ubuntu SSH 别名 `ubuntu`（从 YYM 连接），服务目录 `/opt/riftflow-backend`，容器 `riftflow-backend`，仅映射 `127.0.0.1:8091`。独立域名 `https://riftflow-api.yymainy.online`。Nginx 拦截公网 `/admin/`；配置 `/www/server/panel/vhost/nginx/riftflow-api.yymainy.online.conf`。证书由现有 acme.sh 账户签发，使用 install-cert 保存安装路径及重载命令；不在仓库中保存私钥。
+Ubuntu SSH 别名 `ubuntu`（从 YYM 连接），服务目录 `/opt/riftflow-backend`，容器 `riftflow-backend`，仅映射 `127.0.0.1:8091`。独立域名 `https://riftflow-api.yymainy.online`。Nginx 将 `/admin/` 连同其他 API 路径一起代理到后端；管理页使用 `ADMIN_TOKEN` 鉴权。配置 `/www/server/panel/vhost/nginx/riftflow-api.yymainy.online.conf`。证书由现有 acme.sh 账户签发，使用 install-cert 保存安装路径及重载命令；不在仓库中保存私钥。
 
 服务器上发布：`sudo python3 /opt/riftflow-backend/publish.py notice/zh-CN /path/to/announcement.json`。管理密钥由该命令在服务器本地读取，不发给客户端。
 

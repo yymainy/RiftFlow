@@ -1,6 +1,6 @@
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
-import { mkdtemp, rm } from 'node:fs/promises'
+import { mkdtemp, readFile, rm } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { once } from 'node:events'
@@ -43,6 +43,45 @@ test('publication authentication, persistence, languages and desktop-compatible 
     assert.deepEqual(await (await fetch(base+'/notice/v1/latest')).json(),second)
   } finally {
     if (server?.listening) await new Promise(resolve=>server.close(resolve))
+    await rm(dataDir,{recursive:true,force:true})
+  }
+})
+
+test('admin UI and AI default configuration editing', async () => {
+  const dataDir = await mkdtemp(join(tmpdir(),'riftflow-admin-'))
+  const token = 'test-only-admin-token-with-at-least-32-chars'
+  const server = await createService({dataDir,publicBase:'https://files.example.com/riftflow',adminToken:token})
+  server.listen(0,'127.0.0.1'); await once(server,'listening')
+  const base = `http://127.0.0.1:${server.address().port}`
+  const auth = {authorization:'Bearer '+token}
+  const jsonHeaders = {...auth,'content-type':'application/json'}
+  const aiFile = join(dataDir,'ai-provider.json')
+  const putAi = data => fetch(base+'/admin/ai-config',{method:'PUT',headers:jsonHeaders,body:JSON.stringify(data)})
+  try {
+    const page = await fetch(base+'/admin/ui')
+    assert.equal(page.status,200)
+    assert.match(page.headers.get('content-security-policy')||'',/frame-ancestors 'none'/)
+    assert.match(await page.text(),/RiftFlow 管理/)
+    assert.equal((await fetch(base+'/admin/ai-config')).status,401)
+    assert.equal((await fetch(base+'/admin/ai-config',{headers:{authorization:'Bearer wrong-token'}})).status,401)
+    const initial = await (await fetch(base+'/admin/ai-config',{headers:auth})).json()
+    assert.equal(initial.api_key_set,false); assert.equal(initial.url,''); assert.equal(initial.api_key,undefined)
+    const saved = await putAi({url:'http://127.0.0.1:8963/v1',model:'dfmodel',api_key:'secret-key',timeout_seconds:90,max_tokens:1800})
+    assert.equal(saved.status,200)
+    const savedBody = await saved.json()
+    assert.equal(savedBody.config.api_key_set,true); assert.equal(savedBody.config.api_key,undefined)
+    const stored = JSON.parse(await readFile(aiFile,'utf8'))
+    assert.equal(stored.api_key,'secret-key'); assert.equal(stored.model,'dfmodel')
+    const readBack = await (await fetch(base+'/admin/ai-config',{headers:auth})).json()
+    assert.equal(readBack.api_key_set,true); assert.equal(readBack.api_key,undefined); assert.equal(readBack.model,'dfmodel')
+    assert.equal((await putAi({url:'http://127.0.0.1:8963/v1',model:'next-model',api_key:''})).status,200)
+    const kept = JSON.parse(await readFile(aiFile,'utf8'))
+    assert.equal(kept.api_key,'secret-key'); assert.equal(kept.model,'next-model')
+    assert.equal((await putAi({url:'ftp://bad',model:'x',api_key:'k'})).status,400)
+    assert.equal((await putAi({url:'https://example.com/v1',model:'',api_key:'k'})).status,400)
+    assert.equal((await fetch(base+'/admin/ui',{method:'POST'})).status,405)
+  } finally {
+    if (server.listening) await new Promise(resolve=>server.close(resolve))
     await rm(dataDir,{recursive:true,force:true})
   }
 })

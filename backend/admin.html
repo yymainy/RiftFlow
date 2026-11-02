@@ -1,0 +1,215 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>RiftFlow 管理</title>
+<style>
+:root{color-scheme:light;--bg:#f4f6f8;--card:#fff;--line:#e2e6ea;--ink:#1d2733;--muted:#6b7785;--accent:#2563eb;--ok:#15803d;--bad:#b91c1c}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:14px/1.6 "Segoe UI","Microsoft YaHei",system-ui,sans-serif}
+header{background:#111827;color:#fff;padding:18px 24px}
+header h1{margin:0;font-size:20px}
+header p{margin:4px 0 0;color:#cbd5e1;font-size:12px}
+main{max-width:1120px;margin:24px auto;padding:0 16px 48px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:20px}
+.hidden{display:none!important}
+label{display:block;font-weight:600;margin:14px 0 6px}
+input,select,textarea,button{font:inherit}
+input,select,textarea{width:100%;border:1px solid #cbd5e1;border-radius:7px;padding:9px 11px;background:#fff;color:var(--ink)}
+textarea{min-height:240px;resize:vertical;font-family:ui-monospace,Consolas,monospace;font-size:13px}
+button{border:0;border-radius:7px;padding:9px 16px;background:var(--accent);color:#fff;font-weight:600;cursor:pointer}
+button.secondary{background:#e5e7eb;color:#111827}
+button:disabled{opacity:.55;cursor:not-allowed}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.actions{display:flex;align-items:center;gap:10px;margin-top:18px;flex-wrap:wrap}
+.status{font-size:13px;color:var(--muted);white-space:pre-wrap}
+.status.ok{color:var(--ok)}.status.bad{color:var(--bad)}
+.tabs{display:flex;gap:8px;margin:0 0 16px;flex-wrap:wrap}
+.tabs button{background:#e5e7eb;color:#334155}
+.tabs button.active{background:var(--accent);color:#fff}
+.note{font-size:12px;color:var(--muted);margin-top:8px}
+.mono{font-family:ui-monospace,Consolas,monospace;font-size:12px;word-break:break-all}
+pre{background:#f8fafc;border:1px solid var(--line);border-radius:7px;padding:12px;white-space:pre-wrap;word-break:break-word}
+.release{border:1px solid var(--line);border-radius:8px;padding:14px;margin-top:12px}
+@media(max-width:720px){.row{grid-template-columns:1fr}main{margin-top:16px}}
+</style>
+</head>
+<body>
+<header>
+  <h1>RiftFlow 管理</h1>
+  <p>公网 HTTPS 管理页。令牌保存在本浏览器，请勿在公共电脑保存。</p>
+</header>
+<main>
+  <section id="gate" class="card">
+    <h2 style="margin-top:0">管理员令牌</h2>
+    <p class="note">在服务器 <span class="mono">/opt/riftflow-backend/service.env</span> 中查看 <span class="mono">ADMIN_TOKEN</span>。页面地址：<span class="mono">https://riftflow-api.yymainy.online/admin/ui</span>。</p>
+    <label for="token">ADMIN_TOKEN</label>
+    <input id="token" type="password" autocomplete="current-password" placeholder="服务端 /opt/riftflow-backend/service.env 中的 ADMIN_TOKEN">
+    <div class="actions"><button id="unlock">进入管理</button><span id="gateStatus" class="status"></span></div>
+  </section>
+
+  <div id="app" class="hidden">
+    <div class="tabs">
+      <button data-tab="notice">公告</button>
+      <button data-tab="ai">AI 默认配置</button>
+      <button data-tab="release">版本信息</button>
+      <button id="forget" class="secondary" style="margin-left:auto">清除令牌</button>
+    </div>
+
+    <section id="tab-notice" class="card">
+      <h2 style="margin-top:0">公告</h2>
+      <div class="row">
+        <div><label for="noticeLang">语言</label><select id="noticeLang"><option value="zh-CN">zh-CN</option><option value="en">en</option></select></div>
+        <div><label for="noticeSeverity">级别</label><select id="noticeSeverity"><option value="low">low（仅公告）</option><option value="medium">medium（徽标提示）</option><option value="high">high（重要提醒）</option></select></div>
+      </div>
+      <label for="noticeSummary">摘要</label>
+      <input id="noticeSummary" maxlength="500" placeholder="1–500 字">
+      <label for="noticeContent">正文（Markdown）</label>
+      <textarea id="noticeContent" maxlength="200000" placeholder="## 标题&#10;&#10;- 内容"></textarea>
+      <div class="actions"><button id="noticeLoad" class="secondary">重新读取</button><button id="noticeSave">保存公告</button><span id="noticeStatus" class="status"></span></div>
+      <p class="note">保存后会立即对客户端生效；medium/high 会显示未读徽标。中英文分别保存。</p>
+      <details style="margin-top:14px"><summary>预览正文</summary><pre id="noticePreview"></pre></details>
+    </section>
+
+    <section id="tab-ai" class="card hidden">
+      <h2 style="margin-top:0">AI 默认配置</h2>
+      <p class="note">这是客户端通过 <span class="mono">/ai/v1/config</span> 获取的默认配置。API Key 不会回显；留空表示保持原值。</p>
+      <label for="aiUrl">上游 URL</label>
+      <input id="aiUrl" placeholder="https://example.com/v1">
+      <div class="row">
+        <div><label for="aiModel">模型</label><input id="aiModel" placeholder="model-name"></div>
+        <div><label for="aiKey">API Key <span class="note" id="aiKeyState"></span></label><input id="aiKey" type="password" autocomplete="new-password" placeholder="留空表示不修改"></div>
+      </div>
+      <div class="row">
+        <div><label for="aiTimeout">超时（秒）</label><input id="aiTimeout" type="number" min="10" max="180" step="1"></div>
+        <div><label for="aiTokens">Max tokens</label><input id="aiTokens" type="number" min="256" max="8192" step="1"></div>
+      </div>
+      <div class="actions"><button id="aiLoad" class="secondary">重新读取</button><button id="aiSave">保存 AI 配置</button><span id="aiStatus" class="status"></span></div>
+      <p class="note">保存后无需重启后端；桌面客户端可能需要重新获取默认配置或重开才会更新缓存。</p>
+    </section>
+
+    <section id="tab-release" class="card hidden">
+      <h2 style="margin-top:0">版本信息</h2>
+      <p class="note">版本元数据只读；发布新版本仍走 GitHub Release / 发布脚本。</p>
+      <div class="actions"><button id="releaseLoad" class="secondary">重新读取</button><span id="releaseStatus" class="status"></span></div>
+      <div id="releaseBody"></div>
+    </section>
+  </div>
+</main>
+<script>
+const $ = id => document.getElementById(id)
+const state = {token: localStorage.getItem('rfAdminToken') || ''}
+function setStatus(el, text, kind) { el.textContent = text || ''; el.className = 'status' + (kind ? ' ' + kind : '') }
+function tab(name) {
+  for (const b of document.querySelectorAll('.tabs [data-tab]')) b.classList.toggle('active', b.dataset.tab === name)
+  for (const p of ['notice','ai','release']) $('tab-' + p).classList.toggle('hidden', p !== name)
+}
+async function api(path, options = {}) {
+  const headers = Object.assign({}, options.headers, {Authorization: 'Bearer ' + state.token})
+  if (options.body !== undefined) headers['Content-Type'] = 'application/json'
+  const res = await fetch(path, Object.assign({}, options, {headers}))
+  const text = await res.text()
+  let data
+  try { data = text ? JSON.parse(text) : null } catch { data = {error:{message:text}} }
+  if (!res.ok) throw new Error((data && data.error && data.error.message) || ('HTTP ' + res.status))
+  return data
+}
+async function unlock() {
+  state.token = $('token').value.trim()
+  if (!state.token) { setStatus($('gateStatus'), '请输入令牌', 'bad'); return }
+  setStatus($('gateStatus'), '验证中…')
+  try {
+    await api('/admin/ai-config')
+    localStorage.setItem('rfAdminToken', state.token)
+    $('gate').classList.add('hidden'); $('app').classList.remove('hidden'); setStatus($('gateStatus'), '已验证', 'ok')
+    tab('notice'); await Promise.all([loadNotice(), loadAi(), loadRelease()])
+  } catch (e) {
+    localStorage.removeItem('rfAdminToken')
+    setStatus($('gateStatus'), '验证失败：' + e.message, 'bad')
+  }
+}
+function noticePayload() {
+  return {severity: $('noticeSeverity').value, summary: $('noticeSummary').value, content: $('noticeContent').value}
+}
+async function loadNotice() {
+  setStatus($('noticeStatus'), '读取中…')
+  try {
+    const data = await api('/admin/notice/' + encodeURIComponent($('noticeLang').value))
+    $('noticeSeverity').value = data.severity || 'low'
+    $('noticeSummary').value = data.summary || ''
+    $('noticeContent').value = data.content || ''
+    $('noticePreview').textContent = data.content || ''
+    setStatus($('noticeStatus'), '已读取 · 修订 ' + (data.revision || '') + (data.updatedAt ? ' · ' + data.updatedAt : ''), 'ok')
+  } catch (e) {
+    if (e.message.includes('尚未发布内容')) {
+      $('noticeSummary').value = ''; $('noticeContent').value = ''; $('noticePreview').textContent = ''
+      setStatus($('noticeStatus'), '该语言尚未发布公告', '')
+    } else setStatus($('noticeStatus'), '读取失败：' + e.message, 'bad')
+  }
+}
+async function saveNotice() {
+  setStatus($('noticeStatus'), '保存中…')
+  try {
+    const data = await api('/admin/notice/' + encodeURIComponent($('noticeLang').value), {method:'PUT', body: JSON.stringify(noticePayload())})
+    $('noticePreview').textContent = data.content || ''
+    setStatus($('noticeStatus'), '已保存 · 修订 ' + (data.revision || ''), 'ok')
+  } catch (e) { setStatus($('noticeStatus'), '保存失败：' + e.message, 'bad') }
+}
+async function loadAi() {
+  setStatus($('aiStatus'), '读取中…')
+  try {
+    const data = await api('/admin/ai-config')
+    $('aiUrl').value = data.url || ''
+    $('aiModel').value = data.model || ''
+    $('aiTimeout').value = data.timeout_seconds || 90
+    $('aiTokens').value = data.max_tokens || 1800
+    $('aiKey').value = ''
+    $('aiKeyState').textContent = data.api_key_set ? '已配置' : '未配置'
+    setStatus($('aiStatus'), '已读取', 'ok')
+  } catch (e) { setStatus($('aiStatus'), '读取失败：' + e.message, 'bad') }
+}
+async function saveAi() {
+  setStatus($('aiStatus'), '保存中…')
+  const payload = {url: $('aiUrl').value.trim(), model: $('aiModel').value.trim(), timeout_seconds: Number($('aiTimeout').value), max_tokens: Number($('aiTokens').value)}
+  if ($('aiKey').value.trim()) payload.api_key = $('aiKey').value.trim()
+  try {
+    await api('/admin/ai-config', {method:'PUT', body: JSON.stringify(payload)})
+    $('aiKey').value = ''
+    $('aiKeyState').textContent = '已配置'
+    setStatus($('aiStatus'), '已保存；默认配置下次获取时生效', 'ok')
+  } catch (e) { setStatus($('aiStatus'), '保存失败：' + e.message, 'bad') }
+}
+async function loadRelease() {
+  setStatus($('releaseStatus'), '读取中…')
+  const body = $('releaseBody'); body.textContent = ''
+  try {
+    for (const lang of ['zh-CN','en']) {
+      const data = await api('/admin/release/' + lang)
+      const box = document.createElement('div'); box.className = 'release'
+      const title = document.createElement('div'); title.style.fontWeight = '700'; title.textContent = lang + ' · ' + (data.version || '未发布'); box.appendChild(title)
+      const meta = document.createElement('div'); meta.className = 'mono'; meta.textContent = 'publishedAt: ' + (data.publishedAt || '-'); box.appendChild(meta)
+      for (const a of (data.artifacts || [])) {
+        const line = document.createElement('div'); line.className = 'mono'; line.textContent = a.fileName + ' · ' + a.size + ' bytes · ' + a.sha256 + ' · ' + a.downloadUrl; box.appendChild(line)
+      }
+      body.appendChild(box)
+    }
+    setStatus($('releaseStatus'), '', '')
+  } catch (e) { setStatus($('releaseStatus'), '读取失败：' + e.message, 'bad') }
+}
+$('unlock').onclick = unlock
+$('token').addEventListener('keydown', e => { if (e.key === 'Enter') unlock() })
+$('forget').onclick = () => { localStorage.removeItem('rfAdminToken'); location.reload() }
+for (const b of document.querySelectorAll('.tabs [data-tab]')) b.onclick = () => tab(b.dataset.tab)
+$('noticeLang').onchange = loadNotice
+$('noticeLoad').onclick = loadNotice
+$('noticeSave').onclick = saveNotice
+$('noticeContent').oninput = () => $('noticePreview').textContent = $('noticeContent').value
+$('aiLoad').onclick = loadAi
+$('aiSave').onclick = saveAi
+$('releaseLoad').onclick = loadRelease
+if (state.token) { $('token').value = state.token; unlock() }
+</script>
+</body>
+</html>

@@ -4,7 +4,7 @@ import { createHash, randomUUID, timingSafeEqual } from 'node:crypto'
 import { mkdir, readFile, rename, writeFile } from 'node:fs/promises'
 import { resolve, dirname } from 'node:path'
 import { fileURLToPath, pathToFileURL } from 'node:url'
-import { encryptedAiConfig } from './ai-config.mjs'
+import { encryptedAiConfig, validateAiConfig } from './ai-config.mjs'
 
 const languages = ['zh-CN', 'en']
 const configKeys = ['app/feature-gates', 'sgp/league-servers', 'sgp/supported-queues', 'auto-select/groups']
@@ -65,12 +65,18 @@ export async function createService({ dataDir, publicBase, adminToken, seeds = {
   publicBase = base.href.replace(/\/$/, '')
   if (!adminToken || adminToken.length < 32) throw new Error('ADMIN_TOKEN 至少需要 32 个字符')
   await mkdir(dataDir, { recursive: true })
+  const adminHtml = await readFile(new URL('./admin.html', import.meta.url), 'utf8')
   const allowed = new Set(['notice/zh-CN','notice/en','contacts','release/zh-CN','release/en', ...configKeys.map(key => `config/${key}`)])
   const file = key => resolve(dataDir, key.replaceAll('/', '--') + '.json')
   async function load(key) {
     try { return JSON.parse(await readFile(file(key), 'utf8')) }
     catch (error) { if (error.code === 'ENOENT') return seeds[key] ?? null; throw error }
   }
+  async function readAiConfig() {
+    try { return JSON.parse(await readFile(aiConfigFile, 'utf8')) }
+    catch (error) { if (error.code === 'ENOENT') return null; throw error }
+  }
+  const publicAiConfig = value => ({url:value.url||'',model:value.model||'',timeout_seconds:value.timeout_seconds||90,max_tokens:value.max_tokens||1800,api_key_set:!!(value.api_key&&value.api_key.trim())})
   const expectedToken = createHash('sha256').update(adminToken).digest()
   function authorized(req) {
     if (!req.headers.authorization?.startsWith('Bearer ')) fail(401, '需要管理员身份')
@@ -82,7 +88,12 @@ export async function createService({ dataDir, publicBase, adminToken, seeds = {
     res.writeHead(status, { 'Content-Type':'application/json; charset=utf-8', 'Cache-Control':'no-store', 'X-Content-Type-Options':'nosniff', 'Content-Length':Buffer.byteLength(text) })
     res.end(req.method === 'HEAD' ? undefined : text)
   }
+  function sendHtml(req, res, status, text) {
+    res.writeHead(status, { 'Content-Type':'text/html; charset=utf-8', 'Cache-Control':'no-store', 'X-Content-Type-Options':'nosniff', 'X-Frame-Options':'DENY', 'Content-Security-Policy':"default-src 'none'; style-src 'unsafe-inline'; script-src 'unsafe-inline'; connect-src 'self'; img-src 'self' data:; base-uri 'none'; form-action 'none'; frame-ancestors 'none'", 'Content-Length':Buffer.byteLength(text) })
+    res.end(req.method === 'HEAD' ? undefined : text)
+  }
   const aiLimits = new Map()
+  const adminLimits = new Map()
   const server = http.createServer(async (req, res) => {
     try {
       const url = new URL(req.url, 'http://localhost')
@@ -98,6 +109,37 @@ export async function createService({ dataDir, publicBase, adminToken, seeds = {
         if(++bucket.count>30)fail(429,'请求过于频繁，请稍后重试')
         aiLimits.set(ip,bucket)
         return send(req,res,200,await encryptedAiConfig(aiConfigFile,await body(req)))
+      }
+      if (path==='/admin/ui') {
+        if (req.method==='GET'||req.method==='HEAD') return sendHtml(req,res,200,adminHtml)
+        fail(405, '仅支持 GET')
+      }
+      if (path.startsWith('/admin')) {
+        const forwarded=req.headers['x-real-ip']
+        const now=Date.now(),ip=typeof forwarded==='string'&&isIP(forwarded)?forwarded:(req.socket.remoteAddress||'unknown')
+        for(const [key,bucket] of adminLimits)if(now-bucket.at>60000)adminLimits.delete(key)
+        const bucket=adminLimits.get(ip)||{at:now,count:0}
+        if(now-bucket.at>=60000){bucket.at=now;bucket.count=0}
+        if(++bucket.count>120)fail(429,'管理请求过于频繁，请稍后重试')
+        adminLimits.set(ip,bucket)
+      }
+      if (path === '/admin/ai-config') {
+        authorized(req)
+        if (req.method === 'GET') return send(req,res,200,publicAiConfig((await readAiConfig())||{}))
+        if (req.method !== 'PUT') fail(405, '仅支持 GET 和 PUT')
+        const input = await body(req)
+        check(object(input), '请求内容必须为 JSON 对象')
+        const current = await readAiConfig()
+        const apiKey = string(input.api_key) && input.api_key.trim() ? input.api_key : current?.api_key
+        if (!apiKey) fail(400, '请输入 API Key')
+        let value
+        try { value = validateAiConfig({ ...input, api_key: apiKey }) }
+        catch (error) { fail(400, 'AI 配置无效：' + error.message) }
+        await mkdir(dirname(aiConfigFile), { recursive: true })
+        const temp = aiConfigFile + '.' + randomUUID() + '.tmp'
+        await writeFile(temp, JSON.stringify(value, null, 2), { mode:0o600 })
+        await rename(temp, aiConfigFile)
+        return send(req,res,200,{ok:true,config:publicAiConfig(value)})
       }
       if (path.startsWith('/admin/')) {
         authorized(req)

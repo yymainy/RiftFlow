@@ -9,7 +9,7 @@ if not all(isinstance(provider.get(k),str) and provider[k].strip() for k in ['ur
 stamp=str(int(time.time()))
 backup=base.parent/'riftflow-backups'/('secure-ai-'+stamp)
 backup.mkdir(mode=0o700,parents=True)
-files=['server.mjs','ai-config.mjs','package.json','Dockerfile']
+files=['server.mjs','ai-config.mjs','package.json','Dockerfile','admin.html']
 for name in files:
     if (base/name).exists():shutil.copy2(base/name,backup/name)
     shutil.copy2(source/name,base/name)
