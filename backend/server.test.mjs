@@ -64,6 +64,7 @@ test('admin UI and AI default configuration editing', async () => {
     assert.match(await page.text(),/RiftFlow 管理/)
     assert.equal((await fetch(base+'/admin/ai-config')).status,401)
     assert.equal((await fetch(base+'/admin/ai-config',{headers:{authorization:'Bearer wrong-token'}})).status,401)
+    assert.equal((await fetch(base+'/admin/release/zh-CN',{headers:auth})).status,404)
     const initial = await (await fetch(base+'/admin/ai-config',{headers:auth})).json()
     assert.equal(initial.api_key_set,false); assert.equal(initial.url,''); assert.equal(initial.api_key,undefined)
     const saved = await putAi({url:'http://127.0.0.1:8963/v1',model:'dfmodel',api_key:'secret-key',timeout_seconds:90,max_tokens:1800})

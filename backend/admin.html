@@ -39,23 +39,14 @@ pre{background:#f8fafc;border:1px solid var(--line);border-radius:7px;padding:12
 <body>
 <header>
   <h1>RiftFlow 管理</h1>
-  <p>公网 HTTPS 管理页。令牌保存在本浏览器，请勿在公共电脑保存。</p>
+  <p>公网 HTTPS 管理页。使用浏览器弹出的账号密码登录。</p>
 </header>
 <main>
-  <section id="gate" class="card">
-    <h2 style="margin-top:0">管理员令牌</h2>
-    <p class="note">在服务器 <span class="mono">/opt/riftflow-backend/service.env</span> 中查看 <span class="mono">ADMIN_TOKEN</span>。页面地址：<span class="mono">https://riftflow-api.yymainy.online/admin/ui</span>。</p>
-    <label for="token">ADMIN_TOKEN</label>
-    <input id="token" type="password" autocomplete="current-password" placeholder="服务端 /opt/riftflow-backend/service.env 中的 ADMIN_TOKEN">
-    <div class="actions"><button id="unlock">进入管理</button><span id="gateStatus" class="status"></span></div>
-  </section>
-
-  <div id="app" class="hidden">
+  <div id="app">
     <div class="tabs">
       <button data-tab="notice">公告</button>
       <button data-tab="ai">AI 默认配置</button>
       <button data-tab="release">版本信息</button>
-      <button id="forget" class="secondary" style="margin-left:auto">清除令牌</button>
     </div>
 
     <section id="tab-notice" class="card">
@@ -100,14 +91,13 @@ pre{background:#f8fafc;border:1px solid var(--line);border-radius:7px;padding:12
 </main>
 <script>
 const $ = id => document.getElementById(id)
-const state = {token: localStorage.getItem('rfAdminToken') || ''}
 function setStatus(el, text, kind) { el.textContent = text || ''; el.className = 'status' + (kind ? ' ' + kind : '') }
 function tab(name) {
   for (const b of document.querySelectorAll('.tabs [data-tab]')) b.classList.toggle('active', b.dataset.tab === name)
   for (const p of ['notice','ai','release']) $('tab-' + p).classList.toggle('hidden', p !== name)
 }
 async function api(path, options = {}) {
-  const headers = Object.assign({}, options.headers, {Authorization: 'Bearer ' + state.token})
+  const headers = Object.assign({}, options.headers)
   if (options.body !== undefined) headers['Content-Type'] = 'application/json'
   const res = await fetch(path, Object.assign({}, options, {headers}))
   const text = await res.text()
@@ -115,20 +105,6 @@ async function api(path, options = {}) {
   try { data = text ? JSON.parse(text) : null } catch { data = {error:{message:text}} }
   if (!res.ok) throw new Error((data && data.error && data.error.message) || ('HTTP ' + res.status))
   return data
-}
-async function unlock() {
-  state.token = $('token').value.trim()
-  if (!state.token) { setStatus($('gateStatus'), '请输入令牌', 'bad'); return }
-  setStatus($('gateStatus'), '验证中…')
-  try {
-    await api('/admin/ai-config')
-    localStorage.setItem('rfAdminToken', state.token)
-    $('gate').classList.add('hidden'); $('app').classList.remove('hidden'); setStatus($('gateStatus'), '已验证', 'ok')
-    tab('notice'); await Promise.all([loadNotice(), loadAi(), loadRelease()])
-  } catch (e) {
-    localStorage.removeItem('rfAdminToken')
-    setStatus($('gateStatus'), '验证失败：' + e.message, 'bad')
-  }
 }
 function noticePayload() {
   return {severity: $('noticeSeverity').value, summary: $('noticeSummary').value, content: $('noticeContent').value}
@@ -186,21 +162,23 @@ async function loadRelease() {
   const body = $('releaseBody'); body.textContent = ''
   try {
     for (const lang of ['zh-CN','en']) {
-      const data = await api('/admin/release/' + lang)
       const box = document.createElement('div'); box.className = 'release'
-      const title = document.createElement('div'); title.style.fontWeight = '700'; title.textContent = lang + ' · ' + (data.version || '未发布'); box.appendChild(title)
-      const meta = document.createElement('div'); meta.className = 'mono'; meta.textContent = 'publishedAt: ' + (data.publishedAt || '-'); box.appendChild(meta)
-      for (const a of (data.artifacts || [])) {
-        const line = document.createElement('div'); line.className = 'mono'; line.textContent = a.fileName + ' · ' + a.size + ' bytes · ' + a.sha256 + ' · ' + a.downloadUrl; box.appendChild(line)
+      try {
+        const data = await api('/admin/release/' + lang)
+        const title = document.createElement('div'); title.style.fontWeight = '700'; title.textContent = lang + ' · ' + (data.version || '未发布'); box.appendChild(title)
+        const meta = document.createElement('div'); meta.className = 'mono'; meta.textContent = 'publishedAt: ' + (data.publishedAt || '-'); box.appendChild(meta)
+        for (const a of (data.artifacts || [])) {
+          const line = document.createElement('div'); line.className = 'mono'; line.textContent = a.fileName + ' · ' + a.size + ' bytes · ' + a.sha256 + ' · ' + a.downloadUrl; box.appendChild(line)
+        }
+      } catch (e) {
+        const title = document.createElement('div'); title.style.fontWeight = '700'; title.textContent = lang + ' · 尚未发布'; box.appendChild(title)
+        const meta = document.createElement('div'); meta.className = 'mono'; meta.textContent = e.message; box.appendChild(meta)
       }
       body.appendChild(box)
     }
     setStatus($('releaseStatus'), '', '')
   } catch (e) { setStatus($('releaseStatus'), '读取失败：' + e.message, 'bad') }
 }
-$('unlock').onclick = unlock
-$('token').addEventListener('keydown', e => { if (e.key === 'Enter') unlock() })
-$('forget').onclick = () => { localStorage.removeItem('rfAdminToken'); location.reload() }
 for (const b of document.querySelectorAll('.tabs [data-tab]')) b.onclick = () => tab(b.dataset.tab)
 $('noticeLang').onchange = loadNotice
 $('noticeLoad').onclick = loadNotice
@@ -209,7 +187,7 @@ $('noticeContent').oninput = () => $('noticePreview').textContent = $('noticeCon
 $('aiLoad').onclick = loadAi
 $('aiSave').onclick = saveAi
 $('releaseLoad').onclick = loadRelease
-if (state.token) { $('token').value = state.token; unlock() }
+tab('notice'); loadNotice(); loadAi(); loadRelease()
 </script>
 </body>
 </html>

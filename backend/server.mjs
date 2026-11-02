@@ -145,7 +145,11 @@ export async function createService({ dataDir, publicBase, adminToken, seeds = {
         authorized(req)
         const key = path.slice(7)
         if (!allowed.has(key) || key.startsWith('config/')) fail(404, '此管理资源不存在或暂为只读')
-        if (req.method === 'GET') return send(req,res,200,await load(key))
+        if (req.method === 'GET') {
+          const value = await load(key)
+          if (value === null) fail(404, '尚未发布内容')
+          return send(req,res,200,value)
+        }
         if (req.method !== 'PUT') fail(405, '仅支持 GET 和 PUT')
         const value = validate(key, await body(req))
         const temp = file(key) + '.' + randomUUID() + '.tmp'

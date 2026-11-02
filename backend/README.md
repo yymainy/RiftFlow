@@ -26,7 +26,7 @@ docker build -t riftflow-backend:local .
 
 ## 发布公告
 
-管理页：`https://riftflow-api.yymainy.online/admin/ui`。页面和 `/admin/` 接口通过 HTTPS 公网提供，必须使用 `ADMIN_TOKEN` 登录；接口按来源 IP 限流 120 次/分钟。令牌泄露等于管理权限泄露，必须使用高熵随机值并定期更换。登录令牌保存在访问者浏览器本地，公共电脑用完请点“清除令牌”。
+管理页：`https://riftflow-api.yymainy.online/admin/ui`。页面由 Nginx Basic Auth 保护，浏览器使用管理员账号密码登录；Nginx 校验后再把 `ADMIN_TOKEN` 注入到后端请求，页面本身不接触令牌。`ADMIN_TOKEN` 仍用于命令行和发布脚本，泄露等于管理权限泄露。管理接口按来源 IP 限流 120 次/分钟。账号密码保存在服务器 `/etc/nginx/riftflow-admin.htpasswd`，修改后执行 `nginx -t && nginx -s reload`。
 
 通过 `Authorization: Bearer <ADMIN_TOKEN>` 调用 `PUT /admin/notice/zh-CN`，JSON 示例：
 
@@ -46,7 +46,7 @@ docker build -t riftflow-backend:local .
 
 ## 当前部署
 
-Ubuntu SSH 别名 `ubuntu`（从 YYM 连接），服务目录 `/opt/riftflow-backend`，容器 `riftflow-backend`，仅映射 `127.0.0.1:8091`。独立域名 `https://riftflow-api.yymainy.online`。Nginx 将 `/admin/` 连同其他 API 路径一起代理到后端；管理页使用 `ADMIN_TOKEN` 鉴权。配置 `/www/server/panel/vhost/nginx/riftflow-api.yymainy.online.conf`。证书由现有 acme.sh 账户签发，使用 install-cert 保存安装路径及重载命令；不在仓库中保存私钥。
+Ubuntu SSH 别名 `ubuntu`（从 YYM 连接），服务目录 `/opt/riftflow-backend`，容器 `riftflow-backend`，仅映射 `127.0.0.1:8091`。独立域名 `https://riftflow-api.yymainy.online`。Nginx 将 `/admin/` 代理到后端，先做 Basic Auth，再注入后端 `ADMIN_TOKEN`。配置 `/www/server/panel/vhost/nginx/riftflow-api.yymainy.online.conf`，账号文件 `/etc/nginx/riftflow-admin.htpasswd`。证书由现有 acme.sh 账户签发，使用 install-cert 保存安装路径及重载命令；不在仓库中保存私钥。
 
 服务器上发布：`sudo python3 /opt/riftflow-backend/publish.py notice/zh-CN /path/to/announcement.json`。管理密钥由该命令在服务器本地读取，不发给客户端。
 
