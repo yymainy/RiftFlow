@@ -128,6 +128,20 @@
   }
 }
 
+/* The desktop theme is driven by data-theme-id, not prefers-color-scheme.
+   Follow the app's own text/link variables so markdown stays readable on
+   dark modal backgrounds even when Windows is set to light. */
+.markdown-body {
+  --fgColor-default: var(--la-color-text-primary, #1f2328);
+  --fgColor-muted: color-mix(in srgb, var(--la-color-text-primary, #1f2328) 64%, transparent);
+  --fgColor-accent: var(--la-color-link, #0969da);
+  --bgColor-default: transparent;
+  --bgColor-muted: color-mix(in srgb, var(--la-color-text-primary, #1f2328) 8%, transparent);
+  --bgColor-neutral-muted: color-mix(in srgb, var(--la-color-text-primary, #1f2328) 10%, transparent);
+  --borderColor-default: color-mix(in srgb, var(--la-color-text-primary, #1f2328) 16%, transparent);
+  --borderColor-muted: color-mix(in srgb, var(--la-color-text-primary, #1f2328) 10%, transparent);
+}
+
 .markdown-body {
   -ms-text-size-adjust: 100%;
   -webkit-text-size-adjust: 100%;
