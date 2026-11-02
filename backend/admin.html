@@ -4,190 +4,329 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="robots" content="noindex, nofollow">
-<title>RiftFlow 管理</title>
+<title>RiftFlow 管理台</title>
+<link rel="icon" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAQAAAAEACAYAAABccqhmAAAQAElEQVR4nOzdCXhU1d0G8PfeDAQRmBBEbdRkkoCJxQoFN1QsSgUsFFRQca3oo7h8bgW0IlAEV9yqPtKqVev64efyiUvdPrWKS+tScUETCUlmVGSTZAIIIWHud851QhNIwiz33nOX9+dznckwEdT83znn3HvPPwQPKysr69m4tXEADJQbMErFS0U69ALxfHfxPF8cPcWxizhC4tBAlDpDHM3i2CSO9eJYp0FbnUBihXgeFc+Xi5+oityc3KWVlZXr4VGeKorCfoUD9IQ+zNCMwzRDO0j86ctBpJqBCvEz+aH4mXwvoScWx6piS+ERrg+A4n7F4wzDGCOejhRHBETuVyuOVzVNe7GmquY5uJgrA6C4f/ExougniWSdKL7sBSLvahBV9pQIg4U1y2peg8u4JgAKCwt76130c0XRT+bQnnxJTBXEz/aDiabEfbFYrA4uoDwACvsXloh5/SXi6YXi6AIi/2sSxwKxXnBnbFmsGgopC4CSkpJCsVp/hVg8uQhEASUWDu8WZxTmV1dXx6BADpw2HKGinKJrRPQ8I46DQRRkogbEh+Bl4fxwKD4wvlgsHybgIEdHAEX9ik4TiXctuJpP1J5aEQYzo1XRx+AQRwJADvcTSNwifrcTQUSdM/CkDn2aE9MC2wMgUho5SzzcAZ7OI0pHgzgurV1e+zfYyNYAEMV/j3g4D0SUqXtFCEyBTWwJAPOSXegPiKEMF/mIsqXhAzGFPtuOS4wtD4DkpbuPgEN+Iis1aJp2htWXFlt6GjBSEjlfPDwqjlwQkZVkTZ2S1ztvVX1d/UewiGUBIE7xzdCg3QYiso+GseE+4ab4uvhiWMCSACgqLZoniv8aEJHtRK2NMC8cqou/iSxlHQDJ4p8JInKMqLkjrQiBrAIgOeznJz+RAmYIZDkdyDgA5IIf5/xEasnpQDYLgxmdBkye6lsEInIFcYpwfCanCNMOAPMiH0N/DzzPT+QmDQktcVi6FwvpSJN5hR+Ln8hteiVrMy1prQEkr+0fByJyo73y8vMKxHrAC6l+Q8oBkLyrbx6IyM2GiBCIihBYksqbU1oDMO/n1xKfg0N/Ii9oEOt0v0hlP4GU1gDMzTxY/ERe0StZszu10ymAuY0XtFkgIu/QMCDcJ1wVXxf/vLO3dT4CGI5Qcg8/IvIYs3aHm30xO9TpCEDu3is+/bnqT+RNeeGGsN7Z/QIdLgImF/5qwa66RF5miAXBSEcLgh1OAWTTDrD4ibxOS9Zy+7/Y3ovJdl3LQUS+kNATpe21IWt3BJDs1UdEPtFRTe8wAkh26V0FNuok8pOmRFNij+27Eu8wAjBbdLP4ifymS7K229hxCmBgMojIf9qp7TYBUNy/+BgxKSgHEfmPqG2zxltpEwCGYUwCEfnW9jXedgpgYCKIyL+2q/FtASD3+QPv+CPyu17JWjdtCwAxNBgDIvK91rXe+k6hkSCiINhW6+YIQO70Kx4iIKIgiCRr/qcA0BP6MBBRYLTUvBkAhmYcBiIKjJaaNwNAM7SDQESB0VLzWllZWc/G5sYGEFGg5IZye4UatzYOABEFjqz9EAxe+08USKL2dQNGKYgocGTtywuBikBEQVQU0qEXiCRAEOXu0g0DDx2MXwwZhN1+tjvC+WF0zc1FkGxpbET8h3qsXbkGn3+0BEve/9h8jfxP1r4WKY18Jp7/AgHSM9wTR40bhaEjhqFLV25+1NqWxi14//XFeOO5V7CxYQPI1z6XAfCteLIXAmK/wfvjjIvPCdwnfboaN23Gw3f8FZWffQnyre9y8vLz/iieBKIaho/5NSadfyZyQiFQ50JdQhhyxMHYsrkRtcuqQf4kA2AuUmgS6nWDxQ/zhHNOAaVn3wP2Q3NzM2oq2SbCh3QZANfA5x2A9ty7AFNmsNVBpvrvX47E1gSqK6pAvqLLewF83/5r1ETudZKt0Sf9FkePHwXyFc33k2G54r//QYNA2fvNyePNxzcWvQLyB98HwKChB0LT2OPUKgwBf/F9ABxwyGCQtRgC/uH7ANgrsjfIegwBf/B9APCCH/swBLyPV8RQVhgC3sYAoKwxBLyLAUCWYAh4EwOALMMQ8B4GAFmKIeAtDACyHEPAOxgAZAuGgDcwAMg2DAH300FkIxkCI8aPBrkTA4Bsd+zJ43grsUtxCkCO4HTAnRgA5BiGgPswALI07dQL4RVyGN5ShKowBNyFARAgLUXHEKAWDICAYQhQawyAAGIIUAsGQEAxBEhiAAQYQ4AYAAHHEAg2BgAxBAKMAUAmhkAwMQBoG4ZA8DAAqA2GQLAwAGgHDIHgYABQuxgCwcAAoA4xBPyPAUCdYgj4GwOAdooh4F8MAEoJQ8CfGACUMoaA/zAAKC0MAX/hrsCUNll0Lz3xHFSTITB87DGgzDEAKCOvL3oZf39iEVQbe+rxGHz4QaDMMAAoY24ZCZx60WT0LdgDlD4GAGXFLSOBURPGgtLHAKCsyZGA6hAYeOhgdO+xKyg9DACyhOoQ0DQNg4YeCEoPA4AsozoEBh76S1B6eB0AWUrldQIFhfuA0sMAIMupCoGuuV1B6eEUgGyR2JpAc1MTnOT07+cHHAGQ5VQ1IW2obwClhwFAllLZgfj72Leg9DAAyDKq249//UUlKD0MALKE6uKXqr6oAKWHAUBZc0PxVyxZirWr1oDSwwCgrLih+JubmvHU/Y+D0sfTgC40d94cDD38ULidG4pfWviXh1D/Qx0ofQwAl5k1+2ocdfRwzJ9/I4781ZFwq18fd6wriv/5x57Bkvc/BmWGAeAiV824EiNH/WeHm+uun4sRI46G28hP/tEn/RaqyfsO3nrx/0CZYwC4xLTpU/GbMcfu8PqcubMxavRIuIVbhv2y+LkfYPYYAC5w2eWXYPxxHX+izpw1A2PHjoFqLH7/YQAodtHFF2DCxBN2+r4rr5qO409QV3wsfn9iACg05fxzMWnSySm///dTL8eJJ02A01j8/sUAUOTscybj9DNOQ7ouufRinHLqJDiFxe9vDAAFzvzdGZh89u+QqQsvOt/8Z9iNxe9/DACHyU/vc887B9mS/4xzxCjCLiz+YGAAOEjO3+Wnt1XOEqOIKVPOhdVY/MHBAHDIcWIFX87frXb6maeZZxKswuIPFgaAA+Q5/KliBd8u8kzCZZdfimyx+IOHAWAzeRWfPIdvtwkTj8f0K6YiUyz+YGIA2Ehexy+v4nPKuPG/Ne8nSBeLP7gYADaRd/LJ6/idJu8nkHcUporFH2wMABvIe/nlnXyqyDsK5147Z6fvY/ETA8AGx44eDdWOOmo4brjxug5/ncVPEgPABrNnzcGrr7wG1Y4YdjhuvuUm5OTktHmdxU8tGAA2mTf3Ovz9xZeg2qFDD8Ett81Ht27dzK9Z/NRaTl5+3hz42MgJ9t5H/+rTL3b4a+8sfhd9+vRBeXkZVCooKMDAgQdA69nV9v8eqWDxuwd3BbbYLY8v2OG1VevXYY+e+VBp4KADULpfP3y95ls0bW2GKix+d+EUwAG161Zi5fofoFqP3O4o370IXUNdoAKL330YAA6JrluF7+NroVr3rrkiBAqRG3K2lTaL350YAA6K1a/Gdy4IgV26iBDYoxC7OBQCLz3xHIvfpRgADvtWhMA34lCtmyj+8j2KzBGBneQn/+uLXga5EwNAgRViFBCrWwnV5FpAed8i7Nq1G+zAYb/7MQAU+b5hHaIuCIEuoRDKxHSgR9fusBKL3xsYAAqtFCFQ88P3UK2L/lMI9OpmTQiw+L2DAaDY6g11qP5hBVQL6TrKxCnCcLddkQ0Wv7cwAFxgzYZ6LHdBCOiaZo4E8rr3QCZY/N7DAHCJtSIEqtZ8B9U08VdZ30L07t4zre9j8XsTA8BFfvgxjq/XfAM32LfvPujTPZzSe1n83sUAcJm6H9ejck0MhvhLtX5998JuPfI6fQ+L39sYAC5U/+MGVK7+BomE+hAo7VOAvh2EAIvf+xgALhXfJEJgTRTNiQRUKxEhsHuP3m1eY/H7AwPAxRo2/4jKVTE0JdTdvtuiuM/PsGevn25pZvH7BwPA5TZsSYZAs/oQKOq9J+I1q1j8PsIA8ICNWzajQkwHtjQ3QbWRw49ypDMxOYMB4BE/bmlExaooNjdvgWqyM/HZNnYmJucwADxkkyj+CjEd2NTUCNUmy87E51vfmZicxQDwmEYZAqtjYkSwGaqdfoa1nYnJeQwAD5JrARWro9jYuAmqWdWZmNRgAHhU09at+EqMBOSpQtVkZ+Jp0zPvTEzqMAA8bGtiKypFCMQ3b4Rq44/LrDMxqcW+ABabduqFcJps/XXjTdebXYBUkp2JQ6GQ2RWJvIEjAB/YKqYD06ddiXcWvwPVUu1MTO7AAPCRq/4wE2+++Q+o9lNn4mtB7scA8JnZM93SmfiIdjsTk7swAHzIrZ2JyX0YAD51w/U34blFz0O1Aw8cgltunY8ePTPbZ5DsxQDwsZvn34qnn/pfqCY7E98qQqB37zyQuzAAfO5Pt9+BhQufgGo/H/BzczrQd/e+IPdgAATA3Xf9GY8+/BhU23fffcVI4GYUFBSA3IEBEBD33HMfHnzgIahWXBIxRwKFRYUg9RgAAfLA/Q/ivnvvh2r77LO3uSZQ2q8EpBYDIGAefugRLLj7L1Btz5/taZ4dKCvfF6QOAyCA/vvxhbjzjrug2m677YZbb7sZ+++/P0gNBkBAPfk/T4th+O1QLRwOm2sCv/zlIJDzGAAB9uwzi3DTDTdDtV137W5OBw46+ECQsxgAAffCCy/i2nnXQ7WuuV3NEDjs8KEg5zAACK+8/CrmzJ4L1XRdx03zb8CRvxoGcgYDgEyvv/4Grp4xC25w3fXzMGLE0SD7MQBom7ffWowrr7gKCRf0I5wzdzZGjR4JshcDgNp47933Me33V2DLFvUNSGbOmoGxY8eA7MMAoB18+OFHZghs3Kh+x+Err5qO444fD7IHA4Da9cknSzBt6hWIx+NQbeq0y3HiSRNA1mMAUIe++PwLTBUjgbVr10K1Sy69GKecejLIWgwA6lRlRaU5Elj5/UqoduFFF7AzscUYALRTy6uqzRD45ptvoRo7E1uLAUApiUZj5sJgTXUtVGNnYuswAChlK1aswNSp0/H118ugGjsTW4MBQGlZs3qNORL48ssvodpPnYkvAWWOAUBpq6urM0Pg0yWfQbUJE09gZ+IsMAAoI+vXbzAXBj/66GOoxs7EmWMAUMY2b95sjgT++f6/oJrsTDxr9tWg9DAAKCv/6Uz8LlQzOxPPmwNKHQOALHHVH652RWfil15+GZQ6BgBZRnVn4qtnzMb77/4TlDoGAFlKVWdiuaPR22+9DUoPA4As53RnYrmnodzRiNLHACBbONWZWO5qLPc0pMwwAMg2dncmln0N5K7GlDktUhoxQGSjKVPOxelnngYryc5GsrkJZScnLz9vDohs9PHH/4auaRhkUfcf2dvwiYVPgrLHACBHyC3G6k4SjAAABXZJREFU5EVDQ4YMRjZkd+PHHn0cZA0GADnm008/My8fzrQF2IMPPIS/PfgQyDoyAP4oHjUQOUDuM7hhw3occughaX3fo488hr/edz/IUoYMAHkHRQ6IHPLl0q9QX1+HoYel1gdQnkn484J7QJZrlgEwTTzJBZGDKr6qNDcXOWLY4Z2+7+mnnsFdd9wNssVGGQD/JZ70ApHD5NZicpuxjpqBLnr2edx2659AtlkrA+As8WQPECmwvGo5YtEYhh/1qzavy/sJ5t90M8hWUV2DthpECsnr+GfOmL3ta3lHobyfgOwlaz8nnB/+tXgyEEQKRaNRVFRWIJQTwjVz5oHsZ8B4NyQeoyByAXkvP+/nd1Q0JD79l4OIAkfWvi7+XgEiCh5R+3puTu5SEFHgyNrXKysr14vVAI4CiIJE1LysfXNDEEMzPgQRBUZLzZsBoBnaeyCiwGipeTMAEnpiMYgoMFpqftttwJHSSI18ABH5XW3t8tpi+aT1pqDcWpUoGLbV+rYA0DSN26sSBUDrWm+zE5CYBsTBW4OJ/KxBDP/DLV+07Qug4SkQkX9tV+NtAkAMDRaCiHxr+xrfYTPQSEnkK/FqOYjIXwxU1FbX7tf6pR1bg2l4EETkP+3U9g4BkGhK3CcemkBEftKUrO02dgiAWCxWJx4WgIj8ZEGytttotztwQk/cCSLyjY5qut0AiC2LVWuGxs3YiXxA1rKs6fZ+Te/wm6DNh1w3JCIvM5K13K4OW4LV1dXFw/lhuWfgkSAiTzJgXCdO/T3b0a933hR0OEKRbyLLwLsEibyotnaf2v74B5o7eoPe6beLbzQ0YyaIyHPM2u2k+KWddgWOr4t/ntc7b4AYKwwAEXmDgSejy6Ozd/Y2HSnQocsOwg0gIi9oSNbsTqUUANXV1THxcCmIyAsuTdbsTu10CtCivq5+SV5+XoF4OgRE5Fb31i6vvTbVN2tIU6Rf5F9ifnEwiMhdNHxQW1V7SDrfktIUoLUEEmeD6wFEbtOQrM20pB0AsarYUk3TzgARuYasSVmbSFPKawCt1a+rrxSnBleJIcdYEJFaBi4Q8/7HkIGMAkASi4IfhfuEmzRoI0BEShiacbU43387MpRxAEjxdfHFvF+ASA0DxrWi+OciC1kFgBSvi7/JECByVrL4ZyFLWQeAZIYApwNEjkgO+7P65G9hSQBIcjrAhUEim4kFv2zm/NuzLAAkuTDYu0/vT8TTMeLIBRFZpUGc6jsp09X+jlgaAJI8RdirT6/nxR/2QPHlXiCi7Gj4IKElxkWrou/AYmlfCpyOSGnkHvFwHogoU/La/imwieUjgNbElOCFvPy8qHh6NDglIEqHvNz+/HRu7MmErQEgybsI83vnPy5OW+zNTUWIUmDgSR368TXVNW/BZrZOAbZX1K/oNM3QZKJFQETbq5XbeIm5vqULfZ2xfQTQmtxerH5g/d3hhrCuQRsGhwOIyKUMuXtvdJ/ohPi/45/CQcoKsKSkpFD8S18hEu8iEAWUbNoh9+1PdQcfy39/KFbYv7BET+iXiKcXiqMLiPxPNt9dINt1ddSxxymuGYIXFhb21rvo54oFkMniT1UOIr8xUCFbdMsuve016lTBlXPw4v7FxxiGMUn8B5sovuwFIu9qEFX2lKZpC2uW1bwGl3H9Ilxxv+JxIgzkpcUjwbMH5A214nhVFP2LNVU1z8HFPLUKX9ivcIBYLxgmFg4PE4snB3GqQK4ghvbiZ/JD8TP5npjXL85kay5VPH0arqysrGfj1sYB4n9AuTijUCpeKtKhF4jnu4vn+eLoKY5dxBECTzlSemRnbNlWa5M41otjnVitX51AYoV4HhXPl4ufqIrcnNyllZWV6+FR/w8AAP//B+Z5PwAAAAZJREFUAwA0x5x/QIUt5gAAAABJRU5ErkJggg==">
 <style>
-:root{color-scheme:light;--bg:#f4f6f8;--card:#fff;--line:#e2e6ea;--ink:#1d2733;--muted:#6b7785;--accent:#2563eb;--ok:#15803d;--bad:#b91c1c}
+:root{
+  color-scheme:dark;
+  --bg:#0b100e;--surface:#111a16;--surface-alt:#0e1612;--raised:#17231d;
+  --line:#24352c;--line-soft:#1b2a22;
+  --text:#e8f0eb;--secondary:#a9bdb1;--muted:#849a8d;
+  --accent:#a4c9b7;--accent-strong:#c5e0cf;--accent-ink:#102018;
+  --success:#a7d5b6;--warn:#e4c58a;--danger:#e8a2a2;--info:#a5c8e6;
+  --radius:12px;--sidebar:236px;--focus:0 0 0 3px rgb(164 201 183 / 0.25);
+  --font:14px/1.6 "Segoe UI","Microsoft YaHei",system-ui,-apple-system,sans-serif;
+  --mono:12px/1.65 ui-monospace,Consolas,"Liberation Mono",monospace;
+}
 *{box-sizing:border-box}
-body{margin:0;background:var(--bg);color:var(--ink);font:14px/1.6 "Segoe UI","Microsoft YaHei",system-ui,sans-serif}
-header{background:#111827;color:#fff;padding:18px 24px}
-header h1{margin:0;font-size:20px}
-header p{margin:4px 0 0;color:#cbd5e1;font-size:12px}
-main{max-width:1120px;margin:24px auto;padding:0 16px 48px}
-.card{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:20px}
-.hidden{display:none!important}
-label{display:block;font-weight:600;margin:14px 0 6px}
-input,select,textarea,button{font:inherit}
-input,select,textarea{width:100%;border:1px solid #cbd5e1;border-radius:7px;padding:9px 11px;background:#fff;color:var(--ink)}
-textarea{min-height:240px;resize:vertical;font-family:ui-monospace,Consolas,monospace;font-size:13px}
-button{border:0;border-radius:7px;padding:9px 16px;background:var(--accent);color:#fff;font-weight:600;cursor:pointer}
-button.secondary{background:#e5e7eb;color:#111827}
-button:disabled{opacity:.55;cursor:not-allowed}
-.row{display:grid;grid-template-columns:1fr 1fr;gap:14px}
-.actions{display:flex;align-items:center;gap:10px;margin-top:18px;flex-wrap:wrap}
-.status{font-size:13px;color:var(--muted);white-space:pre-wrap}
-.status.ok{color:var(--ok)}.status.bad{color:var(--bad)}
-.tabs{display:flex;gap:8px;margin:0 0 16px;flex-wrap:wrap}
-.tabs button{background:#e5e7eb;color:#334155}
-.tabs button.active{background:var(--accent);color:#fff}
-.note{font-size:12px;color:var(--muted);margin-top:8px}
-.mono{font-family:ui-monospace,Consolas,monospace;font-size:12px;word-break:break-all}
-pre{background:#f8fafc;border:1px solid var(--line);border-radius:7px;padding:12px;white-space:pre-wrap;word-break:break-word}
-.release{border:1px solid var(--line);border-radius:8px;padding:14px;margin-top:12px}
-@media(max-width:720px){.row{grid-template-columns:1fr}main{margin-top:16px}}
+[hidden]{display:none!important}
+html,body{margin:0;min-height:100%;background:var(--bg);color:var(--text);font:var(--font)}
+body{min-height:100vh}
+button,input,select,textarea{font:inherit}
+button{cursor:pointer}
+button:disabled{cursor:not-allowed;opacity:.55}
+button,input,select,textarea{outline:none}
+button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible,a:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+a{color:var(--accent-strong);text-decoration:none}
+a:hover{text-decoration:underline}
+.shell{display:flex;min-height:100vh}
+.rail{position:sticky;top:0;align-self:flex-start;display:flex;flex:0 0 var(--sidebar);height:100vh;flex-direction:column;padding:24px 14px 18px;border-right:1px solid var(--line-soft);background:#0d1410}
+.brand{display:flex;align-items:center;gap:12px;padding:0 10px}
+.brand img{width:40px;height:40px;border-radius:10px;flex:none}
+.brand strong{display:block;font-size:18px;letter-spacing:.01em;line-height:1.2}
+.brand span{display:block;margin-top:3px;color:var(--secondary);font-size:12px}
+.rail-meta{margin:20px 10px 24px;color:var(--muted);font-size:12px;line-height:1.7}
+.nav{display:flex;flex-direction:column;gap:4px}
+.nav button{display:flex;align-items:center;gap:10px;width:100%;padding:11px 12px;border:1px solid transparent;border-radius:8px;background:transparent;color:var(--secondary);text-align:left;transition:background .15s ease,color .15s ease,border-color .15s ease}
+.nav button:hover{background:var(--raised);color:var(--text)}
+.nav button[aria-selected="true"]{background:#1b2a22;border-color:#2a4034;color:var(--accent-strong);font-weight:600}
+.nav svg{width:17px;height:17px;flex:none;stroke:currentColor;fill:none;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
+.rail-foot{margin-top:auto;padding:18px 10px 0;color:var(--muted);font:var(--mono)}
+.main{flex:1;min-width:0}
+.page-head{display:flex;align-items:flex-start;justify-content:space-between;gap:20px;max-width:1240px;margin:0 auto;padding:30px 34px 24px}
+.page-head h1{margin:0;font-size:24px;line-height:1.3;letter-spacing:-.01em;text-wrap:balance}
+.page-head p{margin:8px 0 0;color:var(--secondary);font-size:13px;max-width:70ch;text-wrap:pretty}
+.connection{display:inline-flex;align-items:center;gap:7px;padding:5px 10px;border:1px solid var(--line);border-radius:999px;color:var(--secondary);font-size:12px;white-space:nowrap}
+.connection::before{content:"";width:6px;height:6px;border-radius:50%;background:var(--success)}
+.workspace{max-width:1240px;margin:0 auto;padding:0 34px 42px}
+.editor{display:grid;grid-template-columns:minmax(0,1fr) 310px;overflow:hidden;border:1px solid var(--line);border-radius:var(--radius);background:var(--surface)}
+.editor-main{min-width:0;padding:24px}
+.context{min-width:0;padding:22px 20px;border-left:1px solid var(--line-soft);background:var(--surface-alt)}
+.panel-title{display:flex;align-items:flex-start;justify-content:space-between;gap:14px;margin-bottom:20px}
+.panel-title h2{margin:0;font-size:16px;line-height:1.4}
+.panel-title p{margin:6px 0 0;color:var(--secondary);font-size:12px;max-width:64ch}
+.tag{display:inline-flex;align-items:center;gap:5px;flex:none;padding:3px 9px;border:1px solid var(--line);border-radius:999px;color:var(--secondary);font-size:11px;white-space:nowrap}
+.tag.dirty{border-color:#665532;color:var(--warn)}
+.tag.readonly{color:var(--info)}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.field{margin-bottom:16px}
+.field label{display:block;margin-bottom:7px;color:var(--secondary);font-size:12px;font-weight:600}
+.field input,.field select,.field textarea{width:100%;border:1px solid #30463a;border-radius:8px;background:var(--raised);color:var(--text);padding:10px 12px;transition:border-color .15s ease,background .15s ease}
+.field input:hover,.field select:hover,.field textarea:hover{border-color:#476051}
+.field input:focus,.field select:focus,.field textarea:focus{border-color:var(--accent);background:#1b2a22}
+.field input::placeholder,.field textarea::placeholder{color:#8ca193}
+.field select{appearance:auto}
+.field textarea{min-height:320px;resize:vertical;font:13px/1.75 ui-monospace,Consolas,monospace}
+.field-hint{display:flex;justify-content:space-between;gap:12px;margin-top:6px;color:var(--muted);font-size:11px}
+.key-row{position:relative}
+.key-row input{padding-right:72px}
+.key-toggle{position:absolute;right:7px;top:50%;transform:translateY(-50%);padding:4px 8px;border:0;background:transparent;color:var(--secondary);font-size:11px}
+.key-toggle:hover{color:var(--accent-strong)}
+.actions{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-top:20px}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:36px;padding:8px 15px;border:1px solid transparent;border-radius:8px;font-weight:600;transition:background .15s ease,border-color .15s ease,color .15s ease}
+.btn-primary{background:var(--accent);color:var(--accent-ink)}
+.btn-primary:hover{background:var(--accent-strong)}
+.btn-secondary{border-color:var(--line);background:transparent;color:var(--secondary)}
+.btn-secondary:hover{background:var(--raised);color:var(--text)}
+.btn-danger{border-color:#573333;background:transparent;color:var(--danger)}
+.status{min-height:20px;color:var(--secondary);font-size:12px}
+.status.ok{color:var(--success)}.status.bad{color:var(--danger)}
+.spinner{width:13px;height:13px;border:2px solid currentColor;border-right-color:transparent;border-radius:50%;animation:spin .8s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.context h3{margin:0 0 10px;color:var(--text);font-size:12px;font-weight:600}
+.context-section{padding-bottom:20px;margin-bottom:20px;border-bottom:1px solid var(--line-soft)}
+.context-section:last-child{padding-bottom:0;margin-bottom:0;border-bottom:0}
+.context p{margin:0;color:var(--secondary);font-size:12px;line-height:1.75}
+.meta{display:grid;grid-template-columns:auto 1fr;gap:6px 12px;margin:0;font-size:12px}
+.meta dt{color:var(--muted)}
+.meta dd{margin:0;color:var(--secondary);overflow-wrap:anywhere}
+.code{font:var(--mono);overflow-wrap:anywhere;word-break:break-all}
+.preview{max-height:320px;overflow:auto;margin:0;padding:12px;border:1px solid var(--line-soft);border-radius:8px;background:#0b120e;color:var(--secondary);font:12px/1.75 ui-monospace,Consolas,monospace;white-space:pre-wrap;overflow-wrap:anywhere}
+.empty{padding:28px 18px;border:1px dashed #33483b;border-radius:10px;color:var(--secondary);text-align:center;font-size:13px}
+.release-item{padding:18px 0;border-bottom:1px solid var(--line-soft)}
+.release-item:first-child{padding-top:0}
+.release-item:last-child{border-bottom:0;padding-bottom:0}
+.release-top{display:flex;align-items:center;gap:10px;margin-bottom:10px}
+.release-top strong{font-size:16px}
+.release-meta{color:var(--muted);font-size:12px}
+.artifact{margin-top:12px;padding:12px;border:1px solid var(--line-soft);border-radius:8px;background:var(--surface-alt)}
+.artifact-name{font-weight:600}
+.artifact-line{margin-top:6px;color:var(--secondary);font:var(--mono)}
+#toastHost{position:fixed;right:20px;bottom:20px;z-index:30;display:flex;flex-direction:column;gap:10px;max-width:min(430px,calc(100vw - 32px))}
+.toast{display:flex;align-items:flex-start;gap:9px;padding:12px 14px;border-radius:9px;background:#1b2a22;color:var(--text);box-shadow:0 8px 16px rgb(0 0 0 / .25);font-size:13px;animation:toast-in .18s ease-out}
+.toast.error{background:#33201f}.toast.success{background:#172b20}
+.toast.out{opacity:0;transition:opacity .18s ease}
+@keyframes toast-in{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+@media(max-width:960px){.editor{grid-template-columns:minmax(0,1fr) 280px}.editor-main{padding:20px}.context{padding:20px 16px}}
+@media(max-width:820px){
+ .shell{display:block}.rail{position:static;display:flex;width:auto;height:auto;flex-wrap:wrap;align-items:center;gap:14px;padding:16px 18px;border-right:0;border-bottom:1px solid var(--line-soft)}
+ .brand{padding:0}.brand img{width:34px;height:34px}.rail-meta{display:none}.nav{flex:1;flex-direction:row;flex-wrap:wrap}.nav button{width:auto;padding:8px 11px}.rail-foot{display:none}
+ .page-head{padding:24px 20px 18px}.workspace{padding:0 20px 32px}.editor{grid-template-columns:1fr}.context{border-left:0;border-top:1px solid var(--line-soft)}
+}
+@media(max-width:540px){.form-row{grid-template-columns:1fr}.page-head h1{font-size:21px}.page-head{flex-wrap:wrap}.editor-main{padding:18px}.context{padding:18px}.field textarea{min-height:240px}.actions .btn{flex:1 1 auto}}
+@media(prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important}}
 </style>
 </head>
 <body>
-<header>
-  <h1>RiftFlow 管理</h1>
-  <p>公网 HTTPS 管理页。使用浏览器弹出的账号密码登录。</p>
-</header>
-<main>
-  <div id="app">
-    <div class="tabs">
-      <button data-tab="notice">公告</button>
-      <button data-tab="ai">AI 默认配置</button>
-      <button data-tab="release">版本信息</button>
+<div class="shell">
+  <aside class="rail">
+    <div class="brand"><img src="data:image/png;base64,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" alt="RiftFlow"><div><strong>RiftFlow</strong><span>管理台</span></div></div>
+    <div class="rail-meta">公网 HTTPS · 服务端管理<br>公告、AI 默认配置与版本信息</div>
+    <nav class="nav" aria-label="管理导航" role="tablist">
+      <button type="button" role="tab" id="nav-notice" data-tab="notice" aria-controls="tab-notice" aria-selected="true"><svg viewBox="0 0 24 24"><path d="M6 3h9l4 4v14H6z"/><path d="M14 3v5h5M9 12h7M9 16h7M9 8h3"/></svg>公告</button>
+      <button type="button" role="tab" id="nav-ai" data-tab="ai" aria-controls="tab-ai" aria-selected="false"><svg viewBox="0 0 24 24"><path d="M12 3a5 5 0 0 1 5 5v3h-2V8a3 3 0 0 0-6 0v3H7V8a5 5 0 0 1 5-5Z"/><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M12 15v3"/></svg>AI 默认配置</button>
+      <button type="button" role="tab" id="nav-release" data-tab="release" aria-controls="tab-release" aria-selected="false"><svg viewBox="0 0 24 24"><path d="m12 3 8 4.5v9L12 21l-8-4.5v-9z"/><path d="m4 7.5 8 4.5 8-4.5M12 12v9M8 5.5l8 4.5"/></svg>版本信息</button>
+    </nav>
+    <div class="rail-foot">admin · 1.6.3</div>
+  </aside>
+  <main class="main">
+    <header class="page-head">
+      <div><h1 id="pageTitle">公告</h1><p id="pageDesc">编辑客户端公告，保存后立即生效。</p></div>
+      <span class="connection">已连接</span>
+    </header>
+    <div class="workspace">
+      <section class="editor" id="tab-notice" role="tabpanel" aria-labelledby="nav-notice">
+        <div class="editor-main">
+          <div class="panel-title"><div><h2>公告内容</h2><p>中英文分别维护，未发布的语言返回 404。</p></div><span class="tag dirty" id="noticeDirty" hidden>未保存更改</span></div>
+          <div class="form-row">
+            <div class="field"><label for="noticeLang">语言</label><select id="noticeLang"><option value="zh-CN">zh-CN</option><option value="en">en</option></select></div>
+            <div class="field"><label for="noticeSeverity">级别</label><select id="noticeSeverity"><option value="low">low · 仅公告</option><option value="medium">medium · 徽标提示</option><option value="high">high · 重要提醒</option></select></div>
+          </div>
+          <div class="field"><label for="noticeSummary">摘要</label><input id="noticeSummary" maxlength="500" placeholder="客户端列表中显示的一句话摘要"><div class="field-hint"><span>必填，最多 500 字</span><span id="noticeSummaryCount">0 / 500</span></div></div>
+          <div class="field"><label for="noticeContent">正文（Markdown）</label><textarea id="noticeContent" maxlength="200000" placeholder="## 标题&#10;&#10;- 内容"></textarea><div class="field-hint"><span>支持 Markdown，最多 200000 字</span><span id="noticeContentCount">0 / 200000</span></div></div>
+          <div class="actions"><button class="btn btn-primary" id="noticeSave" type="button">保存公告</button><button class="btn btn-secondary" id="noticeLoad" type="button">重新读取</button><span class="status" id="noticeStatus" aria-live="polite"></span></div>
+        </div>
+        <aside class="context">
+          <div class="context-section"><h3>当前公告</h3><dl class="meta"><dt>修订</dt><dd class="code" id="noticeRevision">—</dd><dt>更新时间</dt><dd id="noticeUpdated">—</dd></dl></div>
+          <div class="context-section"><h3>级别说明</h3><p>low 只展示公告；medium 显示未读徽标；high 作为重要提醒。保存后生成新的修订号，客户端据此判断是否未读。</p></div>
+          <div class="context-section"><h3>正文预览</h3><pre class="preview" id="noticePreview"></pre></div>
+        </aside>
+      </section>
+
+      <section class="editor" id="tab-ai" role="tabpanel" aria-labelledby="nav-ai" hidden>
+        <div class="editor-main">
+          <div class="panel-title"><div><h2>AI 默认配置</h2><p>客户端通过加密接口获取的默认上游配置。</p></div><span class="tag dirty" id="aiDirty" hidden>未保存更改</span></div>
+          <div class="field"><label for="aiUrl">上游 URL</label><input id="aiUrl" placeholder="https://example.com/v1"><div class="field-hint"><span>仅允许 http/https，不带查询参数或账号密码</span></div></div>
+          <div class="form-row">
+            <div class="field"><label for="aiModel">模型</label><input id="aiModel" placeholder="model-name"></div>
+            <div class="field"><label for="aiKey">API Key <span id="aiKeyState" class="field-hint"></span></label><div class="key-row"><input id="aiKey" type="password" autocomplete="new-password" placeholder="留空表示不修改"><button class="key-toggle" id="aiKeyToggle" type="button" aria-pressed="false" aria-label="显示或隐藏 API Key">显示</button></div><div class="field-hint"><span>已保存的密钥不会回显，留空保持原值</span></div></div>
+          </div>
+          <div class="form-row">
+            <div class="field"><label for="aiTimeout">超时（秒）</label><input id="aiTimeout" type="number" min="10" max="180" step="1"></div>
+            <div class="field"><label for="aiTokens">Max tokens</label><input id="aiTokens" type="number" min="256" max="8192" step="1"></div>
+          </div>
+          <div class="actions"><button class="btn btn-primary" id="aiSave" type="button">保存配置</button><button class="btn btn-secondary" id="aiLoad" type="button">重新读取</button><span class="status" id="aiStatus" aria-live="polite"></span></div>
+        </div>
+        <aside class="context">
+          <div class="context-section"><h3>生效方式</h3><p>配置写入 <span class="code">/data/ai-provider.json</span>。保存后无需重启后端；桌面客户端重新获取默认配置或重启后更新缓存。</p></div>
+          <div class="context-section"><h3>接口</h3><p class="code">POST /ai/v1/config</p><p style="margin-top:8px">公开接口只返回加密载荷，不提供明文读取。</p></div>
+          <div class="context-section"><h3>密钥安全</h3><p>API Key 只用于本次保存，不会显示在页面或接口响应中。请勿把密钥提交到仓库或发送到聊天。</p></div>
+        </aside>
+      </section>
+
+      <section class="editor" id="tab-release" role="tabpanel" aria-labelledby="nav-release" hidden>
+        <div class="editor-main">
+          <div class="panel-title"><div><h2>当前发布</h2><p>只读展示自动更新接口中的版本元数据。</p></div><span class="tag readonly">只读</span></div>
+          <div class="actions" style="margin-top:0;margin-bottom:14px"><button class="btn btn-secondary" id="releaseLoad" type="button">重新读取</button><span class="status" id="releaseStatus" aria-live="polite"></span></div>
+          <div id="releaseBody"></div>
+        </div>
+        <aside class="context">
+          <div class="context-section"><h3>发布渠道</h3><p>新版本通过 GitHub Release 与发布脚本推送。此页面只读，不提供修改入口。</p></div>
+          <div class="context-section"><h3>自动更新</h3><p>客户端按版本号、平台、架构、大小和 SHA256 校验下载包。</p></div>
+        </aside>
+      </section>
     </div>
-
-    <section id="tab-notice" class="card">
-      <h2 style="margin-top:0">公告</h2>
-      <div class="row">
-        <div><label for="noticeLang">语言</label><select id="noticeLang"><option value="zh-CN">zh-CN</option><option value="en">en</option></select></div>
-        <div><label for="noticeSeverity">级别</label><select id="noticeSeverity"><option value="low">low（仅公告）</option><option value="medium">medium（徽标提示）</option><option value="high">high（重要提醒）</option></select></div>
-      </div>
-      <label for="noticeSummary">摘要</label>
-      <input id="noticeSummary" maxlength="500" placeholder="1–500 字">
-      <label for="noticeContent">正文（Markdown）</label>
-      <textarea id="noticeContent" maxlength="200000" placeholder="## 标题&#10;&#10;- 内容"></textarea>
-      <div class="actions"><button id="noticeLoad" class="secondary">重新读取</button><button id="noticeSave">保存公告</button><span id="noticeStatus" class="status"></span></div>
-      <p class="note">保存后会立即对客户端生效；medium/high 会显示未读徽标。中英文分别保存。</p>
-      <details style="margin-top:14px"><summary>预览正文</summary><pre id="noticePreview"></pre></details>
-    </section>
-
-    <section id="tab-ai" class="card hidden">
-      <h2 style="margin-top:0">AI 默认配置</h2>
-      <p class="note">这是客户端通过 <span class="mono">/ai/v1/config</span> 获取的默认配置。API Key 不会回显；留空表示保持原值。</p>
-      <label for="aiUrl">上游 URL</label>
-      <input id="aiUrl" placeholder="https://example.com/v1">
-      <div class="row">
-        <div><label for="aiModel">模型</label><input id="aiModel" placeholder="model-name"></div>
-        <div><label for="aiKey">API Key <span class="note" id="aiKeyState"></span></label><input id="aiKey" type="password" autocomplete="new-password" placeholder="留空表示不修改"></div>
-      </div>
-      <div class="row">
-        <div><label for="aiTimeout">超时（秒）</label><input id="aiTimeout" type="number" min="10" max="180" step="1"></div>
-        <div><label for="aiTokens">Max tokens</label><input id="aiTokens" type="number" min="256" max="8192" step="1"></div>
-      </div>
-      <div class="actions"><button id="aiLoad" class="secondary">重新读取</button><button id="aiSave">保存 AI 配置</button><span id="aiStatus" class="status"></span></div>
-      <p class="note">保存后无需重启后端；桌面客户端可能需要重新获取默认配置或重开才会更新缓存。</p>
-    </section>
-
-    <section id="tab-release" class="card hidden">
-      <h2 style="margin-top:0">版本信息</h2>
-      <p class="note">版本元数据只读；发布新版本仍走 GitHub Release / 发布脚本。</p>
-      <div class="actions"><button id="releaseLoad" class="secondary">重新读取</button><span id="releaseStatus" class="status"></span></div>
-      <div id="releaseBody"></div>
-    </section>
-  </div>
-</main>
+  </main>
+</div>
+<div id="toastHost" aria-live="polite"></div>
 <script>
 const $ = id => document.getElementById(id)
-function setStatus(el, text, kind) { el.textContent = text || ''; el.className = 'status' + (kind ? ' ' + kind : '') }
-function tab(name) {
-  for (const b of document.querySelectorAll('.tabs [data-tab]')) b.classList.toggle('active', b.dataset.tab === name)
-  for (const p of ['notice','ai','release']) $('tab-' + p).classList.toggle('hidden', p !== name)
+const state = {tab:'notice', notice:{lang:'zh-CN',dirty:false}, ai:{dirty:false}}
+const tabs = {
+  notice:['公告','编辑客户端公告，保存后立即生效。'],
+  ai:['AI 默认配置','修改客户端默认使用的模型、上游和密钥。'],
+  release:['版本信息','查看当前发布版本与安装包校验信息。']
 }
-async function api(path, options = {}) {
-  const headers = Object.assign({}, options.headers)
-  if (options.body !== undefined) headers['Content-Type'] = 'application/json'
-  const res = await fetch(path, Object.assign({}, options, {headers}))
-  const text = await res.text()
-  let data
-  try { data = text ? JSON.parse(text) : null } catch { data = {error:{message:text}} }
-  if (!res.ok) throw new Error((data && data.error && data.error.message) || ('HTTP ' + res.status))
+function setStatus(id,text,kind){const el=$(id);el.textContent=text||'';el.className='status'+(kind?' '+kind:'')}
+function toast(text,kind='success'){
+  const el=document.createElement('div');el.className='toast '+kind;el.setAttribute('role',kind==='error'?'alert':'status');el.textContent=text
+  $('toastHost').appendChild(el)
+  setTimeout(()=>{el.classList.add('out');setTimeout(()=>el.remove(),220)},4200)
+}
+function tab(name){
+  if(!tabs[name])name='notice'
+  state.tab=name
+  for(const b of document.querySelectorAll('.nav [data-tab]'))b.setAttribute('aria-selected',String(b.dataset.tab===name))
+  for(const p of ['notice','ai','release'])$(('tab-'+p)).hidden=p!==name
+  $('pageTitle').textContent=tabs[name][0];$('pageDesc').textContent=tabs[name][1]
+  history.replaceState(null,'', '#'+name)
+}
+async function api(path,options={}){
+  const headers=Object.assign({},options.headers)
+  if(options.body!==undefined)headers['Content-Type']='application/json'
+  const res=await fetch(path,Object.assign({},options,{headers,credentials:'same-origin'}))
+  const text=await res.text();let data
+  try{data=text?JSON.parse(text):null}catch{data={error:{message:text}}}
+  if(!res.ok)throw new Error((data&&data.error&&data.error.message)||('HTTP '+res.status))
   return data
 }
-function noticePayload() {
-  return {severity: $('noticeSeverity').value, summary: $('noticeSummary').value, content: $('noticeContent').value}
+function busy(kind,value){
+  for(const id of kind==='notice'?['noticeSave','noticeLoad']:kind==='ai'?['aiSave','aiLoad']:['releaseLoad'])$(id).disabled=value
+  const panel=$('tab-'+kind);panel.setAttribute('aria-busy',String(value))
 }
-async function loadNotice() {
-  setStatus($('noticeStatus'), '读取中…')
-  try {
-    const data = await api('/admin/notice/' + encodeURIComponent($('noticeLang').value))
-    $('noticeSeverity').value = data.severity || 'low'
-    $('noticeSummary').value = data.summary || ''
-    $('noticeContent').value = data.content || ''
-    $('noticePreview').textContent = data.content || ''
-    setStatus($('noticeStatus'), '已读取 · 修订 ' + (data.revision || '') + (data.updatedAt ? ' · ' + data.updatedAt : ''), 'ok')
-  } catch (e) {
-    if (e.message.includes('尚未发布内容')) {
-      $('noticeSummary').value = ''; $('noticeContent').value = ''; $('noticePreview').textContent = ''
-      setStatus($('noticeStatus'), '该语言尚未发布公告', '')
-    } else setStatus($('noticeStatus'), '读取失败：' + e.message, 'bad')
+function markDirty(kind,value){
+  state[kind].dirty=value
+  $(kind+'Dirty').hidden=!value
+}
+function noticePayload(){return{severity:$('noticeSeverity').value,summary:$('noticeSummary').value,content:$('noticeContent').value}}
+function noticeTextChanged(){
+  markDirty('notice',true)
+  $('noticeSummaryCount').textContent=$('noticeSummary').value.length+' / 500'
+  $('noticeContentCount').textContent=$('noticeContent').value.length+' / 200000'
+  $('noticePreview').textContent=$('noticeContent').value
+}
+async function loadNotice(){
+  const lang=$('noticeLang').value
+  state.notice.lang=lang
+  busy('notice',true);setStatus('noticeStatus','读取中…')
+  try{
+    const data=await api('/admin/notice/'+encodeURIComponent(lang))
+    $('noticeSeverity').value=data.severity||'low';$('noticeSummary').value=data.summary||'';$('noticeContent').value=data.content||''
+    $('noticeRevision').textContent=data.revision||'—';$('noticeUpdated').textContent=data.updatedAt||'—'
+    markDirty('notice',false);noticeTextChanged();markDirty('notice',false)
+    setStatus('noticeStatus','已读取','ok')
+  }catch(e){
+    if(e.message.includes('尚未发布内容')){
+      $('noticeSummary').value='';$('noticeContent').value='';$('noticePreview').textContent=''
+      $('noticeRevision').textContent='—';$('noticeUpdated').textContent='—';markDirty('notice',false);noticeTextChanged();markDirty('notice',false)
+      setStatus('noticeStatus','该语言尚未发布公告')
+    }else{setStatus('noticeStatus','读取失败：'+e.message,'bad');toast('读取公告失败：'+e.message,'error')}
+  }finally{busy('notice',false)}
+}
+async function saveNotice(){
+  if(!$('noticeSummary').value.trim()||!$('noticeContent').value.trim()){setStatus('noticeStatus','请填写摘要和正文','bad');return}
+  busy('notice',true);setStatus('noticeStatus','保存中…')
+  try{
+    const data=await api('/admin/notice/'+encodeURIComponent(state.notice.lang),{method:'PUT',body:JSON.stringify(noticePayload())})
+    $('noticeRevision').textContent=data.revision||'—';$('noticeUpdated').textContent=data.updatedAt||'—'
+    markDirty('notice',false);setStatus('noticeStatus','已保存','ok');toast('公告已保存')
+  }catch(e){setStatus('noticeStatus','保存失败：'+e.message,'bad');toast('保存公告失败：'+e.message,'error')}
+  finally{busy('notice',false)}
+}
+async function loadAi(){
+  busy('ai',true);setStatus('aiStatus','读取中…')
+  try{
+    const data=await api('/admin/ai-config')
+    $('aiUrl').value=data.url||'';$('aiModel').value=data.model||'';$('aiTimeout').value=data.timeout_seconds||90;$('aiTokens').value=data.max_tokens||1800
+    $('aiKey').value='';$('aiKeyState').textContent=data.api_key_set?'已配置':'未配置';markDirty('ai',false);setStatus('aiStatus','已读取','ok')
+  }catch(e){setStatus('aiStatus','读取失败：'+e.message,'bad');toast('读取 AI 配置失败：'+e.message,'error')}
+  finally{busy('ai',false)}
+}
+async function saveAi(){
+  const payload={url:$('aiUrl').value.trim(),model:$('aiModel').value.trim(),timeout_seconds:Number($('aiTimeout').value),max_tokens:Number($('aiTokens').value)}
+  if(!payload.url||!payload.model){setStatus('aiStatus','请填写上游 URL 和模型','bad');return}
+  if($('aiKey').value.trim())payload.api_key=$('aiKey').value.trim()
+  busy('ai',true);setStatus('aiStatus','保存中…')
+  try{
+    await api('/admin/ai-config',{method:'PUT',body:JSON.stringify(payload)})
+    $('aiKey').value='';$('aiKeyState').textContent='已配置';markDirty('ai',false);setStatus('aiStatus','已保存','ok');toast('AI 默认配置已保存')
+  }catch(e){setStatus('aiStatus','保存失败：'+e.message,'bad');toast('保存 AI 配置失败：'+e.message,'error')}
+  finally{busy('ai',false)}
+}
+function releaseEntry(lang,data,error){
+  const box=document.createElement('section');box.className='release-item'
+  const top=document.createElement('div');top.className='release-top'
+  const tag=document.createElement('span');tag.className='tag';tag.textContent=lang;top.appendChild(tag)
+  const strong=document.createElement('strong');strong.textContent=data&&data.version?data.version:'尚未发布';top.appendChild(strong);box.appendChild(top)
+  const meta=document.createElement('div');meta.className='release-meta';meta.textContent=error?error:'publishedAt: '+(data.publishedAt||'—');box.appendChild(meta)
+  for(const a of (data&&data.artifacts||[])){
+    const item=document.createElement('div');item.className='artifact'
+    const name=document.createElement('div');name.className='artifact-name';name.textContent=a.fileName;item.appendChild(name)
+    const line=document.createElement('div');line.className='artifact-line';line.textContent=a.size+' bytes';item.appendChild(line)
+    const sha=document.createElement('div');sha.className='artifact-line code';sha.textContent=a.sha256;item.appendChild(sha)
+    if(typeof a.downloadUrl==='string'&&a.downloadUrl.startsWith('https://')){const link=document.createElement('a');link.href=a.downloadUrl;link.target='_blank';link.rel='noopener noreferrer';link.textContent='下载 '+a.fileName;link.className='artifact-line';item.appendChild(link)}
+    box.appendChild(item)
   }
+  if(error){const empty=document.createElement('div');empty.className='empty';empty.textContent='该语言当前没有版本信息';box.appendChild(empty)}
+  return box
 }
-async function saveNotice() {
-  setStatus($('noticeStatus'), '保存中…')
-  try {
-    const data = await api('/admin/notice/' + encodeURIComponent($('noticeLang').value), {method:'PUT', body: JSON.stringify(noticePayload())})
-    $('noticePreview').textContent = data.content || ''
-    setStatus($('noticeStatus'), '已保存 · 修订 ' + (data.revision || ''), 'ok')
-  } catch (e) { setStatus($('noticeStatus'), '保存失败：' + e.message, 'bad') }
+async function loadRelease(){
+  busy('release',true);setStatus('releaseStatus','读取中…');const body=$('releaseBody');body.textContent=''
+  for(const lang of ['zh-CN','en']){
+    let data=null,error=null
+    try{data=await api('/admin/release/'+lang)}catch(e){error=e.message.includes('尚未发布内容')?'尚未发布内容':e.message}
+    body.appendChild(releaseEntry(lang,data,error))
+  }
+  setStatus('releaseStatus','','');busy('release',false)
 }
-async function loadAi() {
-  setStatus($('aiStatus'), '读取中…')
-  try {
-    const data = await api('/admin/ai-config')
-    $('aiUrl').value = data.url || ''
-    $('aiModel').value = data.model || ''
-    $('aiTimeout').value = data.timeout_seconds || 90
-    $('aiTokens').value = data.max_tokens || 1800
-    $('aiKey').value = ''
-    $('aiKeyState').textContent = data.api_key_set ? '已配置' : '未配置'
-    setStatus($('aiStatus'), '已读取', 'ok')
-  } catch (e) { setStatus($('aiStatus'), '读取失败：' + e.message, 'bad') }
+for(const b of document.querySelectorAll('.nav [data-tab]'))b.onclick=()=>tab(b.dataset.tab)
+document.querySelector('.nav').addEventListener('keydown',e=>{
+  if(!['ArrowLeft','ArrowRight'].includes(e.key))return
+  const keys=Object.keys(tabs),current=keys.indexOf(state.tab),next=keys[(current+(e.key==='ArrowRight'?1:-1)+keys.length)%keys.length]
+  tab(next);$('nav-'+next).focus();e.preventDefault()
+})
+window.addEventListener('hashchange',()=>tab(location.hash.slice(1)))
+$('noticeLang').onchange=()=>{
+  if(state.notice.dirty&&!confirm('当前公告有未保存更改，切换语言会丢弃这些内容。继续切换吗？')){$('noticeLang').value=state.notice.lang;return}
+  loadNotice()
 }
-async function saveAi() {
-  setStatus($('aiStatus'), '保存中…')
-  const payload = {url: $('aiUrl').value.trim(), model: $('aiModel').value.trim(), timeout_seconds: Number($('aiTimeout').value), max_tokens: Number($('aiTokens').value)}
-  if ($('aiKey').value.trim()) payload.api_key = $('aiKey').value.trim()
-  try {
-    await api('/admin/ai-config', {method:'PUT', body: JSON.stringify(payload)})
-    $('aiKey').value = ''
-    $('aiKeyState').textContent = '已配置'
-    setStatus($('aiStatus'), '已保存；默认配置下次获取时生效', 'ok')
-  } catch (e) { setStatus($('aiStatus'), '保存失败：' + e.message, 'bad') }
-}
-async function loadRelease() {
-  setStatus($('releaseStatus'), '读取中…')
-  const body = $('releaseBody'); body.textContent = ''
-  try {
-    for (const lang of ['zh-CN','en']) {
-      const box = document.createElement('div'); box.className = 'release'
-      try {
-        const data = await api('/admin/release/' + lang)
-        const title = document.createElement('div'); title.style.fontWeight = '700'; title.textContent = lang + ' · ' + (data.version || '未发布'); box.appendChild(title)
-        const meta = document.createElement('div'); meta.className = 'mono'; meta.textContent = 'publishedAt: ' + (data.publishedAt || '-'); box.appendChild(meta)
-        for (const a of (data.artifacts || [])) {
-          const line = document.createElement('div'); line.className = 'mono'; line.textContent = a.fileName + ' · ' + a.size + ' bytes · ' + a.sha256 + ' · ' + a.downloadUrl; box.appendChild(line)
-        }
-      } catch (e) {
-        const title = document.createElement('div'); title.style.fontWeight = '700'; title.textContent = lang + ' · 尚未发布'; box.appendChild(title)
-        const meta = document.createElement('div'); meta.className = 'mono'; meta.textContent = e.message; box.appendChild(meta)
-      }
-      body.appendChild(box)
-    }
-    setStatus($('releaseStatus'), '', '')
-  } catch (e) { setStatus($('releaseStatus'), '读取失败：' + e.message, 'bad') }
-}
-for (const b of document.querySelectorAll('.tabs [data-tab]')) b.onclick = () => tab(b.dataset.tab)
-$('noticeLang').onchange = loadNotice
-$('noticeLoad').onclick = loadNotice
-$('noticeSave').onclick = saveNotice
-$('noticeContent').oninput = () => $('noticePreview').textContent = $('noticeContent').value
-$('aiLoad').onclick = loadAi
-$('aiSave').onclick = saveAi
-$('releaseLoad').onclick = loadRelease
-tab('notice'); loadNotice(); loadAi(); loadRelease()
+$('noticeLoad').onclick=loadNotice;$('noticeSave').onclick=saveNotice
+for(const id of ['noticeSummary','noticeContent'])$(id).addEventListener('input',noticeTextChanged)
+$('aiLoad').onclick=loadAi;$('aiSave').onclick=saveAi
+for(const id of ['aiUrl','aiModel','aiKey','aiTimeout','aiTokens'])$(id).addEventListener('input',()=>markDirty('ai',true))
+$('aiKeyToggle').onclick=()=>{const show=$('aiKey').type==='password';$('aiKey').type=show?'text':'password';$('aiKeyToggle').textContent=show?'隐藏':'显示';$('aiKeyToggle').setAttribute('aria-pressed',String(show))}
+$('releaseLoad').onclick=loadRelease
+tab(location.hash.slice(1));loadNotice();loadAi();loadRelease()
 </script>
 </body>
 </html>
